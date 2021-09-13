@@ -15,13 +15,12 @@ struct hash_table
   entry_t buckets[17];
 };
 
-/*
-int main(void);
-{
-  
-  return 0;
 
-}*/
+static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
+ioopm_hash_table_t *ioopm_hash_table_create();
+static entry_t *entry_create(int key, char *value, entry_t *next);
+void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
+
 
 ioopm_hash_table_t *ioopm_hash_table_create()
 {
@@ -31,25 +30,38 @@ ioopm_hash_table_t *ioopm_hash_table_create()
   return result;
 }
 
-static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey)
+static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
 {
-  entry_t *first_entry = bucket;
-  entry_t *tmp_entry = bucket;
+  /// Saves the first (dummy) entry as first_entry
+  entry_t *first_entry = entry;
+  entry_t *tmp_entry = entry;
 
-  do
+  //(0, null, ->) (1, "hej", null)
+
+  while(entry->next != NULL)
   {
-    bucket = bucket->next;
-    if (bucket->key == searchKey)
+    entry = entry->next;
+    if (entry->key == searchKey)
     {
       return tmp_entry;
     }
-    tmp_entry = bucket;
+    tmp_entry = entry;
   }
-  while(bucket->next != NULL);
   
   return first_entry;
 }
 
+static entry_t *entry_create(int key, char *value, entry_t *next)
+{
+  entry_t *entry = calloc(1, sizeof(entry_t));
+  entry->key = key;
+  entry->value = value;
+  entry->next = next;
+
+  return entry;
+}
+
+/// TODO: Skapa test cases som testar ioopm_hash_table_insert, find_previous_entry_for_key och entry_create
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
 {
   /// Calculate the bucket for this entry
@@ -69,10 +81,23 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-/*
-static entry_t *entry_create(...TODO...)
+int main(void)
 {
-  //TODO...
-}*/
+  ioopm_hash_table_t *newHT = ioopm_hash_table_create();
+  ioopm_hash_table_insert(newHT, 1, "Hej");
+  puts("Hej3");
+  //entry_t *entry = find_previous_entry_for_key(&newHT->buckets[1], 1);
+  //entry_t *value = entry->value;
+  //entry_t *newEntry = entry_create(1, "Hej", NULL);
+  entry_t *testHT = &newHT->buckets[1];
+  puts("Hej4");
+  printf("%d, %s", testHT->next->key, testHT->next->value);
+
+
+  return 0;
+
+}
+
+// TODO: LEARN DEBUGGING
