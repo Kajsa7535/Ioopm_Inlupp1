@@ -16,7 +16,6 @@ struct hash_table
   entry_t *buckets[17];
 };
 
-
 ioopm_hash_table_t *ioopm_hash_table_create()
 {
   /// Allocate space for a ioopm_hash_table_t = 17 pointers to
@@ -24,5 +23,3 @@ ioopm_hash_table_t *ioopm_hash_table_create()
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
   return result;
 }
-
-https://prod.liveshare.vsengsaas.visualstudio.com/join?9D21553FFBFEE8C2B07B267D468F760CD6A3
