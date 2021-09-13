@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <CUnit/Basic.h>
 #include "hash_table.h"
 
 struct entry // TODO: Var ska den ligga? .c eller .h 
@@ -35,8 +36,6 @@ static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
   /// Saves the first (dummy) entry as first_entry
   entry_t *first_entry = entry;
   entry_t *tmp_entry = entry;
-
-  //(0, null, ->) (1, "hej", null)
 
   while(entry->next != NULL)
   {
