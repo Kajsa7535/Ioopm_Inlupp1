@@ -22,6 +22,11 @@ void test2(void)
   CU_ASSERT(true);
 }
 
+void test3(void)
+{
+    CU_ASSERT(1 == 1);
+}
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;
@@ -38,7 +43,8 @@ int main()
 
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1)) ||
-    (NULL == CU_add_test(test_suite1, "test 2", test2))
+    (NULL == CU_add_test(test_suite1, "test 2", test2)) ||
+    (NULL == CU_add_test(test_suite1, "test 3", test3))
   )
     {
       CU_cleanup_registry();
