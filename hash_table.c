@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "hash_table.h"
 
-
 struct entry // TODO: Var ska den ligga? .c eller .h 
 {
   int key;       // holds the key
