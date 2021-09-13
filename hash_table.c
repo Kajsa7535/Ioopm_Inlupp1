@@ -15,12 +15,13 @@ struct hash_table
   entry_t buckets[17];
 };
 
+/*
 int main(void);
 {
   
   return 0;
 
-}
+}*/
 
 ioopm_hash_table_t *ioopm_hash_table_create()
 {
@@ -28,6 +29,25 @@ ioopm_hash_table_t *ioopm_hash_table_create()
   /// entry_t's, which will be set to NULL
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
   return result;
+}
+
+static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey)
+{
+  entry_t *first_entry = bucket;
+  entry_t *tmp_entry = bucket;
+
+  do
+  {
+    bucket = bucket->next;
+    if (bucket->key == searchKey)
+    {
+      return tmp_entry;
+    }
+    tmp_entry = bucket;
+  }
+  while(bucket->next != NULL);
+  
+  return first_entry;
 }
 
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
@@ -48,3 +68,11 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
       entry->next = entry_create(key, value, next);
     }
 }
+
+
+
+/*
+static entry_t *entry_create(...TODO...)
+{
+  //TODO...
+}*/
