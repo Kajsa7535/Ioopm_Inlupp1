@@ -17,13 +17,11 @@ struct hash_table
   entry_t buckets[17];
 };*/
 
-
-
-static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
-ioopm_hash_table_t *ioopm_hash_table_create();
-static entry_t *entry_create(int key, char *value, entry_t *next);
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
-
+char *ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key);
+ioopm_hash_table_t *ioopm_hash_table_create();
+static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
+static entry_t *entry_create(int key, char *value, entry_t *next);
 
 ioopm_hash_table_t *ioopm_hash_table_create()
 {
@@ -90,8 +88,13 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+char *ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key)
+{
+  
+}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 int main(void)
 {
   ioopm_hash_table_t *newHT = ioopm_hash_table_create();
@@ -106,9 +109,8 @@ int main(void)
   puts("Hej4");
   printf("%d, %s", testHT->next->key, testHT->next->value);
 
-
   return 0;
 
-}
+}*/
 
 // TODO: LEARN DEBUGGING
