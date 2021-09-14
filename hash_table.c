@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <CUnit/Basic.h>
 #include "hash_table.h"
 
@@ -18,10 +19,11 @@ struct hash_table
 };*/
 
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
-char *ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key);
+char *lookup_check(ioopm_hash_table_t *ht, int key);
 ioopm_hash_table_t *ioopm_hash_table_create();
 static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
 static entry_t *entry_create(int key, char *value, entry_t *next);
+bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result);
 
 ioopm_hash_table_t *ioopm_hash_table_create()
 {
@@ -88,29 +90,55 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
     }
 }
 
-char *ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key)
+//TODO: Fråga på labben om man får dela upp den i två funktioner? Och byta namn på den man fick? Den gjorde inte som den skulle?
+char *lookup_check(ioopm_hash_table_t *ht, int key) 
 {
-  
+
+char *result = NULL; //TODO: Reservera minne för en string?
+bool success = ioopm_hash_table_lookup(ht, key, &result);
+if (success)
+  {
+    // success => result was updated
+    printf("key %d maps to %s!\n", key, result);
+  }
+else
+  {
+    // !success => result == NULL
+    printf("key %d does not map to anything!\n", key);
+  }
+  return result;
 }
 
+bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result)
+{
+  /// Find the previous entry for key
+  entry_t *tmp = find_previous_entry_for_key(&ht->buckets[key % 17], key);
+  entry_t *next = tmp->next;
+
+  if (next && next->key == key)
+    {
+      /// If entry was found, return true.
+      *result = (next->value); 
+      return true;
+    }
+  else
+    {
+      /// ... else return false
+      return false;
+    }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
+
 int main(void)
 {
-  ioopm_hash_table_t *newHT = ioopm_hash_table_create();
-  ioopm_hash_table_insert(newHT, 1, "Hej");
-  puts("Hej3");
-  //entry_t *entry = find_previous_entry_for_key(&newHT->buckets[1], 1);
-  //entry_t *value = entry->value;
-  //entry_t *newEntry = entry_create(1, "Hej", NULL);
-  entry_t *testHT = &newHT->buckets[1];
-  int test = (-41 % 17);
-  printf("%d", test);
-  puts("Hej4");
-  printf("%d, %s", testHT->next->key, testHT->next->value);
-
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test");
+  ioopm_hash_table_insert(ht, 18, "test2");
+  char *looktest = lookup_check(ht, 2);
+  printf("%s\n", looktest);
   return 0;
-
-}*/
+}
 
 // TODO: LEARN DEBUGGING
