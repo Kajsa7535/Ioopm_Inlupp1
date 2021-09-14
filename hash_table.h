@@ -29,6 +29,12 @@ struct hash_table
   entry_t buckets[17];
 };
 
+
+//Helpfunction to ioopm_hash_table_lookup
+char *lookup_check(ioopm_hash_table_t *ht, int key);
+
+static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
+
 /// @brief Create a new hash table
 /// @return A new empty hash table
 ioopm_hash_table_t *ioopm_hash_table_create();
@@ -55,6 +61,3 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result);
 /// @param key key to remove
 /// @return the value mapped to by key (FIXME: incomplete)
 char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key);
-
-
-char *lookup_check(ioopm_hash_table_t *ht, int key);

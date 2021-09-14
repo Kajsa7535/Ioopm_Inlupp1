@@ -33,7 +33,7 @@ ioopm_hash_table_t *ioopm_hash_table_create()
   return result;
 }
 
-static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
+static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey) // TODO: Ta reda på vad static innebär samt hur tester skrivs med de
 {
   /// Saves the first (dummy) entry as first_entry
   entry_t *first_entry = entry;
@@ -115,12 +115,8 @@ char *lookup_check(ioopm_hash_table_t *ht, int key)
 
 char *result = NULL; //TODO: Reservera minne för en string?
 bool success = ioopm_hash_table_lookup(ht, key, &result);
-if (success)
-  {
-    // success => result was updated
-    printf("key %d maps to %s!\n", key, result);
-  }
-else
+/// TODO: Är det nödvändigt att printa om entry finns?
+if (success == false)
   {
     // !success => result == NULL
     printf("key %d does not map to anything!\n", key);
@@ -128,16 +124,57 @@ else
   return result;
 }
 
+void entry_destroy(entry_t *p)
+{
+  free(p);
+}
+
+char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
+{
+  char *value = NULL;
+  if(ioopm_hash_table_lookup(ht, key, &value)) /// TODO: Checka vad som händer när NULL är result-argument
+  {
+    entry_t *prev_entry = find_previous_entry_for_key(&ht->buckets[key % 17], key); 
+    entry_t *remove_entry = prev_entry->next;
+    char *value_of_key = lookup_check(ht, key);
+    
+    //(0,null,->) (1 "hej", ->) 
+    // Case: Entry furthest to the right
+    if(remove_entry->next == NULL)
+    {
+      prev_entry->next = NULL;
+    }
+    // Case: Entry in the middle of two other entries
+    else
+    {
+      entry_t *next_entry = remove_entry->next;
+      remove_entry->next = next_entry;
+    }
+
+    //Return the value of removed entry and free the space in the heap
+    entry_destroy(remove_entry);
+    return value_of_key;
+  }
+  else
+  {
+    printf("key %d does not map to anything!\n", key);
+    return NULL; // TODO: Checka om det är ok att returnera NULL
+  }
+}
+
+
+
+//find_previuos = delete->next
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-int main(void)
+
+/*int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test");
-  ioopm_hash_table_insert(ht, 18, "test2");
-  char *looktest = lookup_check(ht, 2);
-  printf("%s\n", looktest);
+  ioopm_hash_table_insert(ht, 2, "hej");
+  lookup_check(ht, 2);
+  char *str = ioopm_hash_table_remove(ht, 2);
+  printf("%s",str);
   return 0;
 }*/
 
