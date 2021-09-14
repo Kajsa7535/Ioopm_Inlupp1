@@ -1,6 +1,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <CUnit/Basic.h>
+#include "hash_table.h"
+
+
 
 int init_suite(void)
 {
@@ -12,17 +15,23 @@ int clean_suite(void)
   return 0;
 }
 
-void test1(void)
+
+
+// TODO: Testcase för ioopm_hash_table_insert
+//Testing with a fresh key that is not already in use
+//Testing with a key that is already in use
+//Testing with an invalid key (if at all possible) EX negative int
+void test_insert_not_in_use(void)
 {
-  CU_ASSERT(true);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 0, "test");
+  entry_t *testEntry = &ht->buckets[0];
+  int result = testEntry->next->key;
+
+  CU_ASSERT_EQUAL(result, 1);
 }
 
-void test2(void)
-{
-  CU_ASSERT(true);
-}
-
-void test3(void)
+void test2_insert(void)
 {
     CU_ASSERT(1 == 1);
 }
@@ -42,9 +51,8 @@ int main()
     }
 
   if (
-    (NULL == CU_add_test(test_suite1, "test 1", test1)) ||
-    (NULL == CU_add_test(test_suite1, "test 2", test2)) ||
-    (NULL == CU_add_test(test_suite1, "test 3", test3))
+    (NULL == CU_add_test(test_suite1, "test 2", test_insert_not_in_use)) ||
+    (NULL == CU_add_test(test_suite1, "test 3", test2_insert))
   )
     {
       CU_cleanup_registry();

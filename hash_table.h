@@ -17,6 +17,17 @@
 typedef struct entry entry_t;
 typedef struct hash_table ioopm_hash_table_t;
 
+struct entry // TODO: Var ska den ligga? .c eller .h 
+{
+  int key;       // holds the key
+  char *value;   // holds the value
+  entry_t *next; // points to the next entry (possibly NULL)
+};
+
+struct hash_table
+{
+  entry_t buckets[17];
+};
 
 /// @brief Create a new hash table
 /// @return A new empty hash table

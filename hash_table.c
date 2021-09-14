@@ -4,6 +4,7 @@
 #include <CUnit/Basic.h>
 #include "hash_table.h"
 
+/*
 struct entry // TODO: Var ska den ligga? .c eller .h 
 {
   int key;       // holds the key
@@ -14,7 +15,8 @@ struct entry // TODO: Var ska den ligga? .c eller .h
 struct hash_table
 {
   entry_t buckets[17];
-};
+};*/
+
 
 
 static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
@@ -60,11 +62,19 @@ static entry_t *entry_create(int key, char *value, entry_t *next)
   return entry;
 }
 
-/// TODO: Skapa test cases som testar ioopm_hash_table_insert, find_previous_entry_for_key och entry_create
+/// TODO: Skapa test cases som testar ioopm_hash_table_insert. 
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
 {
+  int bucket;
   /// Calculate the bucket for this entry
-  int bucket = key % 17;
+  if (key < 0) // checks if key is negative
+  {
+    bucket = 17 - abs(key % 17);
+  }
+  else 
+  {
+    bucket = key % 17; 
+  }
   /// Search for an existing entry for a key
   entry_t *entry = find_previous_entry_for_key(&ht->buckets[bucket], key);
   entry_t *next = entry->next;
@@ -76,7 +86,7 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
     }
   else
     {
-      entry->next = entry_create(key, value, next);
+      entry->next = entry_create(key, value, next); // insert the new entry in the beginning of the linked list ?
     }
 }
 
@@ -91,6 +101,8 @@ int main(void)
   //entry_t *value = entry->value;
   //entry_t *newEntry = entry_create(1, "Hej", NULL);
   entry_t *testHT = &newHT->buckets[1];
+  int test = (-41 % 17);
+  printf("%d", test);
   puts("Hej4");
   printf("%d, %s", testHT->next->key, testHT->next->value);
 
