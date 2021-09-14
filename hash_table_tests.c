@@ -49,21 +49,19 @@ void test3_insert_negative(void)
 void test4_lookup(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, -20, "test");
-  entry_t *testEntry = &ht->buckets[14];
-  char *result = testEntry->next->value;
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 18, "test2");
+  char *result = lookup_check(ht, 2);
 
-  CU_ASSERT_EQUAL(strcmp(result, "test"), 0);
+  CU_ASSERT_EQUAL(strcmp(result, "test2"), 0);
 }
 
-void test4_lookup(void)
+void test5_lookup_non_existing(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, -20, "test");
-  entry_t *testEntry = &ht->buckets[14];
-  char *result = testEntry->next->value;
+  char *result = lookup_check(ht, 2);
 
-  CU_ASSERT_EQUAL(strcmp(result, "test"), 0);
+  CU_ASSERT_EQUAL(strcmp(result, NULL), 0);
 }
 
 
@@ -84,7 +82,9 @@ int main()
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test_insert_not_in_use)) ||
     (NULL == CU_add_test(test_suite1, "test 2", test2_insert)) || 
-    (NULL == CU_add_test(test_suite1, "test 3", test3_insert_negative))
+    (NULL == CU_add_test(test_suite1, "test 3", test3_insert_negative)) || 
+    (NULL == CU_add_test(test_suite1, "test 4", test4_lookup)) || 
+    (NULL == CU_add_test(test_suite1, "test 5", test5_lookup_non_existing))
   )
     {
       CU_cleanup_registry();

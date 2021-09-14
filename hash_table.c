@@ -90,25 +90,6 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
     }
 }
 
-//TODO: Fråga på labben om man får dela upp den i två funktioner? Och byta namn på den man fick? Den gjorde inte som den skulle?
-char *lookup_check(ioopm_hash_table_t *ht, int key) 
-{
-
-char *result = NULL; //TODO: Reservera minne för en string?
-bool success = ioopm_hash_table_lookup(ht, key, &result);
-if (success)
-  {
-    // success => result was updated
-    printf("key %d maps to %s!\n", key, result);
-  }
-else
-  {
-    // !success => result == NULL
-    printf("key %d does not map to anything!\n", key);
-  }
-  return result;
-}
-
 bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result)
 {
   /// Find the previous entry for key
@@ -126,6 +107,25 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result)
       /// ... else return false
       return false;
     }
+}
+
+//TODO: Fråga på labben om man får dela upp den i två funktioner? Och byta namn på den man fick? Den gjorde inte som den skulle?
+char *lookup_check(ioopm_hash_table_t *ht, int key) 
+{
+
+char *result = NULL; //TODO: Reservera minne för en string?
+bool success = ioopm_hash_table_lookup(ht, key, &result);
+if (success)
+  {
+    // success => result was updated
+    printf("key %d maps to %s!\n", key, result);
+  }
+else
+  {
+    // !success => result == NULL
+    printf("key %d does not map to anything!\n", key);
+  }
+  return result;
 }
 
 
