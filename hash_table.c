@@ -130,7 +130,7 @@ else
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -139,6 +139,6 @@ int main(void)
   char *looktest = lookup_check(ht, 2);
   printf("%s\n", looktest);
   return 0;
-}
+}*/
 
 // TODO: LEARN DEBUGGING

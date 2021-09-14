@@ -57,3 +57,4 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result);
 char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key);
 
 
+char *lookup_check(ioopm_hash_table_t *ht, int key);
