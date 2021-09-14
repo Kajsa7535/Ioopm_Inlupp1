@@ -46,6 +46,27 @@ void test3_insert_negative(void)
   CU_ASSERT_EQUAL(strcmp(result, "test"), 0);
 }
 
+void test4_lookup(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, -20, "test");
+  entry_t *testEntry = &ht->buckets[14];
+  char *result = testEntry->next->value;
+
+  CU_ASSERT_EQUAL(strcmp(result, "test"), 0);
+}
+
+void test4_lookup(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, -20, "test");
+  entry_t *testEntry = &ht->buckets[14];
+  char *result = testEntry->next->value;
+
+  CU_ASSERT_EQUAL(strcmp(result, "test"), 0);
+}
+
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;

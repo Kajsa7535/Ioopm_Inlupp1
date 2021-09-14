@@ -46,8 +46,9 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
 /// @brief lookup value for key in hash table ht
 /// @param ht hash table operated upon
 /// @param key key to lookup
-/// @return the value mapped to by key (FIXME: incomplete)
-char *ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key);
+/// @param result the value of key
+/// @return true if key is in ht, otherwise false (Option 1.2: Using pointers to change result and then return a bool)
+bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result);
 
 /// @brief remove any mapping from key to a value
 /// @param ht hash table operated upon
