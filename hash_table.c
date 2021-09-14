@@ -132,7 +132,7 @@ void entry_destroy(entry_t *p)
 char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
 {
   char *value = NULL;
-  if(ioopm_hash_table_lookup(ht, key, &value)) /// TODO: Checka vad som händer när NULL är result-argument
+  if(ioopm_hash_table_lookup(ht, key, &value)) /// TODO: Checka vad som händer när NULL är result/value-argument
   {
     entry_t *prev_entry = find_previous_entry_for_key(&ht->buckets[key % 17], key); 
     entry_t *remove_entry = prev_entry->next;
@@ -142,17 +142,17 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
     // Case: Entry furthest to the right
     if(remove_entry->next == NULL)
     {
-      prev_entry->next = NULL;
+      prev_entry->next = NULL; // TODO: Ändrar detta remove_entry till NULL eller bara pekaren till NULL?
     }
     // Case: Entry in the middle of two other entries
     else
     {
       entry_t *next_entry = remove_entry->next;
-      remove_entry->next = next_entry;
+      prev_entry->next = next_entry; //TODO: Detta var fel, stod remove_entry=... (ta bort denna rad!)
     }
 
     //Return the value of removed entry and free the space in the heap
-    entry_destroy(remove_entry);
+    entry_destroy(remove_entry); // TODO: Funkar entry_destroy som den ska?
     return value_of_key;
   }
   else
@@ -161,10 +161,6 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
     return NULL; // TODO: Checka om det är ok att returnera NULL
   }
 }
-
-
-
-//find_previuos = delete->next
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
