@@ -64,16 +64,13 @@ static entry_t *entry_create(int key, char *value, entry_t *next)
 
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
 {
-  int bucket;
+  int bucket = key % 17; 
   /// Calculate the bucket for this entry
   if (key < 0) // checks if key is negative
   {
-    bucket = 17 - abs(key % 17);
+    bucket = 17 - abs(bucket);
   }
-  else 
-  {
-    bucket = key % 17; 
-  }
+
   /// Search for an existing entry for a key
   entry_t *entry = find_previous_entry_for_key(&ht->buckets[bucket], key);
   entry_t *next = entry->next;
@@ -92,7 +89,13 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
 bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result)
 {
   /// Find the previous entry for key
-  entry_t *tmp = find_previous_entry_for_key(&ht->buckets[key % 17], key);
+  int bucket = key % 17;
+  /// Calculate the bucket for this entry
+  if (key < 0) // checks if key is negative
+  {
+    bucket = 17 - abs(bucket);
+  }
+  entry_t *tmp = find_previous_entry_for_key(&ht->buckets[bucket], key);
   entry_t *next = tmp->next;
 
   if (next && next->key == key)
@@ -131,10 +134,17 @@ void entry_destroy(entry_t *p)
 
 char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
 {
+  int bucket = key % 17;
+  /// Calculate the bucket for this entry
+  if (key < 0) // checks if key is negative
+  {
+    bucket = 17 - abs(bucket);
+  }
+
   char *value = NULL;
   if(ioopm_hash_table_lookup(ht, key, &value))
   {
-    entry_t *prev_entry = find_previous_entry_for_key(&ht->buckets[key % 17], key); 
+    entry_t *prev_entry = find_previous_entry_for_key(&ht->buckets[bucket], key); 
     entry_t *remove_entry = prev_entry->next;
     char *value_of_key = lookup_check(ht, key);
     
@@ -162,35 +172,37 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
   }
 }
 
-void bucket_destroy (entry_t *bucket)
+
+int length_of_bucket(entry_t *entry)
 {
   int acc = 0;
-  
-  //loop
-  if(bucket->next != NULL)
-  {
-    while (bucket->next != NULL)
+  while (entry->next != NULL)
     {
       entry = entry->next;
       acc++;
-      bucket->next->next 
     }
-  }
+  return acc;
+}
+
+//(0,null,null) 
+
+void bucket_destroy (entry_t *entry)
+{
+  entry_t *dummy_entry = entry;
+  entry_t *prev_entry;
+  int acc = length_of_bucket(entry);
   // Case: Last entry
-  else if (acc != 0)
-  {
-    //destroy entry
-    entry_t cached_entry = prev_entry->next;
-    prev_entry->next = NULL;
-    entry_destroy(cached_entry);
-    // prev_entry = current_entry & prev_prev_entry = prev_entry
-    // for loop med ->next antal gånger acc är. 
-    acc--;
-  }
-  else 
-  {
-    return;
-  }
+    for(; acc > 0; acc--)
+    {
+      entry = dummy_entry;
+      while (entry->next != NULL)
+      {
+        prev_entry = entry;
+        entry = entry->next;
+      }
+      prev_entry->next = NULL;
+      entry_destroy(entry);
+    }
 }
 
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht)
@@ -206,14 +218,17 @@ void ioopm_hash_table_destroy(ioopm_hash_table_t *ht)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*int main(void)
+/*
+int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 2, "hej");
-  lookup_check(ht, 2);
-  char *str = ioopm_hash_table_remove(ht, 2);
-  printf("%s",str);
+  ioopm_hash_table_insert(ht, -20, "test");
+  entry_t *testEntry = &ht->buckets[14];
+  char *result = testEntry->next->value;
+  printf("(%s", result);
   return 0;
-}*/
+}
 
 // TODO: LEARN DEBUGGING
+// TODO: Write check_modulo function that works with negative numbers as well
+*/

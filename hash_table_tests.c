@@ -40,6 +40,7 @@ void test_insert_not_in_use(void)
   ioopm_hash_table_insert(ht, 1, "test");
   entry_t *testEntry = &ht->buckets[1];
   int result = testEntry->next->key;
+  ioopm_hash_table_destroy(ht);
 
   CU_ASSERT(result == 1);
 }
@@ -51,9 +52,11 @@ void test2_insert(void)
   ioopm_hash_table_insert(ht, 1, "Hej");
   entry_t *testEntry = &ht->buckets[1];
   char *result = testEntry->next->value;
+  ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(strcmp(result, "Hej"), 0);
 }
+
 
 void test3_insert_negative(void)
 {
@@ -61,6 +64,7 @@ void test3_insert_negative(void)
   ioopm_hash_table_insert(ht, -20, "test");
   entry_t *testEntry = &ht->buckets[14];
   char *result = testEntry->next->value;
+  ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(strcmp(result, "test"), 0);
 }
@@ -71,6 +75,7 @@ void test4_lookup(void)
   ioopm_hash_table_insert(ht, 1, "test1");
   ioopm_hash_table_insert(ht, 18, "test2");
   char *result = lookup_check(ht, 1);
+  ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(strcmp(result, "test1"), 0);
 }
@@ -82,6 +87,8 @@ void test5_lookup_existing(void) // TODO: Skriv testcase för hash_table_lookup
   ioopm_hash_table_insert(ht, 1, "test1");
   char *result = NULL;
   bool valid = ioopm_hash_table_lookup(ht,1, &result);
+  ioopm_hash_table_destroy(ht);
+
   CU_ASSERT_EQUAL(valid, true);
 }
 
@@ -91,6 +98,8 @@ void test6_lookup_non_existing(void) // TODO: Skriv testcase för hash_table_loo
   ioopm_hash_table_insert(ht, 1, "test1");
   char *result = NULL;
   bool valid = ioopm_hash_table_lookup(ht,18, &result);
+  ioopm_hash_table_destroy(ht);
+
   CU_ASSERT_EQUAL(valid, false);
 }
 
@@ -100,10 +109,10 @@ void test7_remove_entry_right(void)
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
   char *expected = ioopm_hash_table_remove(ht, 1);
+  ioopm_hash_table_destroy(ht);
+  
   CU_ASSERT_EQUAL(strcmp(expected, "test1"), 0);
 }
-
-
 
 void test8_remove_entry_right_null(void)
 {
@@ -113,16 +122,22 @@ void test8_remove_entry_right_null(void)
   ioopm_hash_table_remove(ht, 1);
   bool valid = ioopm_hash_table_lookup(ht,1, &result);
   //char *result = lookup_check(ht, 1);
+  ioopm_hash_table_destroy(ht);
+  
   CU_ASSERT_EQUAL(valid, false);
 }
+
 
 void test9_remove_entry_ht(void)
 {
   ioopm_hash_table_t *ht1 = ioopm_hash_table_create();
-  ioopm_hash_table_t *ht2 = ht1; // ändra tillbaka ioopm_hash_table_create();
   ioopm_hash_table_insert(ht1, 1, "test1");
   ioopm_hash_table_remove(ht1, 1);
-  CU_ASSERT_EQUAL(ht1, ht2);
+  entry_t *bucket = &ht1->buckets[1];
+  entry_t *next = bucket->next;
+  ioopm_hash_table_destroy(ht1);
+  
+  CU_ASSERT_PTR_NULL(next);
 }
 
 void test10_remove_entry_middle(void)
@@ -135,6 +150,7 @@ void test10_remove_entry_middle(void)
 
   entry_t *test_pointer = find_previous_entry_for_key(&ht->buckets[1], 1);
   int key = test_pointer->key;
+  ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(key, 35);
 }
