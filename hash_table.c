@@ -162,6 +162,48 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
   }
 }
 
+void bucket_destroy (entry_t *bucket)
+{
+  int acc = 0;
+  
+  //loop
+  if(bucket->next != NULL)
+  {
+    while (bucket->next != NULL)
+    {
+      entry = entry->next;
+      acc++;
+      bucket->next->next 
+    }
+  }
+  // Case: Last entry
+  else if (acc != 0)
+  {
+    //destroy entry
+    entry_t cached_entry = prev_entry->next;
+    prev_entry->next = NULL;
+    entry_destroy(cached_entry);
+    // prev_entry = current_entry & prev_prev_entry = prev_entry
+    // for loop med ->next antal gånger acc är. 
+    acc--;
+  }
+  else 
+  {
+    return;
+  }
+}
+
+void ioopm_hash_table_destroy(ioopm_hash_table_t *ht)
+{
+  for(int i = 0; i < 17; i++)
+  {
+    entry_t *bucket = &ht->buckets[i];
+    bucket_destroy(bucket);
+  }
+  free(ht);
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*int main(void)
