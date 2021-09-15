@@ -75,15 +75,28 @@ void test4_lookup(void)
   CU_ASSERT_EQUAL(strcmp(result, "test1"), 0);
 }
 
-/*
-void test5_lookup_non_existing(void) // TODO: Skriv testcase för hash_table_lookup
+
+void test5_lookup_existing(void) // TODO: Skriv testcase för hash_table_lookup
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  char *result = lookup_check(ht, 2);
-  CU_ASSERT_PTR_NULL(result);
-}*/
+  ioopm_hash_table_insert(ht, 1, "test1");
+  char *result = NULL;
+  bool valid = ioopm_hash_table_lookup(ht,1, &result);
+  CU_ASSERT_EQUAL(valid, true);
+}
 
-void test6_remove_entry_right(void)
+void test6_lookup_non_existing(void) // TODO: Skriv testcase för hash_table_lookup
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  char *result = NULL;
+  bool valid = ioopm_hash_table_lookup(ht,18, &result);
+  CU_ASSERT_EQUAL(valid, false);
+}
+
+
+
+void test7_remove_entry_right(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
@@ -92,17 +105,19 @@ void test6_remove_entry_right(void)
 }
 
 
-/*
-void test7_remove_entry_right_null(void)
+
+void test8_remove_entry_right_null(void)
 {
+  char *result = NULL;
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
   ioopm_hash_table_remove(ht, 1);
-  char *result = lookup_check(ht, 1);
-  CU_ASSERT_PTR_NULL(result);
-}*/
+  bool valid = ioopm_hash_table_lookup(ht,1, &result);
+  //char *result = lookup_check(ht, 1);
+  CU_ASSERT_EQUAL(valid, false);
+}
 
-void test8_remove_entry_ht(void)
+void test9_remove_entry_ht(void)
 {
   ioopm_hash_table_t *ht1 = ioopm_hash_table_create();
   ioopm_hash_table_t *ht2 = ht1; // ändra tillbaka ioopm_hash_table_create();
@@ -111,7 +126,7 @@ void test8_remove_entry_ht(void)
   CU_ASSERT_EQUAL(ht1, ht2);
 }
 
-void test9_remove_entry_middle(void)
+void test10_remove_entry_middle(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
@@ -145,11 +160,12 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 2", test2_insert)) || 
     (NULL == CU_add_test(test_suite1, "test 3", test3_insert_negative)) || 
     (NULL == CU_add_test(test_suite1, "test 4", test4_lookup)) || 
-    //(NULL == CU_add_test(test_suite1, "test 5", test5_lookup_non_existing)) || /// TODO: FIXA LOOKUP BUG
-    (NULL == CU_add_test(test_suite1, "test 6", test6_remove_entry_right)) || 
-    //(NULL == CU_add_test(test_suite1, "test 7", test7_remove_entry_right_null)) || /// TODO: FIXA LOOKUP BUG
-    (NULL == CU_add_test(test_suite1, "test 8", test8_remove_entry_ht)) || 
-    (NULL == CU_add_test(test_suite1, "test 9", test9_remove_entry_middle))
+    (NULL == CU_add_test(test_suite1, "test 5", test5_lookup_existing)) ||
+    (NULL == CU_add_test(test_suite1, "test 6", test6_lookup_non_existing)) ||
+    (NULL == CU_add_test(test_suite1, "test 7", test7_remove_entry_right)) || 
+    (NULL == CU_add_test(test_suite1, "test 8", test8_remove_entry_right_null)) || 
+    (NULL == CU_add_test(test_suite1, "test 9", test9_remove_entry_ht)) || 
+    (NULL == CU_add_test(test_suite1, "test 10", test10_remove_entry_middle))
   )
     {
       CU_cleanup_registry();

@@ -42,7 +42,7 @@ static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey) // TO
   while(entry->next != NULL)
   {
     entry = entry->next;
-    if (entry->key == searchKey)
+    if (entry->key == searchKey) //Kan göras entry -> key >= searchKey, för att få det sorterat
     {
       return tmp_entry;
     }
