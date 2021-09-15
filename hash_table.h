@@ -31,7 +31,7 @@ struct hash_table
 
 
 //Helpfunction to ioopm_hash_table_lookup
-char *lookup_check(ioopm_hash_table_t *ht, int key);
+char *ioopm_lookup_key(ioopm_hash_table_t *ht, int key);
 
 static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
 

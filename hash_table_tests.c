@@ -74,7 +74,7 @@ void test4_lookup(void)
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
   ioopm_hash_table_insert(ht, 18, "test2");
-  char *result = lookup_check(ht, 1);
+  char *result = ioopm_lookup_key(ht, 1);
   ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(strcmp(result, "test1"), 0);
@@ -121,7 +121,6 @@ void test8_remove_entry_right_null(void)
   ioopm_hash_table_insert(ht, 1, "test1");
   ioopm_hash_table_remove(ht, 1);
   bool valid = ioopm_hash_table_lookup(ht,1, &result);
-  //char *result = lookup_check(ht, 1);
   ioopm_hash_table_destroy(ht);
   
   CU_ASSERT_EQUAL(valid, false);

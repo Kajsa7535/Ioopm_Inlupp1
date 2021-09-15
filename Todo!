@@ -1,12 +1,40 @@
 Mål att redovisa: 
 
 Vecka 37: 
+
 M36: C:s array-notation och pekararitmetik
 M37: Använda pekare för att skapa länkade strukturer
+M38: Värdeöverföring via pekare för felhantering
 M39: Pekare till pekare
 A3:  Informationsgömning
 A1: Procedurell abstraktion
 I24: Olika metoder för felhantering
+
+Redovisning torsdag 16 september: 
+
+
+
+A1: Procedurell abstraktion
+- Vi har till exempel skapat en funktion som kallas "calculate_bucket" (som fungerar för negativa tal) som används på ett flertal ställen i koden. 
+- "läckande abstaktion": Bil exempel: En automat-bil är abstraherad, vi har en ratt, broms och gas. I en manuell bil så "läcker" abstaktionen genom att vi som användare exempelvis kan accelerera för fort på en låg växel så att bilen tar skada. I kod så kan samma sak ske; vi kan till exempel låta användaren göra något som inte borde vara tillåtet eller att vi inte gömmer saker som borde gömmas, som om en bil inte gömmer alla sina komponenter för köraren. 
+- Control abstaktion: Ser till att vi som programmerare inte behöver skriva alla binära steg varje gång vi ska addera två variabler eller likande. Det gör det enklare att programmera och undvika fel. 
+- Data abstaktion: Våra entries läggs in i en hash table, som inte användaren ser. Vi skulle lika väl kunna lägga in dem i en binary search tree eller någon annan form av datastruktur. Det som användaren ser, är att keys, values osv i entries, vilket är dem abstrakta egenskaperna, men själva implementationen är inte synlig. Data abstraktionen är att man kan se och använda interfacet, men inte själva datastrukturen.
+- ioopm_hash_table_destroy. "inkapslad" i flera olika funktioner som utför var sin "procedur". Funktionen ska "destroya" ett hashtable, minnet som man allokerat med calloc ska frigöras. Namnen skulle kunna bli bättre, om en person som inte läst koden innan och inte riktigt har koll på vad en bucket är kan bli lite förvirrad av vår hjälpfunktion "bucket_destroy" gör för något, sedan hade while/for loopen kunnat läggas i en egen funktion för att "köra" den preceduren och göra läsbarheten ännu lättare genom att ge den funktionen ett vettigt namn. 
+- exempel på läckande abstraktion: entry_destroy måste man veta hur den ska användas och när man ska använda den, för att inte orsaka något fel.
+- Låt 𝑓1 𝑓2 och 𝑓3 vara funktioner. 𝑓1 och 𝑓2 är delar av samma bibliotek och 𝑓2 använder 𝑓3 i sin implementation. Skiljer sig nivån av abstraktion mellan dessa på något sätt? Hur?
+
+M37: Använda pekare för att skapa länkade strukturer
+- Våra "buckets". "next" pekar på nästa entry vars next pekar på näst nästa entry osv. 
+
+M38: Värdeöverföring via pekare för felhantering
+- ioopm_hash_table_lookup, skickar in en pekare till en pekare till en sträng (första bokstaven i strängen) för att i den callee-funktionen byta värde på stängen (genom att få pekaren/adressen till var stängen finns i minnet) som används i caller-funktionen. 
+
+M39:  Pekare till pekare
+- ioopm_hash_table_lookup, skickar in en pekare till en pekare till den första bokstaven i en stäng. (result)
+
+A3:  Informationsgömning
+- Själva tanken med .c och .h filer är att vi ska kunna använda de funktioner och typer som vi skapar i .c filer när vi kör och skriver andra program (i andra filer) utan att kopiera över funktionerna i den "nya" filen, vilket skulle göra att det blir väldigt många rader kod i bara en fil (minskar läsbarheten och förståelsen). Därför kan man använda en .h fil som bara har deklarationer av funktionerna i korresponerande .c fil, vilket även gör det lätt för programmeraren att veta vad för funktiner som finns .c filen utan bläddra igenom en massa kod. 
+- EXEMPEL: Vi gömmer structs till hash_table och entry i .h filen eftersom de används o både hash_table.c och hash_table_tests.c. På detta vis slipper vi ha funktionerna i båda filerna.
 
 
 

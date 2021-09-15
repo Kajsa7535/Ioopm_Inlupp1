@@ -5,6 +5,8 @@
 #include <CUnit/Basic.h>
 #include "hash_table.h"
 
+#define No_Buckets 17
+
 /*
 struct entry // TODO: Var ska den ligga? .c eller .h 
 {
@@ -19,7 +21,7 @@ struct hash_table
 };*/
 
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
-char *lookup_check(ioopm_hash_table_t *ht, int key);
+char *ioopm_lookup_key(ioopm_hash_table_t *ht, int key);
 ioopm_hash_table_t *ioopm_hash_table_create();
 static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
 static entry_t *entry_create(int key, char *value, entry_t *next);
@@ -62,14 +64,20 @@ static entry_t *entry_create(int key, char *value, entry_t *next)
   return entry;
 }
 
-void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
+static int calculate_bucket(int key)
 {
-  int bucket = key % 17; 
+  int bucket = key % No_Buckets; 
   /// Calculate the bucket for this entry
   if (key < 0) // checks if key is negative
   {
-    bucket = 17 - abs(bucket);
+    bucket = No_Buckets - abs(bucket);
   }
+  return bucket;
+}
+
+void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
+{
+  int bucket = calculate_bucket(key);
 
   /// Search for an existing entry for a key
   entry_t *entry = find_previous_entry_for_key(&ht->buckets[bucket], key);
@@ -89,12 +97,7 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
 bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result)
 {
   /// Find the previous entry for key
-  int bucket = key % 17;
-  /// Calculate the bucket for this entry
-  if (key < 0) // checks if key is negative
-  {
-    bucket = 17 - abs(bucket);
-  }
+  int bucket = calculate_bucket(key);
   entry_t *tmp = find_previous_entry_for_key(&ht->buckets[bucket], key);
   entry_t *next = tmp->next;
 
@@ -112,9 +115,8 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result)
 }
 
 //TODO: Fråga på labben om man får dela upp den i två funktioner? Och byta namn på den man fick? Den gjorde inte som den skulle?
-char *lookup_check(ioopm_hash_table_t *ht, int key) 
+char *ioopm_lookup_key(ioopm_hash_table_t *ht, int key) 
 {
-
 char *result = NULL; //TODO: Reservera minne för en string?
 bool success = ioopm_hash_table_lookup(ht, key, &result);
 /// TODO: Är det nödvändigt att printa om entry finns?
@@ -127,26 +129,21 @@ if (success == false)
 }
 
 /// TODO: Testa med Valgrind
-void entry_destroy(entry_t *p) 
+static void entry_destroy(entry_t *p) 
 {
   free(p);
 }
 
 char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
 {
-  int bucket = key % 17;
-  /// Calculate the bucket for this entry
-  if (key < 0) // checks if key is negative
-  {
-    bucket = 17 - abs(bucket);
-  }
+  int bucket = calculate_bucket(key);
 
   char *value = NULL;
   if(ioopm_hash_table_lookup(ht, key, &value))
   {
     entry_t *prev_entry = find_previous_entry_for_key(&ht->buckets[bucket], key); 
     entry_t *remove_entry = prev_entry->next;
-    char *value_of_key = lookup_check(ht, key);
+    char *value_of_key = ioopm_lookup_key(ht, key);
     
     //(0,null,->) (1 "hej", ->) 
     // Case: Entry furthest to the right
@@ -173,7 +170,7 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
 }
 
 
-int length_of_bucket(entry_t *entry)
+static int length_of_bucket(entry_t *entry)
 {
   int acc = 0;
   while (entry->next != NULL)
@@ -186,7 +183,7 @@ int length_of_bucket(entry_t *entry)
 
 //(0,null,null) 
 
-void bucket_destroy (entry_t *entry)
+static void bucket_destroy (entry_t *entry)
 {
   entry_t *dummy_entry = entry;
   entry_t *prev_entry;
@@ -207,7 +204,7 @@ void bucket_destroy (entry_t *entry)
 
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht)
 {
-  for(int i = 0; i < 17; i++)
+  for(int i = 0; i < No_Buckets; i++)
   {
     entry_t *bucket = &ht->buckets[i];
     bucket_destroy(bucket);
