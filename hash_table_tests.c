@@ -4,7 +4,6 @@
 #include "hash_table.h"
 
 
-
 static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey) // TODO: Ta reda på vad static innebär samt hur tester skrivs med de
 {
   /// Saves the first (dummy) entry as first_entry
@@ -23,6 +22,7 @@ static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey) // TO
   
   return first_entry;
 }
+
 
 int init_suite(void)
 {
@@ -93,7 +93,6 @@ void test6_lookup_non_existing(void) // TODO: Skriv testcase för hash_table_loo
   bool valid = ioopm_hash_table_lookup(ht,18, &result);
   CU_ASSERT_EQUAL(valid, false);
 }
-
 
 
 void test7_remove_entry_right(void)
