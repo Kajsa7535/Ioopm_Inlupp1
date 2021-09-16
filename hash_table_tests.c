@@ -249,6 +249,7 @@ void test18_hash_table_keys(void)
   bool cmp3 = expected[2] == result[2];
   bool cmp4 = expected[3] == result[3];
   ioopm_hash_table_destroy(ht);
+  free(result);
 
   CU_ASSERT(cmp1 && cmp2 && cmp3 && cmp4);
 }
