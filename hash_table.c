@@ -202,7 +202,7 @@ static void bucket_destroy (entry_t *entry)
     }
 }
 
-void ioopm_hash_table_destroy(ioopm_hash_table_t *ht)
+void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) // TODO: Skriv om till rekursiv formel! mål!
 {
   for(int i = 0; i < No_Buckets; i++)
   {
@@ -224,9 +224,9 @@ int main(void)
   char *result = testEntry->next->value;
   printf("(%s", result);
   return 0;
-}
+}*/
 
 // TODO: LEARN DEBUGGING
 // TODO: Write check_modulo function that works with negative numbers as well
 
-*/
+
