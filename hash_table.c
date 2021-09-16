@@ -236,7 +236,7 @@ int *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
   return result_array;
 }
 
-char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
+/*char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
 {
   int *result_array = calloc(ioopm_hash_table_size(ht), sizeof(int));
   int acc = 0;
@@ -254,7 +254,7 @@ char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
   }
   return result_array;
 
-}
+}*/
 
 
 
