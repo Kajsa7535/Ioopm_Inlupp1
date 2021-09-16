@@ -29,7 +29,7 @@ static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
   entry_t *first_entry = entry;
   entry_t *tmp_entry = entry;
 
-  while(entry->next != NULL)
+  while(entry->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
   {
     entry = entry->next;
     if (entry->key == searchKey) //Kan göras entry -> key >= searchKey, för att få det sorterat
@@ -216,6 +216,47 @@ void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
   }
   ht->size = 0;
 }
+
+int *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
+{
+  int *result_array = calloc(ioopm_hash_table_size(ht), sizeof(int));
+  int acc = 0;
+
+  for (int i = 0; i < No_Buckets; i++) 
+  {
+    entry_t *entry = &ht->buckets[i];
+    while (entry->next)
+    {
+      entry = entry->next;
+      int key = entry->key;
+      result_array[acc] = key;
+      acc++;
+    }
+  }
+  return result_array;
+}
+
+char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
+{
+  int *result_array = calloc(ioopm_hash_table_size(ht), sizeof(int));
+  int acc = 0;
+
+  for (int i = 0; i < No_Buckets; i++) 
+  {
+    entry_t *entry = &ht->buckets[i];
+    while (entry->next)
+    {
+      entry = entry->next;
+      int key = entry->key;
+      result_array[acc] = key;
+      acc++;
+    }
+  }
+  return result_array;
+
+}
+
+
 
 
 
