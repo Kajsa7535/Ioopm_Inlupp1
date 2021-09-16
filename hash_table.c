@@ -236,9 +236,9 @@ int *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
   return result_array;
 }
 
-/*char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
+char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
 {
-  int *result_array = calloc(ioopm_hash_table_size(ht), sizeof(int));
+  char **result_array = calloc(ioopm_hash_table_size(ht), sizeof(char*));
   int acc = 0;
 
   for (int i = 0; i < No_Buckets; i++) 
@@ -247,14 +247,14 @@ int *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
     while (entry->next)
     {
       entry = entry->next;
-      int key = entry->key;
-      result_array[acc] = key;
+      char *value = entry->value;
+      result_array[acc] = value;
       acc++;
     }
   }
   return result_array;
 
-}*/
+}
 
 
 

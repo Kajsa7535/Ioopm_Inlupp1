@@ -256,6 +256,25 @@ void test18_hash_table_keys(void)
 }
 
 
+void test19_hash_table_values(void)
+{
+  char *expected[4] = {"test1", "test2", "ioopm", "test3"};
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 19, "ioopm");
+  ioopm_hash_table_insert(ht, 2, "test2");
+  ioopm_hash_table_insert(ht, 3, "test3");
+  char **result = ioopm_hash_table_values(ht);
+  int cmp1 = strcmp(expected[0],result[0]); 
+  int cmp2 = strcmp(expected[1],result[1]); 
+  int cmp3 = strcmp(expected[2],result[2]); 
+  int cmp4 = strcmp(expected[3],result[3]); 
+  ioopm_hash_table_destroy(ht);
+  free(result);
+
+  CU_ASSERT(cmp1 == 0 && cmp2 == 0 && cmp3 == 0 && cmp4 == 0);
+}
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;
@@ -288,7 +307,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_is_empty_not_empty)) || 
     (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
     (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear)) || 
-    (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_keys))
+    (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_keys))|| 
+    (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values))
   )
     {
       CU_cleanup_registry();
