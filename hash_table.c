@@ -32,6 +32,7 @@ ioopm_hash_table_t *ioopm_hash_table_create()
   /// Allocate space for a ioopm_hash_table_t = 17 pointers to
   /// entry_t's, which will be set to NULL
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
+  result->size = 0;
   return result;
 }
 
@@ -91,6 +92,7 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value)
   else
     {
       entry->next = entry_create(key, value, next); // insert the new entry in the beginning of the linked list ?
+      ht->size += 1;
     }
 }
 
@@ -158,7 +160,8 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
       prev_entry->next = next_entry; 
     }
 
-    //Return the value of removed entry and free the space in the heap
+    //Return the value of removed entry, decrease the size by 1 and free the space in the heap
+    ht->size -= 1;
     entry_destroy(remove_entry);
     return value_of_key;
   }
@@ -204,13 +207,19 @@ static void bucket_destroy (entry_t *entry)
 
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) // TODO: Skriv om till rekursiv formel! mål!
 {
-  for(int i = 0; i < No_Buckets; i++)
+  for(int i = 0; i < No_Buckets; i++) // TODO: använd struct sixe i 
   {
     entry_t *bucket = &ht->buckets[i];
     bucket_destroy(bucket);
   }
   free(ht);
 }
+
+int ioopm_hash_table_size(ioopm_hash_table_t *ht)
+{
+  return ht->size;
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
