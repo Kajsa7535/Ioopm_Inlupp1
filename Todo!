@@ -30,7 +30,7 @@ Redovisning torsdag 16 september:
 M37: Använda pekare för att skapa länkade strukturer
 - Våra "buckets". "next" pekar på nästa entry vars next pekar på näst nästa entry osv. 
 
-M38: Värdeöverföring via pekare för felhantering
+M38: Värdeöverföring via pekare
 - ioopm_hash_table_lookup, skickar in en pekare till en pekare till en sträng (första bokstaven i strängen) för att i den callee-funktionen byta värde på stängen (genom att få pekaren/adressen till var stängen finns i minnet) som används i caller-funktionen. 
 
 A3:  Informationsgömning
