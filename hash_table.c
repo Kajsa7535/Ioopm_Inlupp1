@@ -7,19 +7,6 @@
 
 #define No_Buckets 17
 
-/*
-struct entry // TODO: Var ska den ligga? .c eller .h 
-{
-  int key;       // holds the key
-  char *value;   // holds the value
-  entry_t *next; // points to the next entry (possibly NULL)
-};
-
-struct hash_table
-{
-  entry_t buckets[17];
-};*/
-
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
 char *ioopm_lookup_key(ioopm_hash_table_t *ht, int key);
 ioopm_hash_table_t *ioopm_hash_table_create();
@@ -36,7 +23,7 @@ ioopm_hash_table_t *ioopm_hash_table_create()
   return result;
 }
 
-static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey) // TODO: Ta reda på vad static innebär samt hur tester skrivs med de
+static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey) 
 {
   /// Saves the first (dummy) entry as first_entry
   entry_t *first_entry = entry;
@@ -119,7 +106,7 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result)
 //TODO: Fråga på labben om man får dela upp den i två funktioner? Och byta namn på den man fick? Den gjorde inte som den skulle?
 char *ioopm_lookup_key(ioopm_hash_table_t *ht, int key) 
 {
-char *result = NULL; //TODO: Reservera minne för en string?
+char *result = NULL; 
 bool success = ioopm_hash_table_lookup(ht, key, &result);
 /// TODO: Är det nödvändigt att printa om entry finns?
 if (success == false)
@@ -130,7 +117,6 @@ if (success == false)
   return result;
 }
 
-/// TODO: Testa med Valgrind
 static void entry_destroy(entry_t *p) 
 {
   free(p);
@@ -223,7 +209,7 @@ bool ioopm_hash_table_is_empty(ioopm_hash_table_t *ht)
 
 void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
 {
-  for(int i = 0; i < No_Buckets; i++) // TODO: använd struct sixe i 
+  for(int i = 0; i < No_Buckets; i++) 
   {
     entry_t *bucket = &ht->buckets[i];
     bucket_destroy(bucket);
@@ -247,6 +233,5 @@ int main(void)
 }*/
 
 // TODO: LEARN DEBUGGING
-// TODO: Write check_modulo function that works with negative numbers as well
 
 
