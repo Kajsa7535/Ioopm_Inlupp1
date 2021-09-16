@@ -9,10 +9,10 @@ M39: Pekare till pekare
 A3:  Informationsgömning
 A1: Procedurell abstraktion
 I24: Olika metoder för felhantering
+F13: Iteration vs. rekursion
+J27: Manuell minneshantering
 
 Redovisning torsdag 16 september: 
-
-
 
 A1: Procedurell abstraktion
 - Vi har till exempel skapat en funktion som kallas "calculate_bucket" (som fungerar för negativa tal) som används på ett flertal ställen i koden. 
@@ -36,7 +36,17 @@ A3:  Informationsgömning
 - Själva tanken med .c och .h filer är att vi ska kunna använda de funktioner och typer som vi skapar i .c filer när vi kör och skriver andra program (i andra filer) utan att kopiera över funktionerna i den "nya" filen, vilket skulle göra att det blir väldigt många rader kod i bara en fil (minskar läsbarheten och förståelsen). Därför kan man använda en .h fil som bara har deklarationer av funktionerna i korresponerande .c fil, vilket även gör det lätt för programmeraren att veta vad för funktiner som finns .c filen utan bläddra igenom en massa kod. 
 - EXEMPEL: Vi gömmer structs till hash_table och entry i .h filen eftersom de används o både hash_table.c och hash_table_tests.c. På detta vis slipper vi ha funktionerna i båda filerna.
 
-
+J27: Manuell minneshantering
+- Hur uppstår minnesläckage? 
+    SVAR: Minnesläckor uppstår när man allokerar minne i heapen men glömmer att ta bort det med free(). Detta innebär att minnesplatsen används, men inte utnyttjas effektivt, och man har alltså förlorat potentiell plats för att lagra något annat. Detta kan resultera i att programmet körs långsammare och i värsta fall kraschar. 
+- Vilken del av ett program ansvarar för att frigöra minne?
+    SVAR: free()?
+- När avgör man att en bit allokerat minne är “färdiganvänt” och går att frigöra?
+    SVAR: När det som är lagrat på det allokerade minnet inte längre kommet att behövas användas. Dvs, det används inte mer i någon funktion och ger inte längre något syfte.
+- Vad kan hända om ett allokerat utrymme frigörs “för tidigt”?
+    SVAR: Man kan få dangling pointers, dvs pointers som pekar till minne som inte är allokerat. Detta innebär att den datan som pointern pekar på, inte längre är giltig, och skulle kunne bestå av vad som helst som vi inte kar kontroll över och ingen aning om vad det är.
+- På vilket sätt hjälper valgrind dig att undvika minnesläckage?
+    SVAR: Valgrind förklarar hur mycke minne som allokeras samt frigörs under ett programs livstid. Om det är mer minne som allokeras än frigörs så uppstår minnesläckor, men om det är mer som frigörs än allokeras så har man dangling pointers. 
 
 Saker att göra / kom ihåg!
 
