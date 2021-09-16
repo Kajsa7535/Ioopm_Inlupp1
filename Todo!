@@ -39,3 +39,21 @@ A3:  Informationsgömning
 
 
 Saker att göra / kom ihåg!
+
+gdb lathund:
+
+make hash_table
+
+gdb ./a.out ./
+
+b main (vart du vill ha breakpoint, tex b 147 (breakpoint på rad 147))
+
+r - run (kom ihåg argument om du har)
+
+n - nästa rader
+
+s - "steppa" in i funktionen du är vid
+
+p - print value, vad det är just då.
+
+q - quit
