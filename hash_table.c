@@ -253,8 +253,9 @@ char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
     }
   }
   return result_array;
-
 }
+
+
 
 
 
@@ -266,10 +267,8 @@ char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, -20, "test");
-  entry_t *testEntry = &ht->buckets[14];
-  char *result = testEntry->next->value;
-  printf("(%s", result);
+  char **result = ioopm_hash_table_values(ht);
+  printf("(%s)", *result);
   return 0;
 }*/
 

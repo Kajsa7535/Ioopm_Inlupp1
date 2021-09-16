@@ -275,6 +275,17 @@ void test19_hash_table_values(void)
   CU_ASSERT(cmp1 == 0 && cmp2 == 0 && cmp3 == 0 && cmp4 == 0);
 }
 
+void test20_hash_table_values_empty(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  char **result = ioopm_hash_table_values(ht);
+  bool cmp = (result[0] == NULL);
+  ioopm_hash_table_destroy(ht);
+  free(result);
+  CU_ASSERT(cmp);
+}
+
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;
@@ -308,7 +319,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
     (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear)) || 
     (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_keys))|| 
-    (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values))
+    (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values))|| 
+    (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_values_empty))
   )
     {
       CU_cleanup_registry();
