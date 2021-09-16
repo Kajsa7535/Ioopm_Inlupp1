@@ -164,6 +164,78 @@ void test11_empty_hash_table(void)
   CU_ASSERT_EQUAL(size,0);
 }
 
+void test12_one_entry_hash_table(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  int size = ht->size;
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT_EQUAL(size,1);
+}
+
+void test13_multiple_entry_hash_table(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "test1");
+  ioopm_hash_table_insert(ht, 18, "test1");
+  ioopm_hash_table_insert(ht, 19, "test1");
+  ioopm_hash_table_remove(ht, 1);
+  
+  int size = ht->size;
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT_EQUAL(size,3);
+}
+
+void test14_hash_table_is_empty(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  bool result = ioopm_hash_table_is_empty(ht);
+  ioopm_hash_table_destroy(ht);
+  CU_ASSERT(result);
+}
+
+void test15_hash_table_is_empty_not_empty(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  bool result = ioopm_hash_table_is_empty(ht);
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT(!result);
+}
+
+void test16_hash_table_clear_size(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 18, "Hejsan");
+  ioopm_hash_table_insert(ht, 3, "Ioopm");
+  ioopm_hash_table_clear(ht);
+  int size = ht->size;
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT_EQUAL(size, 0);
+}
+
+void test17_hash_table_clear(void)
+{
+  char *result = NULL;
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "test2");
+  ioopm_hash_table_insert(ht, 3, "test3");
+  bool test1 = ioopm_hash_table_lookup(ht, 1, &result);
+  bool test2 = ioopm_hash_table_lookup(ht, 2, &result);
+  bool test3 = ioopm_hash_table_lookup(ht, 3, &result);
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT(test1 && test2 && test3);
+}
+
+
 
 int main()
 {
@@ -190,7 +262,13 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 8", test8_remove_entry_right_null)) || 
     (NULL == CU_add_test(test_suite1, "test 9", test9_remove_entry_ht)) ||
     (NULL == CU_add_test(test_suite1, "test 10", test10_remove_entry_middle)) || 
-    (NULL == CU_add_test(test_suite1, "test 11", test11_empty_hash_table))
+    (NULL == CU_add_test(test_suite1, "test 11", test11_empty_hash_table)) || 
+    (NULL == CU_add_test(test_suite1, "test 12", test12_one_entry_hash_table)) || 
+    (NULL == CU_add_test(test_suite1, "test 13", test13_multiple_entry_hash_table)) || 
+    (NULL == CU_add_test(test_suite1, "test 14", test14_hash_table_is_empty)) || 
+    (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_is_empty_not_empty))|| 
+    (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size))|| 
+    (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear))
   )
     {
       CU_cleanup_registry();

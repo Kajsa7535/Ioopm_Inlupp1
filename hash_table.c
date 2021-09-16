@@ -207,17 +207,28 @@ static void bucket_destroy (entry_t *entry)
 
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) // TODO: Skriv om till rekursiv formel! mål!
 {
-  for(int i = 0; i < No_Buckets; i++) // TODO: använd struct sixe i 
-  {
-    entry_t *bucket = &ht->buckets[i];
-    bucket_destroy(bucket);
-  }
+  ioopm_hash_table_clear(ht);
   free(ht);
 }
 
 int ioopm_hash_table_size(ioopm_hash_table_t *ht)
 {
   return ht->size;
+}
+
+bool ioopm_hash_table_is_empty(ioopm_hash_table_t *ht)
+{
+  return (ht->size == 0);
+}
+
+void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
+{
+  for(int i = 0; i < No_Buckets; i++) // TODO: använd struct sixe i 
+  {
+    entry_t *bucket = &ht->buckets[i];
+    bucket_destroy(bucket);
+  }
+  ht->size = 0;
 }
 
 

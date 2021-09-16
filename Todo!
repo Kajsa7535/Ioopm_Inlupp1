@@ -47,7 +47,7 @@ J27: Manuell minneshantering
 - Vad kan hända om ett allokerat utrymme frigörs “för tidigt”?
     SVAR: Man kan få dangling pointers, dvs pointers som pekar till minne som inte är allokerat. Detta innebär att den datan som pointern pekar på, inte längre är giltig, och skulle kunne bestå av vad som helst som vi inte kar kontroll över och ingen aning om vad det är.
 - På vilket sätt hjälper valgrind dig att undvika minnesläckage?
-    SVAR: Valgrind förklarar hur mycke minne som allokeras samt frigörs under ett programs livstid. Om det är mer minne som allokeras än frigörs så uppstår minnesläckor, men om det är mer som frigörs än allokeras så har man dangling pointers. 
+    SVAR: Valgrind förklarar hur mycke minne som allokeras samt frigörs under ett programs livstid. Om det är mer minne som allokeras än frigörs så uppstår minnesläckor.
 
 Saker att göra / kom ihåg!
 
