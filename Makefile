@@ -2,7 +2,7 @@ hash_table: hash_table.c
 	gcc -g -pedantic -Wall hash_table.c -c -o $@
 
 hash_table_tests: hash_table_tests.c 
-	gcc -g -pedantic -Wall hash_table.c hash_table_tests.c -o  $@ -lcunit
+	gcc -g -pedantic -Wall hash_table.c hash_table_tests.c -o $@ -lcunit
 
 test: hash_table_tests
 	./hash_table_tests

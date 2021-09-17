@@ -255,6 +255,31 @@ char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
   return result_array;
 }
 
+bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, int key)
+{
+  char *empty_string = NULL;
+  return ioopm_hash_table_lookup(ht, key, &empty_string);
+}
+
+bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, char *value)
+{
+  for (int i = 0; i < No_Buckets; i++) 
+  {
+    entry_t *entry = &ht->buckets[i];
+    while (entry->next)
+    {
+       entry = entry->next;
+      char *find_value = entry->value;
+      if (strcmp(find_value, value) == 0)
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+//-o $@
 
 
 
@@ -263,15 +288,27 @@ char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
 /*
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  char **result = ioopm_hash_table_values(ht);
-  printf("(%s)", *result);
+  ioopm_hash_table_insert(ht, 1, "ioopm");
+  ioopm_hash_table_insert(ht, 19, "test1");
+  ioopm_hash_table_insert(ht, 2, "woow");
+  bool result = ioopm_hash_table_has_value(ht, "ioo");
+  if (result)
+  {
+    puts("(success)");
+  }
+  else
+  {
+    puts("(failure)");
+  }
+  
   return 0;
 }*/
-
 // TODO: LEARN DEBUGGING
 
 

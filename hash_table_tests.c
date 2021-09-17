@@ -285,6 +285,68 @@ void test20_hash_table_values_empty(void)
   CU_ASSERT(cmp);
 }
 
+void test21_hash_table_has_key(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 3, "test1");
+  ioopm_hash_table_insert(ht, 21, "ioopm");
+  ioopm_hash_table_insert(ht, 2, "test2");
+  bool result = ioopm_hash_table_has_key(ht, 3);
+  ioopm_hash_table_destroy(ht);
+  CU_ASSERT(result);
+}
+
+void test22_hash_table_has_key_not(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 19, "ioopm");
+  ioopm_hash_table_insert(ht, 2, "test2");
+  bool result = ioopm_hash_table_has_key(ht, 18);
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT(!result);
+}
+
+
+void test23_hash_table_has_value_identical(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "ioopm");
+  ioopm_hash_table_insert(ht, 19, "test1");
+  ioopm_hash_table_insert(ht, 2, "woow");
+  bool result = ioopm_hash_table_has_value(ht, "ioopm");
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT(result);
+}
+
+void test24_hash_table_has_value_equivalent(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 19, "ioopm");
+  entry_t *entry = &ht->buckets[2];
+  char *copied_str = strdup(entry->next->value);
+  bool result = ioopm_hash_table_has_value(ht, copied_str);
+  free(copied_str);
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT(result);
+}
+
+void test25_hash_table_has_value_not(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "test2");
+  bool result = ioopm_hash_table_has_value(ht, "test3");
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT(!result);
+}
+
+
 
 int main()
 {
@@ -318,9 +380,14 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_is_empty_not_empty)) || 
     (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
     (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear)) || 
-    (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_keys))|| 
-    (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values))|| 
-    (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_values_empty))
+    (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_keys)) || 
+    (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values)) || 
+    (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_values_empty)) || 
+    (NULL == CU_add_test(test_suite1, "test 21", test21_hash_table_has_key)) || 
+    (NULL == CU_add_test(test_suite1, "test 22", test22_hash_table_has_key_not)) || 
+    (NULL == CU_add_test(test_suite1, "test 23", test23_hash_table_has_value_identical)) || 
+    (NULL == CU_add_test(test_suite1, "test 24", test24_hash_table_has_value_equivalent)) || 
+    (NULL == CU_add_test(test_suite1, "test 25", test25_hash_table_has_value_not))
   )
     {
       CU_cleanup_registry();
