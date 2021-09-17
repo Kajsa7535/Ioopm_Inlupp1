@@ -236,7 +236,7 @@ void test17_hash_table_clear(void)
   CU_ASSERT(test1 && test2 && test3);
 }
 
-void test18_hash_table_keys(void)
+void test18_hash_table_keys(void) // TODO: Make test case for empty (no keys)
 {
   int expected[4] = {1,2,19,3};
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -279,10 +279,10 @@ void test20_hash_table_values_empty(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   char **result = ioopm_hash_table_values(ht);
-  bool cmp = (result[0] == NULL);
+  char *empty = result[0];
   ioopm_hash_table_destroy(ht);
   free(result);
-  CU_ASSERT(cmp);
+  CU_ASSERT_PTR_NULL(empty);
 }
 
 void test21_hash_table_has_key(void)

@@ -217,7 +217,7 @@ void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
   ht->size = 0;
 }
 
-int *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
+int *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när hashtable är tomt
 {
   int *result_array = calloc(ioopm_hash_table_size(ht), sizeof(int));
   int acc = 0;
@@ -238,7 +238,7 @@ int *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
 
 char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
 {
-  char **result_array = calloc(ioopm_hash_table_size(ht), sizeof(char*));
+  char **result_array = calloc(ioopm_hash_table_size(ht)+1, sizeof(char*));
   int acc = 0;
 
   for (int i = 0; i < No_Buckets; i++) 
@@ -252,6 +252,7 @@ char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
       acc++;
     }
   }
+  result_array[acc] = NULL;
   return result_array;
 }
 
