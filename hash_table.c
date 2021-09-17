@@ -295,19 +295,16 @@ bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, char *value)
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "ioopm");
-  ioopm_hash_table_insert(ht, 19, "test1");
-  ioopm_hash_table_insert(ht, 2, "woow");
-  bool result = ioopm_hash_table_has_value(ht, "ioo");
-  if (result)
+  int *result = ioopm_hash_table_keys(ht);
+  int *test;
+  printf("first element = (%d)\n", result[0]);
+  printf("size = (%lu)\n", sizeof(result));
+  printf("size of null = (%lu)\n", sizeof(NULL));
+  printf("size of empty array = (%lu)\n", sizeof(test));
+  if(sizeof(result) == sizeof(NULL))
   {
-    puts("(success)");
+    puts("wtf");
   }
-  else
-  {
-    puts("(failure)");
-  }
-  
   return 0;
 }*/
 // TODO: LEARN DEBUGGING

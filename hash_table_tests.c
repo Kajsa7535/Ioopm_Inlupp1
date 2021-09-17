@@ -236,7 +236,7 @@ void test17_hash_table_clear(void)
   CU_ASSERT(test1 && test2 && test3);
 }
 
-void test18_hash_table_keys(void) // TODO: Make test case for empty (no keys)
+void test18A_hash_table_keys(void) // TODO: Make test case for empty (no keys)
 {
   int expected[4] = {1,2,19,3};
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -253,6 +253,16 @@ void test18_hash_table_keys(void) // TODO: Make test case for empty (no keys)
   free(result);
 
   CU_ASSERT(cmp1 && cmp2 && cmp3 && cmp4);
+}
+
+void test18B_hash_table_keys_empty(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  int *result = ioopm_hash_table_keys(ht);
+  bool cmp = (sizeof(result) == sizeof(NULL)); //sizeof(NULL) == 8
+  ioopm_hash_table_destroy(ht);
+  free(result);
+  CU_ASSERT(cmp);
 }
 
 
@@ -380,7 +390,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_is_empty_not_empty)) || 
     (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
     (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear)) || 
-    (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_keys)) || 
+    (NULL == CU_add_test(test_suite1, "test 18A", test18A_hash_table_keys)) || 
+    (NULL == CU_add_test(test_suite1, "test 18B", test18B_hash_table_keys_empty)) ||
     (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values)) || 
     (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_values_empty)) || 
     (NULL == CU_add_test(test_suite1, "test 21", test21_hash_table_has_key)) || 
