@@ -170,6 +170,21 @@ static int length_of_bucket(entry_t *entry)
   return acc;
 }
 
+//0 null ->, 1 test ->, 2 test1 ->, 3 test2 null
+
+// acc argument always has to be zero initially
+static int length_of_bucket_recursive(entry_t *entry, int acc)
+{
+  if (entry -> next == NULL)
+  {
+    return acc;
+  }
+  return length_of_bucket_recursive(entry->next, (acc+1));
+}
+
+
+
+
 //(0,null,null) 
 
 static void bucket_destroy (entry_t *entry)
@@ -290,23 +305,20 @@ bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, char *value)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 /*
+
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  int *result = ioopm_hash_table_keys(ht);
-  int *test;
-  printf("first element = (%d)\n", result[0]);
-  printf("size = (%lu)\n", sizeof(result));
-  printf("size of null = (%lu)\n", sizeof(NULL));
-  printf("size of empty array = (%lu)\n", sizeof(test));
-  if(sizeof(result) == sizeof(NULL))
-  {
-    puts("wtf");
-  }
+  //ioopm_hash_table_insert(ht, 1, "test");
+  ioopm_hash_table_insert(ht, 18, "test2");
+  entry_t *testEntry = &ht->buckets[1];
+  int result1 = length_of_bucket_recursive(testEntry, 0);
+  int result2 = length_of_bucket(testEntry);
+  printf("Recursive: (%d), Iterative: (%d)\n", result1, result2);
+  ioopm_hash_table_destroy(ht);
   return 0;
-}*/
+}
 // TODO: LEARN DEBUGGING
 
-
+*/

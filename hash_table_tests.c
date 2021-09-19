@@ -322,10 +322,11 @@ void test22_hash_table_has_key_not(void)
 void test23_hash_table_has_value_identical(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "ioopm");
+  char *str = "ioopm";
+  ioopm_hash_table_insert(ht, 1, str);
   ioopm_hash_table_insert(ht, 19, "test1");
   ioopm_hash_table_insert(ht, 2, "woow");
-  bool result = ioopm_hash_table_has_value(ht, "ioopm");
+  bool result = ioopm_hash_table_has_value(ht, str);
   ioopm_hash_table_destroy(ht);
 
   CU_ASSERT(result);

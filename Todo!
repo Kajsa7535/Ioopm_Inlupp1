@@ -3,9 +3,24 @@ Mål att redovisa:
 M36: C:s array-notation och pekararitmetik (KOLLA FÖRELÄSNING 5!)
 M39: Pekare till pekare
 A1: Procedurell abstraktion
+I22: Defensiv programmering
 I24: Olika metoder för felhantering
 F13: Iteration vs. rekursion
 H19: Skillnaden mellan identitet och ekvivalens 
+A1: Procedurell abstraktion
+F14: Svansrekursion?
+
+Q49: Enhetstestning
+
+Q50: Mät och resonera kring testkvalitet 
+- Verktyg för att kolla test coverage
+
+R52: Debuggning med GDB
+- Hitta en bugg (typ segmentation fault) som vi kan redovisa med
+
+TODO T55: Mer Avacerad Versionhantering
+- Måste lära oss hur man gör först
+
 
 A1: Procedurell abstraktion
 - Vi har till exempel skapat en funktion som kallas "calculate_bucket" (som fungerar för negativa tal) som används på ett flertal ställen i koden. 
@@ -46,30 +61,43 @@ J27: Manuell minneshantering
 
 Redovisning måndag 20 September:
 
-A1: Procedurell abstraktion
-
-F13: Iteration vs. rekursion 
-- Skriv om en funktion till rekursiv
-
-(F14: Svansrekursion?)
-
-I22: Defensiv programmering 
-- Läs om vad det är
+F13: Iteration vs. rekursion
+- length_of_bucket_recursive vs. length_of_bucket
+- Det kan vara svårare för en person som inte är så van vid rekursiva funktioner att förstå hur den rekursiva funktionen fungerar jämför med hur den itterativa funktionen fungerar. 
+- Iterativa funktioner kan alltid bli rekursiva, men rekursiva kan inte alltid bli iterativa. Rekursivt menas med att funktionen anropar sig själv. 
+- Båda använder bara stacken, därmed inte så stor skillnad i prestanda. Det är nämligen skillnad i prestanda när man använder stacken och när man använder heapen 
+- RÖD TRÅD: Iteration och rekursion (i alla fall våra funktioner) har använt sig av stacken, vilket tar oss in på vad skillnaden på stacken och heapen är
 
 J26: Allokering på stacken vs. på heapen
+- Se redovisning.c fil
+- Stacken tar mycket snabbare tid ?
+- Stack. Last in first out. Värden läggs som "tallrikar" på stacken. En tallrik tas bort när resultatet returneras.
+- Heap: Behöver free() för att inte få minnesläckage, vilket gör att det krävs mer rader kod än om man använder stacken. Om man inte använder free() så kan det påverka prestandan negativt pga minnesläckage. Fördelen är att du kommer åt dina värden mellan funktioner då de sparas i heapen jämfört med stacken som "försvinner"/skrivs över när nästa funktion kör. 
+- När en funktion bara använder sig av stacken så "försvinner" det som låg där när funktionen är klar. Du får bara det returvärdet funktionen returnerade. Men om man använder sig av heapen så kan man komma åt det även mellan olika funktioner, oavsett vad funktionerna returnerar. 
+- Jämförelse med fib(35): Stack = 0s , Heap = 2.68s
+- Jämförelse med fib(45): Stack = 8.55s, Heap = För lång tid
+- Slutsats: Om man kan hålla sig till stacken så bör man göra det, eftersom den har mycket högre prestanda. Om det behövs en minnesplats så måste man dock använda sig av heapen.
+- RÖD TRÅD: Minneshantering använder sig av pekare vilket tar oss vidare till M36, som handlar om arrayer och pekare. 
 
 M36: C:s array-notation och pekararitmetik
+- Argumentvektorn till main-funktionen
+    SVAR: main(int argc, char *argv[]). Det som skickas in som argument till main blir en array.
+- Vad översätts arr[42] till? 
+    SVAR: Det 43:e elementet i arrayen "arr". Pga index börjar på 0. 
+- Vad översätts 42[arr] till? (detta kompilerar faktiskt, trots att det ser vansinigt ut)
+    SVAR: Samma; 43:e elementet i arrayen "arr". Se redovisning.c.
+- Det som är innanför [] är offset från minnesplatsen, vilket innebär att a[b] och b[a] ger samma adress.
+- RÖD TRÅD: Identitet pch ekvivalens hör ihop med pekare
 
-Q49: Enhetstestning
+H19: Skillnaden mellan identitet och ekvivalens
+- Identitet: "samma stäng". 
+    char *test1 = "test"
+    char *test2 = test1
+- Ekvivalens: "Innehåller samma stäng". tex en kopia av en sträng, det är två stränger men de innehåller likadan info
+    char *test1 = "Hej!"
+    char *test2 = "Hej!"
 
-Q50: Mät och resonera kring testkvalitet 
-- Verktyg för att kolla test coverage
 
-R52: Debuggning med GDB
-- Hitta en bugg (typ segmentation fault) som vi kan redovisa med
-
-TODO T55: Mer Avacerad Versionhantering
-- Måste lära oss hur man gör först
 
 FRÅGA X59: Essä
 - Vilket mål på nivå 4/5 är lämplig att redovisa med en essä?
