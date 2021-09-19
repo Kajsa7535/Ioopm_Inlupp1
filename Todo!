@@ -1,16 +1,11 @@
 Mål att redovisa: 
 
-Vecka 37: 
-
-M36: C:s array-notation och pekararitmetik
-M37: Använda pekare för att skapa länkade strukturer
-M38: Värdeöverföring via pekare för felhantering
+M36: C:s array-notation och pekararitmetik (KOLLA FÖRELÄSNING 5!)
 M39: Pekare till pekare
-A3:  Informationsgömning
 A1: Procedurell abstraktion
 I24: Olika metoder för felhantering
 F13: Iteration vs. rekursion
-J27: Manuell minneshantering
+H19: Skillnaden mellan identitet och ekvivalens 
 
 A1: Procedurell abstraktion
 - Vi har till exempel skapat en funktion som kallas "calculate_bucket" (som fungerar för negativa tal) som används på ett flertal ställen i koden. 
@@ -48,6 +43,39 @@ J27: Manuell minneshantering
     SVAR: Man kan få dangling pointers, dvs pointers som pekar till minne som inte är allokerat. Detta innebär att den datan som pointern pekar på, inte längre är giltig, och skulle kunne bestå av vad som helst som vi inte kar kontroll över och ingen aning om vad det är.
 - På vilket sätt hjälper valgrind dig att undvika minnesläckage?
     SVAR: Valgrind förklarar hur mycke minne som allokeras samt frigörs under ett programs livstid. Om det är mer minne som allokeras än frigörs så uppstår minnesläckor.
+
+Redovisning måndag 20 September:
+
+A1: Procedurell abstraktion
+
+F13: Iteration vs. rekursion 
+- Skriv om en funktion till rekursiv
+
+(F14: Svansrekursion?)
+
+I22: Defensiv programmering 
+- Läs om vad det är
+
+J26: Allokering på stacken vs. på heapen
+
+M36: C:s array-notation och pekararitmetik
+
+Q49: Enhetstestning
+
+Q50: Mät och resonera kring testkvalitet 
+- Verktyg för att kolla test coverage
+
+R52: Debuggning med GDB
+- Hitta en bugg (typ segmentation fault) som vi kan redovisa med
+
+TODO T55: Mer Avacerad Versionhantering
+- Måste lära oss hur man gör först
+
+FRÅGA X59: Essä
+- Vilket mål på nivå 4/5 är lämplig att redovisa med en essä?
+
+FRÅGA TODO P45: Gör en informell kodgranskning under fas 1 
+- När är det lämpligt att göra denna?
 
 Saker att göra / kom ihåg!
 
