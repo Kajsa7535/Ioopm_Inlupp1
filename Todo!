@@ -94,6 +94,7 @@ H19: Skillnaden mellan identitet och ekvivalens
     char *test1 = "test"
     char *test2 = test1
 - Ekvivalens: "Innehåller samma stäng". tex en kopia av en sträng, det är två stränger men de innehåller likadan info
+            En omodifierad kopia av original strängen
     char *test1 = "Hej!"
     char *test2 = "Hej!"
 

@@ -35,6 +35,7 @@ int clean_suite(void)
   return 0;
 }
 
+//TODO!!! Gör testfall för när key = 0
 void test_insert_not_in_use(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -315,7 +316,7 @@ void test22_hash_table_has_key_not(void)
   bool result = ioopm_hash_table_has_key(ht, 18);
   ioopm_hash_table_destroy(ht);
 
-  CU_ASSERT(!result);
+  CU_ASSERT_FALSE(result);
 }
 
 
@@ -331,6 +332,7 @@ void test23_hash_table_has_value_identical(void)
 
   CU_ASSERT(result);
 }
+
 
 void test24_hash_table_has_value_equivalent(void)
 {

@@ -6,7 +6,7 @@
 /*
 int *heap_int(int i)
 {
-  int *result = malloc(sizeof(int));
+  int *result = o
   *result = i;
   return result;
 }
@@ -29,6 +29,7 @@ int *fib(int *n)
   }
     }
 }*/
+
 
 // ANVÄNDER SIG AV STACKEN
 int fib(int num)
