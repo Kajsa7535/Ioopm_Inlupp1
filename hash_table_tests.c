@@ -5,6 +5,13 @@
 #include "hash_table.h"
 
 
+static bool value_equiv(int key_ignored, char *value, void *x) //TODO: Fråga om hur man slipper lägga in dessa i .h filen och kunna ha kvar den i .c filen
+{
+  char **other_char_ptr = x;
+  char *other_value = *other_char_ptr;
+  return strcmp(value,other_value) == 0;
+}
+
 static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
 {
   /// Saves the first (dummy) entry as first_entry
@@ -359,6 +366,32 @@ void test25_hash_table_has_value_not(void)
   CU_ASSERT(!result);
 }
 
+void test26_hash_table_all(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "test1");
+  ioopm_hash_table_insert(ht, 18, "test1");
+  ioopm_hash_table_insert(ht, 19, "test1");
+  char *value = "test1";
+  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
+  ioopm_hash_table_destroy(ht);
+  CU_ASSERT(result);
+}
+
+void test27_hash_table_all_not(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "test1");
+  ioopm_hash_table_insert(ht, 18, "test1");
+  ioopm_hash_table_insert(ht, 19, "test2");
+  char *value = "test1";
+  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT_FALSE(result);
+}
 
 
 int main()
@@ -401,7 +434,9 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 22", test22_hash_table_has_key_not)) || 
     (NULL == CU_add_test(test_suite1, "test 23", test23_hash_table_has_value_identical)) || 
     (NULL == CU_add_test(test_suite1, "test 24", test24_hash_table_has_value_equivalent)) || 
-    (NULL == CU_add_test(test_suite1, "test 25", test25_hash_table_has_value_not))
+    (NULL == CU_add_test(test_suite1, "test 25", test25_hash_table_has_value_not)) || 
+    (NULL == CU_add_test(test_suite1, "test 26", test26_hash_table_all)) || 
+    (NULL == CU_add_test(test_suite1, "test 27", test27_hash_table_all_not))
   )
     {
       CU_cleanup_registry();

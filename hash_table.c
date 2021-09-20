@@ -268,35 +268,13 @@ char **ioopm_hash_table_values(ioopm_hash_table_t *ht)
   result_array[acc] = NULL;
   return result_array;
 }
-/*
-bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, int key)
-{
-  char *empty_string = NULL;
-  return ioopm_hash_table_lookup(ht, key, &empty_string);
-}*/
-
-bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, int key)
-{
-  return ioopm_hash_table_any(ht, key_equiv, &key);
-}
 
 
-bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, char *value)
+static bool value_equiv(int key_ignored, char *value, void *x)
 {
-  for (int i = 0; i < No_Buckets; i++)
-  {
-    entry_t *entry = &ht->buckets[i];
-    while (entry->next)
-    {
-      entry = entry->next;
-      char *find_value = entry->value;
-      if (strcmp(find_value, value) == 0)
-      {
-        return true;
-      }
-    }
-  }
-  return false;
+  char **other_char_ptr = x;
+  char *other_value = *other_char_ptr;
+  return strcmp(value,other_value) == 0;
 }
 
 static bool key_equiv(int key, char *value_ignored, void *x)
@@ -306,21 +284,29 @@ static bool key_equiv(int key, char *value_ignored, void *x)
   return key == other_key;
 }
 
+
+bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, int key)
+{
+  return ioopm_hash_table_any(ht, key_equiv, &key);
+}
+
+bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, char *value)
+{
+  return ioopm_hash_table_any(ht, value_equiv, &value);
+}
+
 bool ioopm_hash_table_any(ioopm_hash_table_t *ht, ioopm_predicate pred, void *arg)
 {
   for (int i = 0; i < No_Buckets; i++)
   {
     entry_t *entry = &ht->buckets[i];
     entry_t *current_entry = entry;
-    printf("loop1:(%d) \n", i);
     for (int k = 0; k < length_of_bucket(entry); k++)
     {
-      printf("loop2:(%d) \n", k);
       current_entry = current_entry->next;
       int key_compare = current_entry->key;
       char *value_compare = current_entry->value;
-      printf("Key: (%d), value: (%s)\n", key_compare, value_compare);
-      if (pred(key_compare, value_compare, &arg))
+      if (pred(key_compare, value_compare, arg)) // GDB REDOVISNING!!!! det som blev fel!!!! ---->>>>> &&&&&&& <<<-----pred(key_compare, value_compare, &arg)
       {
         return true;
       }
@@ -329,11 +315,31 @@ bool ioopm_hash_table_any(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
   return false;
 }
 
+
+bool ioopm_hash_table_all(ioopm_hash_table_t *ht, ioopm_predicate pred, void *arg)
+{
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    entry_t *entry = &ht->buckets[i];
+    entry_t *current_entry = entry;
+    for (int k = 0; k < length_of_bucket(entry); k++)
+    {
+      current_entry = current_entry->next;
+      int key_compare = current_entry->key;
+      char *value_compare = current_entry->value;
+      if (!(pred(key_compare, value_compare, arg))) 
+      {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
+/*
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -355,4 +361,4 @@ int main(void)
 }
 // TODO: LEARN DEBUGGING
 
-
+*/

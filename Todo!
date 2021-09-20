@@ -34,7 +34,7 @@ A1: Procedurell abstraktion
 M39:  Pekare till pekare
 - ioopm_hash_table_lookup, skickar in en pekare till en pekare till den första bokstaven i en stäng. (result)
 
-
+----------------------------------------------------------------------------------------------------------------
 Redovisning torsdag 16 september: 
 
 M37: Använda pekare för att skapa länkade strukturer
@@ -59,6 +59,7 @@ J27: Manuell minneshantering
 - På vilket sätt hjälper valgrind dig att undvika minnesläckage?
     SVAR: Valgrind förklarar hur mycke minne som allokeras samt frigörs under ett programs livstid. Om det är mer minne som allokeras än frigörs så uppstår minnesläckor.
 
+---------------------------------------------------------------------------------------------------------------
 Redovisning måndag 20 September:
 
 F13: Iteration vs. rekursion
@@ -98,6 +99,12 @@ H19: Skillnaden mellan identitet och ekvivalens
     char *test1 = "Hej!"
     char *test2 = "Hej!"
 
+---------------------------------------------------------------------------------------------------------------
+Redovisning Torsdag 23 September:
+
+R52: Debuggning med GDB
+
+F14: Svansrekursion
 
 
 FRÅGA X59: Essä
@@ -108,7 +115,7 @@ FRÅGA TODO P45: Gör en informell kodgranskning under fas 1
 
 Saker att göra / kom ihåg!
 
-
+-------------------------------------------------------------------------------------------------------------
 GDB LATHUND:
  https://dev.to/jasonelwood/setup-gdb-on-macos-in-2020-489k (gdb för mac )
 
