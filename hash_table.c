@@ -305,7 +305,7 @@ bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, char *value)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-/*
+
 
 int main(void)
 {
@@ -321,4 +321,4 @@ int main(void)
 }
 // TODO: LEARN DEBUGGING
 
-*/
+
