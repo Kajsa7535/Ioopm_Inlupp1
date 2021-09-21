@@ -36,7 +36,6 @@ void test1_linked_list_prepend(void)
   CU_ASSERT(result == 1);
 }
 
-
 void test2_linked_list_append(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create();

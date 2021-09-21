@@ -31,6 +31,7 @@ static int length_of_list(ioopm_list_t *list)
     return acc;
 }
 
+//TODO: Fix linked_list_append, segmentation fault
 void ioopm_linked_list_append(ioopm_list_t *list, int value)
 {
     ioopm_list_t *element = list->next;
