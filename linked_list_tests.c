@@ -4,6 +4,18 @@
 #include <CUnit/Basic.h>
 #include "linked_list.h"
 
+static int length_of_list(ioopm_list_t *list)
+{
+    ioopm_list_t *element = list->next;
+    int acc = 0;
+    while (element != NULL)
+    {
+        acc = acc + 1;
+        element = element->next;
+    }
+    return acc;
+}
+
 int init_suite(void)
 {
   return 0;
