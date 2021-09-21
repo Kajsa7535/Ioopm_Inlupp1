@@ -36,16 +36,16 @@ void test1_linked_list_prepend(void)
   CU_ASSERT(result == 1);
 }
 
-/*
+
 void test2_linked_list_append(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create();
   ioopm_linked_list_append(list, 1);
   ioopm_linked_list_append(list, 2);
-  int result = list->next->value;
+  int result = list->next->next->value;
 
   CU_ASSERT(result == 2);
-}*/
+}
 
 void test3_length_of_list(void)
 {
@@ -73,7 +73,7 @@ int main()
 
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_linked_list_prepend)) ||
-    //(NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) ||
+    (NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) ||
     (NULL == CU_add_test(test_suite1, "test 3", test3_length_of_list))
   )
     {
