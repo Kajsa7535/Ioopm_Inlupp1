@@ -5,6 +5,13 @@
 #include "hash_table.h"
 
 
+static void update_value(int key, char **value, void *arg)
+{
+  char **other_char_ptr = arg;
+  char *other_value = *other_char_ptr;
+  *value = other_value;
+}
+
 static bool value_equiv(int key_ignored, char *value, void *x) //TODO: Fråga om hur man slipper lägga in dessa i .h filen och kunna ha kvar den i .c filen
 {
   char **other_char_ptr = x;
@@ -394,6 +401,22 @@ void test27_hash_table_all_not(void)
 }
 
 
+void test28_hash_table_apply_all(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "Hej");
+  ioopm_hash_table_insert(ht, 18, "Roligt");
+  ioopm_hash_table_insert(ht, 19, "haha");
+  char *value = "bad";
+  ioopm_hash_table_apply_to_all(ht, update_value, &value);
+  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
+  ioopm_hash_table_destroy(ht);
+
+  CU_ASSERT(result);
+}
+
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;
@@ -436,7 +459,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 24", test24_hash_table_has_value_equivalent)) || 
     (NULL == CU_add_test(test_suite1, "test 25", test25_hash_table_has_value_not)) || 
     (NULL == CU_add_test(test_suite1, "test 26", test26_hash_table_all)) || 
-    (NULL == CU_add_test(test_suite1, "test 27", test27_hash_table_all_not))
+    (NULL == CU_add_test(test_suite1, "test 27", test27_hash_table_all_not)) || 
+    (NULL == CU_add_test(test_suite1, "test 28", test28_hash_table_apply_all))
   )
     {
       CU_cleanup_registry();

@@ -336,6 +336,28 @@ bool ioopm_hash_table_all(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
   return true;
 }
 
+static void update_value(int key, char **value, void *arg) // används bara vid testning av ioopm_hash_table_apply_to_all
+{
+  char **other_char_ptr = arg;
+  char *other_value = *other_char_ptr;
+  *value = other_value;
+}
+
+void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function apply_fun, void *arg)
+{
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    entry_t *entry = &ht->buckets[i];
+    entry_t *current_entry = entry;
+    for (int k = 0; k < length_of_bucket(entry); k++)
+    {
+      current_entry = current_entry->next;
+      int key = current_entry->key;
+      apply_fun(key, &(current_entry->value), arg);
+    }
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -343,11 +365,13 @@ bool ioopm_hash_table_all(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test");
-  ioopm_hash_table_insert(ht, 18, "test2");
-  int test = 1;
-  //test = 1;
-  bool result = ioopm_hash_table_any(ht, key_equiv, &test);
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "Hej");
+  ioopm_hash_table_insert(ht, 18, "Roligt");
+  ioopm_hash_table_insert(ht, 19, "haha");
+  char *value = "bad";
+  ioopm_hash_table_apply_to_all(ht, update_value, &value);
+  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
   if (result)
   {
     puts("yay\n");
@@ -358,7 +382,6 @@ int main(void)
   }
   ioopm_hash_table_destroy(ht);
   return 0;
-}
+}*/
 // TODO: LEARN DEBUGGING
 
-*/
