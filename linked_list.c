@@ -19,23 +19,26 @@ static ioopm_list_t *element_create(int value, ioopm_list_t *next)
   return element;
 }
 
-static int length_of_list(ioopm_list_t list)
+static int length_of_list(ioopm_list_t *list)
 {
-    for (int i = 0; element_next != NULL; i++)
+    ioopm_list_t *element = list->next;
+    int acc = 0;
+    while (element != NULL)
     {
-        
+        acc = acc + 1;
+        element = element->next;
     }
+    return acc;
 }
 
 void ioopm_linked_list_append(ioopm_list_t *list, int value)
 {
-    for (int i = 0; i < length_of_list; i++)
+    ioopm_list_t *element = list->next;
+    for (int i = 1; i < length_of_list(list); i++)
     {
-        ////////////////////////////////
-        ioopm_list_t *
-        
+        element = element->next;
     }
-    
+    element->next = element_create(value, NULL);
 }
 
 void ioopm_linked_list_prepend(ioopm_list_t *list, int value)
@@ -44,8 +47,9 @@ void ioopm_linked_list_prepend(ioopm_list_t *list, int value)
     list->next = element_create(value, dummy_next);
 }
 
-//(0, null) (3, null)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 int main(void)
 {
     ioopm_list_t *list = ioopm_linked_list_create();
@@ -57,4 +61,4 @@ int main(void)
         puts("yey");
     }
     return 0;
-}
+}*/

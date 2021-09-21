@@ -125,7 +125,7 @@ static void entry_destroy(entry_t *p)
   free(p);
 }
 
-char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key)
+char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key) //
 {
   int bucket = calculate_bucket(key);
 
