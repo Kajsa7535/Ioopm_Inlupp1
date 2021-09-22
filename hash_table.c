@@ -306,7 +306,7 @@ bool ioopm_hash_table_any(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
       current_entry = current_entry->next;
       int key_compare = current_entry->key;
       char *value_compare = current_entry->value;
-      if (pred(key_compare, value_compare, arg)) // GDB REDOVISNING!!!! det som blev fel!!!! ---->>>>> &&&&&&& <<<-----pred(key_compare, value_compare, &arg)
+      if (pred(key_compare, value_compare, &arg)) // GDB REDOVISNING!!!! det som blev fel!!!! ---->>>>> &&&&&&& <<<-----pred(key_compare, value_compare, &arg)
       {
         return true;
       }
@@ -361,27 +361,15 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-/*
+
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 2, "Hej");
-  ioopm_hash_table_insert(ht, 18, "Roligt");
-  ioopm_hash_table_insert(ht, 19, "haha");
-  char *value = "bad";
-  ioopm_hash_table_apply_to_all(ht, update_value, &value);
-  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
-  if (result)
-  {
-    puts("yay\n");
-  }
-  else
-  {
-    puts("\nnay\n");
-  }
+  ioopm_hash_table_insert(ht, 3, "test1");
+  ioopm_hash_table_insert(ht, 21, "ioopm");
+  ioopm_hash_table_insert(ht, 2, "test2");
+  bool result = ioopm_hash_table_has_key(ht, 3);
   ioopm_hash_table_destroy(ht);
-  return 0;
-}*/
+}
 // TODO: LEARN DEBUGGING
 

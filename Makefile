@@ -10,8 +10,8 @@ test_hash_table: hash_table_tests
 valgrind_hash_table_tests: hash_table_tests
 	valgrind --leak-check=full ./hash_table_tests
 
-gcov_hash_table: hash_table.c
-	 gcc -Wall -fprofile-arcs -ftest-coverage hash_table.c -lcunit
+gcov_hash_table: hash_table_tests.c
+	 gcc -Wall -fprofile-arcs -ftest-coverage hash_table_tests.c hash_table.c -lcunit
 
 linked_list: linked_list.c
 	 gcc -g -pedantic -Wall linked_list.c -o $@
