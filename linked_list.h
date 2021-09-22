@@ -5,11 +5,18 @@ typedef bool(*ioopm_char_predicate)(int value, void *extra);
 typedef void(*ioopm_apply_char_function)(int* value, void *extra); // ha med i apply_to_ALLL
 
 typedef struct list ioopm_list_t; /// Meta: struct definition goes in C file
+typedef struct link ioopm_link_t;
 
-struct list // TODO: Var ska den ligga? .c eller .h 
+struct link // TODO: Var ska den ligga? .c eller .h 
 {
     int value;  // holds the value
-    ioopm_list_t *next; // points to the next entry (possibly NULL)
+    ioopm_link_t *next; // points to the next entry (possibly NULL)
+};
+
+struct list
+{
+    ioopm_link_t *first;
+    ioopm_link_t *last;
 };
 
 
