@@ -21,21 +21,41 @@
    return new_element;
  }
 
-
  static int length_of_list(ioopm_list_t *list)
- {
-     ioopm_link_t *element = list->first;
-     int acc = 0;
-     while (element != NULL)
-     {
+{
+    ioopm_link_t *element = list->first;
+    int acc = 0;
+  
+    if(list->first == NULL)
+    {
+        return acc;
+    }
+    
+    do 
+    {
         acc = acc + 1;
         element = element->next;
-     }
-     return acc;
- }
+    } while (element != NULL);
+    return acc;
+}
 
  //(0,->) (1, null)
 
+
+/*
+void ioopm_linked_list_append(ioopm_list_t *list, int value)
+{
+    if (list->last == NULL)
+    {
+        ioopm_linked_list_prepend(list, value);
+    }
+    else
+    {
+        ioopm_link_t *new_element = element_create(value, NULL);
+        list->last->next = new_element;
+        list->last = new_element;
+    }
+}*/
  //TODO: Fix linked_list_append, segmentation fault
  void ioopm_linked_list_append(ioopm_list_t *list, int value)
  {
