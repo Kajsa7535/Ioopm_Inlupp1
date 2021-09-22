@@ -358,8 +358,7 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 int main(void)
@@ -369,6 +368,7 @@ int main(void)
   ioopm_hash_table_insert(ht, 21, "ioopm");
   ioopm_hash_table_insert(ht, 2, "test2");
   bool result = ioopm_hash_table_has_key(ht, 3);
+  printf("result = (%d)\n", result);
   ioopm_hash_table_destroy(ht);
 }
 // TODO: LEARN DEBUGGING
