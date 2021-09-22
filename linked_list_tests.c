@@ -62,7 +62,7 @@ void test3_length_of_list(void)
 
   CU_ASSERT(result == 2);
 }
-
+/*
 void test4_linked_list_insert_first(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create();
@@ -103,6 +103,7 @@ void test6_linked_list_insert_middle(void)
   CU_ASSERT(result1 == 10 && result2 == 2);
 }
 
+
 void test7_linked_list_insert_invalid(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create();
@@ -112,16 +113,18 @@ void test7_linked_list_insert_invalid(void)
   int length = length_of_list(list);
 
   CU_ASSERT(length == 2);
-}
+}*/
 
 int main()
 {
   CU_pSuite test_suite1 = NULL;
+  CU_pSuite test_suite2 = NULL;
 
   if (CUE_SUCCESS != CU_initialize_registry())
     return CU_get_error();
 
   test_suite1 = CU_add_suite("Test Suite 1", init_suite, clean_suite);
+  test_suite2 = CU_add_suite("Test Suite 2", init_suite, clean_suite);
   if (NULL == test_suite1)
     {
       CU_cleanup_registry();
@@ -131,11 +134,11 @@ int main()
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_linked_list_prepend)) ||
     (NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) ||
-    (NULL == CU_add_test(test_suite1, "test 3", test3_length_of_list)) || 
-    (NULL == CU_add_test(test_suite1, "test 4", test4_linked_list_insert_first))|| 
-    (NULL == CU_add_test(test_suite1, "test 5", test5_linked_list_insert_last))|| 
-    (NULL == CU_add_test(test_suite1, "test 6", test6_linked_list_insert_middle)) || 
-    (NULL == CU_add_test(test_suite1, "test 7", test7_linked_list_insert_invalid))
+    (NULL == CU_add_test(test_suite1, "test 3", test3_length_of_list)) //|| 
+    //(NULL == CU_add_test(test_suite2, "test 4", test4_linked_list_insert_first))|| 
+   // (NULL == CU_add_test(test_suite2, "test 5", test5_linked_list_insert_last))|| 
+   // (NULL == CU_add_test(test_suite2, "test 6", test6_linked_list_insert_middle)) || 
+   // (NULL == CU_add_test(test_suite2, "test 7", test7_linked_list_insert_invalid))
   )
     {
       CU_cleanup_registry();
