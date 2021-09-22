@@ -1,20 +1,15 @@
 Mål att redovisa: 
 
-M36: C:s array-notation och pekararitmetik (KOLLA FÖRELÄSNING 5!)
 M39: Pekare till pekare
-A1: Procedurell abstraktion
+E10: Implementera genericitet genom void-pekare
 I22: Defensiv programmering
 I24: Olika metoder för felhantering
-F13: Iteration vs. rekursion
-H19: Skillnaden mellan identitet och ekvivalens 
-A1: Procedurell abstraktion
 F14: Svansrekursion?
 
+A1: Procedurell abstraktion 
 Q49: Enhetstestning
-
 Q50: Mät och resonera kring testkvalitet 
 - Verktyg för att kolla test coverage
-
 R52: Debuggning med GDB
 - Hitta en bugg (typ segmentation fault) som vi kan redovisa med
 
@@ -134,3 +129,9 @@ s - "steppa" in i funktionen du är vid
 p - print value, vad det är just då.
 
 q - quit
+
+PLANERING:
+
+Ca 1 step om dagen.
+Ska vara klar till soft deadline
+Ta ca 3-4 mål varje redovisning. Planerar ca 1/2 dagar innan redovisningstillfället. 
