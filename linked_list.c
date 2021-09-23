@@ -5,6 +5,8 @@
 #include <CUnit/Basic.h>
 #include "linked_list.h"
 
+//TODO: Ta bort alla index kollare för negativa index 
+
 ioopm_list_t *ioopm_linked_list_create()
 {
   ioopm_list_t *link = calloc(1, sizeof(ioopm_list_t));
@@ -124,6 +126,7 @@ static int linked_list_remove_first(ioopm_list_t *list)
         list->first = tmp->next;
     }
     free(tmp);
+    list->size -= 1;
     return value;
 }
 
@@ -135,12 +138,25 @@ static int linked_list_remove_last(ioopm_list_t *list)
     prev_element->next = NULL;
     list->last = prev_element;
     free(tmp_last);
+    list->size -= 1;
+    return value;
+}
+
+static int linked_list_remove_middle(ioopm_list_t *list, int index)
+{
+    ioopm_link_t *prev_element = find_previous_element(list, index);
+    ioopm_link_t *remove_element = prev_element->next;
+    int value = remove_element->value;
+
+    ioopm_link_t *next_element = remove_element->next;
+    prev_element->next = next_element;
+    free(remove_element);
+    list->size -= 1;
     return value;
 }
 
 int ioopm_linked_list_remove(ioopm_list_t *list, int index)
 {
-    int value;
     assert(list);
     assert(list->size > 0);
     // Case: First element in non-empty list
@@ -156,22 +172,59 @@ int ioopm_linked_list_remove(ioopm_list_t *list, int index)
     // Case: Not first nor last element in non-empty list
     else
     {
-        ioopm_link_t *next_element = list -> first; 
-        for (int i = 0; i < index; i++) 
-        {
-            next_element = next_element->next;
-        }
-        ioopm_link_t *prev_element = find_previous_element(list, index);
-        value = next_element->value;
-        prev_element->next = next_element->next;
-        free(next_element);
-        return value;
+         return linked_list_remove_middle(list, index);
     }
-    list->size -= 1;
 }
 //(0,->) (1, ->) (2,->) (4, null)
 
 void ioopm_linked_list_destroy(ioopm_list_t *list)
+{
+    ioopm_linked_list_clear(list);
+    free(list);
+}
+
+int ioopm_linked_list_get(ioopm_list_t *list, int index)
+{
+    assert(list->first);
+    assert(list);
+    ioopm_link_t *element = list->first;
+    for (int i = 0; i < index; i++)
+    {
+        element = element->next;
+    }
+    return element->value;
+}
+
+bool ioopm_linked_list_contains(ioopm_list_t *list, int element)
+{   
+    ioopm_link_t *current_element = list->first;
+    int value;
+    for(int i = 0; i < list->size; i++)
+    {
+        value = current_element->value;
+        if(value == element)
+        {
+            return true;
+        }
+        else
+        {
+            current_element = current_element->next;
+        }
+    }
+    return false;
+}
+
+int ioopm_linked_list_size(ioopm_list_t *list)
+{
+    return list->size;
+}
+
+bool ioopm_linked_list_is_empty(ioopm_list_t *list)
+{
+    return (list->size == 0);
+}
+
+void ioopm_linked_list_clear(ioopm_list_t *list)
 {
     list->last = NULL;
     ioopm_link_t *current = list ->first;
@@ -181,24 +234,15 @@ void ioopm_linked_list_destroy(ioopm_list_t *list)
         current = current->next;      
         free(tmp);    
     }    
-    free(list);
-
-    //(0,->) (1, ->) (2,->) (4, null)
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 int main(void)
 {
-    ioopm_list_t *list = ioopm_linked_list_create();
-    //ioopm_link_t *first = list->first;
-    //int length = length_of_list(list);
-    ioopm_linked_list_prepend(list, 1);
-    ioopm_linked_list_append(list, 2);
-    int result = length_of_list(list);
-    //int lng = length_of_list(list);
-    printf("(%d)\n", result);
+  ioopm_list_t *list = ioopm_linked_list_create();
+  int value = ioopm_linked_list_get(list, 1);
+  ioopm_linked_list_destroy(list);
    // ioopm_list_t *element = list->next;
     //int value;
     //int value = list->first->next->next->next->value;

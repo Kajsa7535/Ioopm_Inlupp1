@@ -157,12 +157,81 @@ void test10_linked_list_remove_middle(void)
   ioopm_linked_list_append(list, 2);
   ioopm_linked_list_append(list, 3);
 
-  int value = ioopm_linked_list_remove(list, 1);
-  ioopm_linked_list_destroy(list);
+  ioopm_linked_list_remove(list, 1);
 
-  CU_ASSERT(list->first->next->next->value == 3);
+  CU_ASSERT(list->last->value == 3);
+  ioopm_linked_list_destroy(list);
 }
 
+void test11_linked_list_get_first(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+
+  int value = ioopm_linked_list_get(list, 0);
+
+  CU_ASSERT(value == 0);
+  ioopm_linked_list_destroy(list);
+}
+
+void test12_linked_list_get_last(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+
+  int value = ioopm_linked_list_get(list, 3);
+
+  CU_ASSERT(value == 3);
+  ioopm_linked_list_destroy(list);
+}
+
+void test13_linked_list_contain_first(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+
+  bool result = ioopm_linked_list_contains(list, 0);
+
+  CU_ASSERT(result);
+  ioopm_linked_list_destroy(list);
+}
+
+void test14_linked_list_contain_last(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+
+  bool result = ioopm_linked_list_get(list, 3);
+
+  CU_ASSERT(result);
+  ioopm_linked_list_destroy(list);
+}
+
+void test15_linked_list_contain_not(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+
+  bool result = ioopm_linked_list_contains(list,6);
+
+  CU_ASSERT_FALSE(result);
+  ioopm_linked_list_destroy(list);
+}
 
 
 
@@ -192,7 +261,12 @@ int main()
     (NULL == CU_add_test(test_suite2, "test 7", test7_linked_list_insert_invalid)) || 
     (NULL == CU_add_test(test_suite2, "test 8", test8_linked_list_remove_first)) || 
     (NULL == CU_add_test(test_suite2, "test 9", test9_linked_list_remove_last)) || 
-    (NULL == CU_add_test(test_suite2, "test 10", test10_linked_list_remove_middle))
+    (NULL == CU_add_test(test_suite2, "test 10", test10_linked_list_remove_middle))|| 
+    (NULL == CU_add_test(test_suite2, "test 11", test11_linked_list_get_first))|| 
+    (NULL == CU_add_test(test_suite2, "test 12", test12_linked_list_get_last))|| 
+    (NULL == CU_add_test(test_suite2, "test 13", test13_linked_list_contain_first))|| 
+    (NULL == CU_add_test(test_suite2, "test 14", test14_linked_list_contain_last))|| 
+    (NULL == CU_add_test(test_suite2, "test 15", test15_linked_list_contain_not))
   )
     {
       CU_cleanup_registry();
