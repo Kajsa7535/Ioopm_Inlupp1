@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-//#include <CUnit/Basic.h>
+#include <CUnit/Basic.h>
 #include "linked_list.h"
 
 //TODO: Ta bort alla index kollare för negativa index 
