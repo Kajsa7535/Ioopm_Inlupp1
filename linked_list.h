@@ -7,6 +7,9 @@ typedef void(*ioopm_apply_char_function)(int* value, void *extra); // ha med i a
 typedef struct list ioopm_list_t; /// Meta: struct definition goes in C file
 typedef struct link ioopm_link_t;
 
+typedef bool(*ioopm_int_predicate)(int value, void *extra);
+typedef void(*ioopm_apply_int_function)(int *value, void *extra); // ha med i apply_to_ALLL
+
 struct link // TODO: Var ska den ligga? .c eller .h 
 {
     int value;  // holds the value

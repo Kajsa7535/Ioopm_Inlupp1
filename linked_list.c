@@ -236,6 +236,63 @@ void ioopm_linked_list_clear(ioopm_list_t *list)
     }    
 }
 
+static bool value_int_equiv(int value, void *x)
+{
+  int *other_int_ptr = x;
+  int other_value = *other_int_ptr;
+  return value == other_value;
+}
+
+
+bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_int_predicate prop, void *extra)
+{
+    ioopm_link_t *current_element = list->first;
+    for (int i = 0; i < list->size; i++)
+        {
+            int value_compare = current_element->value;
+            if (!(prop(value_compare, extra)))
+            {
+                return false;
+            }
+            current_entry = current_entry->next;
+        }
+    return true;
+}
+
+
+bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_int_predicate prop, void *extra)
+{  
+    ioopm_link_t *current_element = list->first;
+    for (int i = 0; i < list->size; i++)
+        {
+            int value_compare = current_element->value;
+            if (prop(value_compare, extra))
+            {
+                return true;
+            }
+            current_entry = current_entry->next;
+        }
+    return false;
+}
+
+static void update_int_value(int *value, void *arg)
+{
+  int *other_int_ptr = arg;
+  int other_value = *other_int_ptr;
+  *value = other_value;
+}
+
+void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_int_function fun, void *extra)
+{
+    ioopm_link_t *current_element = list->first;
+    for (int i = 0; i < list->size; i++)
+        {
+            int current_value = current_element->value;
+            fun(current_value, extra);
+            current_entry = current_entry->next;
+        }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 int main(void)

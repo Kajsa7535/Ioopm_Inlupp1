@@ -22,6 +22,20 @@ static int length_of_list(ioopm_list_t *list)
     return acc;
 }
 
+static bool value_int_equiv(int value, void *x)
+{
+  int *other_int_ptr = x;
+  int other_value = *other_int_ptr;
+  return value == other_value;
+}
+
+static void update_int_value(int *value, void *arg)
+{
+  int *other_int_ptr = arg;
+  int other_value = *other_int_ptr;
+  *value = other_value;
+}
+
 int init_suite(void)
 {
   return 0;
@@ -256,7 +270,81 @@ void test17_linked_list_is_empty(void)
   ioopm_linked_list_destroy(list);
 }
 
+void test18_linked_list_all(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 1);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 1);
 
+  int value = 1;
+  bool result = ioopm_linked_list_all(list, value_int_equiv, &value);
+
+  CU_ASSERT(result);
+  ioopm_linked_list_destroy(list);
+}
+
+void test19_linked_list_all_not(void)
+{
+  oopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 1);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 0);
+
+  int value = 1;
+  bool result = ioopm_linked_list_all(list, value_int_equiv, &value);
+
+  CU_ASSERT_FALSE(result);
+  ioopm_linked_list_destroy(list);
+}
+
+void test20_linked_list_any(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 1);
+  ioopm_linked_list_append(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 3);
+
+  int value = 1;
+  bool result = ioopm_linked_list_any(list, value_int_equiv, &value);
+
+  CU_ASSERT(result);
+  ioopm_linked_list_destroy(list);
+}
+
+void test21_linked_list_any_not(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+  ioopm_linked_list_append(list, 3);
+
+  int value = 1;
+  bool result = ioopm_linked_list_any(list, value_int_equiv, &value);
+
+  CU_ASSERT_FALSE(result);
+  ioopm_linked_list_destroy(list);
+}
+
+void test22_linked_apply_to_all(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+
+  int value = 1;
+  ioopm_linked_apply_to_all(list, update_int_value, &value);
+  bool result = ioopm_linked_list_all(list, value_int_equiv, &value);
+
+  CU_ASSERT(result);
+  ioopm_linked_list_destroy(list);
+}
 
 int main()
 {
@@ -291,7 +379,12 @@ int main()
     (NULL == CU_add_test(test_suite2, "test 14", test14_linked_list_contain_last))|| 
     (NULL == CU_add_test(test_suite2, "test 15", test15_linked_list_contain_not))|| 
     (NULL == CU_add_test(test_suite2, "test 16", test16_linked_list_size))|| 
-    (NULL == CU_add_test(test_suite2, "test 17", test17_linked_list_is_empty))
+    (NULL == CU_add_test(test_suite2, "test 17", test17_linked_list_is_empty))|| 
+    (NULL == CU_add_test(test_suite2, "test 18", test18_linked_list_all))|| 
+    (NULL == CU_add_test(test_suite2, "test 19", test19_linked_list_all_not))|| 
+    (NULL == CU_add_test(test_suite2, "test 20", test20_linked_list_any))|| 
+    (NULL == CU_add_test(test_suite2, "test 21", test21_linked_list_any_not))|| 
+    (NULL == CU_add_test(test_suite2, "test 22", test22_linked_apply_to_all))
   )
     {
       CU_cleanup_registry();
