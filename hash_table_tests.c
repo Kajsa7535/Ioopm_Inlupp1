@@ -447,7 +447,7 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 13", test13_multiple_entry_hash_table)) || 
     (NULL == CU_add_test(test_suite1, "test 14", test14_hash_table_is_empty)) || 
     (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_is_empty_not_empty)) || 
-    (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
+    //(NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
     (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear)) || 
     (NULL == CU_add_test(test_suite1, "test 18A", test18A_hash_table_keys)) || 
     (NULL == CU_add_test(test_suite1, "test 18B", test18B_hash_table_keys_empty)) ||
