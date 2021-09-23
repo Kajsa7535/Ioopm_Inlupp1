@@ -254,7 +254,7 @@ bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_int_predicate prop, void *e
             {
                 return false;
             }
-            current_entry = current_entry->next;
+            current_element = current_element->next;
         }
     return true;
 }
@@ -270,7 +270,7 @@ bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_int_predicate prop, void *e
             {
                 return true;
             }
-            current_entry = current_entry->next;
+            current_element = current_element->next;
         }
     return false;
 }
@@ -289,7 +289,7 @@ void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_int_function fun,
         {
             int current_value = current_element->value;
             fun(current_value, extra);
-            current_entry = current_entry->next;
+            current_element = current_element->next;
         }
 }
 
