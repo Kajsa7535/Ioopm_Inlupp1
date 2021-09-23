@@ -22,7 +22,7 @@ linked_list_tests: linked_list_tests.c
 test_linked_list: linked_list_tests
 	./linked_list_tests
 
-vvalgrindlinked_liste_tests: linked_list_test
+valgrind_linked_list_tests: linked_list_tests
 	valgrind --leak-check=full ./linked_list_tests
 
 	 
