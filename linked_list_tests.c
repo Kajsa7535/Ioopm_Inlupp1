@@ -383,7 +383,7 @@ int main()
     (NULL == CU_add_test(test_suite2, "test 18", test18_linked_list_all))|| 
     (NULL == CU_add_test(test_suite2, "test 19", test19_linked_list_all_not))|| 
     (NULL == CU_add_test(test_suite2, "test 20", test20_linked_list_any))|| 
-    //(NULL == CU_add_test(test_suite2, "test 21", test21_linked_list_any_not))|| 
+    (NULL == CU_add_test(test_suite2, "test 21", test21_linked_list_any_not))|| 
     (NULL == CU_add_test(test_suite2, "test 22", test22_linked_apply_to_all))
   )
     {
