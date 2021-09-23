@@ -288,7 +288,7 @@ void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_int_function fun,
     for (int i = 0; i < list->size; i++)
         {
             int current_value = current_element->value;
-            fun(current_value, extra);
+            fun(&current_value, extra);
             current_element = current_element->next;
         }
 }
