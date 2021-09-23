@@ -360,7 +360,7 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/*
 int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -373,3 +373,4 @@ int main(void)
 }
 // TODO: LEARN DEBUGGING
 
+*/
