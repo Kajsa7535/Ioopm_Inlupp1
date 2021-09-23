@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <CUnit/Basic.h>
+//#include <CUnit/Basic.h>
 #include "linked_list.h"
 
 //TODO: Ta bort alla index kollare för negativa index 
@@ -287,19 +287,34 @@ void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_int_function fun,
     ioopm_link_t *current_element = list->first;
     for (int i = 0; i < list->size; i++)
         {
-            int current_value = current_element->value;
-            fun(&current_value, extra);
+            fun(&current_element->value, extra);
             current_element = current_element->next;
         }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /*
 int main(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  int value = ioopm_linked_list_get(list, 1);
-  ioopm_linked_list_destroy(list);
+    ioopm_list_t *list = ioopm_linked_list_create();
+    ioopm_linked_list_prepend(list, 0);
+    ioopm_linked_list_append(list, 1);
+    ioopm_linked_list_append(list, 2);
+    ioopm_linked_list_append(list, 3);
+
+    int value = 1;
+    ioopm_linked_apply_to_all(list, update_int_value, &value);
+    ioopm_link_t *current_element = list->first;
+    //bool result = ioopm_linked_list_all(list, value_int_equiv, &value);
+    for (int i = 0; i < list->size; i++)
+    {
+        int current_value = current_element->value;
+        printf("(%d)\n", current_value);
+        current_element = current_element->next;
+    }
+    return 0;
+
    // ioopm_list_t *element = list->next;
     //int value;
     //int value = list->first->next->next->next->value;
@@ -312,4 +327,5 @@ int main(void)
     //    puts("yey");
     //}
    // return 0;
-}*/
+}
+*/
