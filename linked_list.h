@@ -13,10 +13,11 @@ struct link // TODO: Var ska den ligga? .c eller .h
     ioopm_link_t *next; // points to the next entry (possibly NULL)
 };
 
-struct list
+struct list //TODO: Kan sätta en global variable size nu!
 {
     ioopm_link_t *first;
     ioopm_link_t *last;
+    int size;
 };
 
 

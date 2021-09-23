@@ -306,7 +306,7 @@ bool ioopm_hash_table_any(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
       current_entry = current_entry->next;
       int key_compare = current_entry->key;
       char *value_compare = current_entry->value;
-      if (pred(key_compare, value_compare, &arg)) // GDB REDOVISNING!!!! det som blev fel!!!! ---->>>>> &&&&&&& <<<-----pred(key_compare, value_compare, &arg)
+      if (pred(key_compare, value_compare, arg)) // GDB REDOVISNING!!!! det som blev fel!!!! ---->>>>> &&&&&&& <<<-----pred(key_compare, value_compare, &arg)
       {
         return true;
       }
