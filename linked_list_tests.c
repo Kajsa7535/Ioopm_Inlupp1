@@ -287,7 +287,7 @@ void test18_linked_list_all(void)
 
 void test19_linked_list_all_not(void)
 {
-  oopm_list_t *list = ioopm_linked_list_create();
+  ioopm_list_t *list = ioopm_linked_list_create();
   ioopm_linked_list_prepend(list, 1);
   ioopm_linked_list_append(list, 1);
   ioopm_linked_list_append(list, 1);
