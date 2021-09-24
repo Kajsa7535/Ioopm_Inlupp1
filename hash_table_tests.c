@@ -185,7 +185,7 @@ void test10_remove_entry_middle(void)
 void test11_empty_hash_table(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  int size = ht->size;
+  size_t size = ht->size;
   ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(size,0);
@@ -195,7 +195,7 @@ void test12_one_entry_hash_table(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
-  int size = ht->size;
+  size_t size = ht->size;
   ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(size,1);
@@ -210,7 +210,7 @@ void test13_multiple_entry_hash_table(void)
   ioopm_hash_table_insert(ht, 19, "test1");
   ioopm_hash_table_remove(ht, 1);
   
-  int size = ht->size;
+  size_t size = ht->size;
   ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(size,3);
@@ -241,7 +241,7 @@ void test16_hash_table_clear_size(void)
   ioopm_hash_table_insert(ht, 18, "Hejsan");
   ioopm_hash_table_insert(ht, 3, "Ioopm");
   ioopm_hash_table_clear(ht);
-  int size = ht->size;
+  size_t size = ht->size;
   ioopm_hash_table_destroy(ht);
 
   CU_ASSERT_EQUAL(size, 0);

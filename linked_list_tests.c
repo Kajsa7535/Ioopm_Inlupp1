@@ -15,7 +15,7 @@ struct list
 {
     ioopm_link_t *first;
     ioopm_link_t *last;
-    int size;
+    size_t size;
 };
 
 struct iterator 
@@ -25,10 +25,10 @@ struct iterator
 };
 
 
-static int length_of_list(ioopm_list_t *list)
+static size_t length_of_list(ioopm_list_t *list)
 {
     ioopm_link_t *element = list->first;
-    int acc = 0;
+    size_t acc = 0;
   
     if(list->first == NULL)
     {
@@ -95,7 +95,7 @@ void test3_length_of_list(void)
   ioopm_list_t *list = ioopm_linked_list_create();
   ioopm_linked_list_prepend(list, 1);
   ioopm_linked_list_append(list, 2);
-  int result = length_of_list(list);
+  size_t result = length_of_list(list);
   ioopm_linked_list_destroy(list);
 
   CU_ASSERT(result == 2);
@@ -151,7 +151,7 @@ void test7_linked_list_insert_invalid(void)
   ioopm_linked_list_prepend(list, 0);
   ioopm_linked_list_append(list, 1);
   ioopm_linked_list_insert(list, 5, 10);
-  int length = length_of_list(list);
+  size_t length = length_of_list(list);
   ioopm_linked_list_destroy(list);
 
   CU_ASSERT(length == 2);
@@ -276,7 +276,7 @@ void test16_linked_list_size(void)
   ioopm_linked_list_append(list, 2);
   ioopm_linked_list_append(list, 3);
 
-  int size = ioopm_linked_list_size(list);
+  size_t size = ioopm_linked_list_size(list);
 
   CU_ASSERT(size == 4);
   ioopm_linked_list_destroy(list);

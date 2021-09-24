@@ -16,7 +16,7 @@ struct list
 {
     ioopm_link_t *first;
     ioopm_link_t *last;
-    int size;
+    size_t size;
 };
 
 struct iterator 
@@ -92,7 +92,7 @@ void ioopm_linked_list_prepend(ioopm_list_t *list, int value)
 
 void ioopm_linked_list_insert(ioopm_list_t *list, int index, int value)
 {
-    int max = list->size;
+    size_t max = list->size;
     if (index < 0 || index > max)
     {
         puts("Wrong input!");
@@ -234,7 +234,7 @@ bool ioopm_linked_list_contains(ioopm_list_t *list, int element)
     return false;
 }
 
-int ioopm_linked_list_size(ioopm_list_t *list)
+size_t ioopm_linked_list_size(ioopm_list_t *list)
 {
     return list->size;
 }
