@@ -1,14 +1,11 @@
 #pragma once
 #include <stdbool.h>
 
-typedef bool(*ioopm_char_predicate)(int value, void *extra);
-typedef void(*ioopm_apply_char_function)(int* value, void *extra); // ha med i apply_to_ALLL
-
 typedef struct list ioopm_list_t; /// Meta: struct definition goes in C file
 typedef struct link ioopm_link_t;
 
 typedef bool(*ioopm_int_predicate)(int value, void *extra);
-typedef void(*ioopm_apply_int_function)(int *value, void *extra); // ha med i apply_to_ALLL
+typedef void(*ioopm_apply_int_function)(int *value, void *extra);
 
 struct link // TODO: Var ska den ligga? .c eller .h 
 {
@@ -24,7 +21,6 @@ struct list //TODO: Kan sätta en global variable size nu!
 };
 
 
-/// FIXME: better comments here
 /// @brief Creates a new linked list
 /// @return A new linked list with a dummy
 ioopm_list_t *ioopm_linked_list_create();
@@ -95,7 +91,7 @@ void ioopm_linked_list_clear(ioopm_list_t *list);
 /// @param prop the property to be tested (function pointer)
 /// @param extra an additional argument (may be NULL) that will be passed to all internal calls of prop
 /// @return true if prop holds for all elements in the list, else false
-bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_char_predicate prop, void *extra); 
+bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_int_predicate prop, void *extra); 
 //TODO: ioopm_char_predicate hur ska den se ut????????
 
 /// @brief Test if a supplied property holds for any element in a list.
@@ -104,10 +100,10 @@ bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_char_predicate prop, void *
 /// @param prop the property to be tested
 /// @param extra an additional argument (may be NULL) that will be passed to all internal calls of prop
 /// @return true if prop holds for any elements in the list, else false
-bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_char_predicate prop, void *extra);
+bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_int_predicate prop, void *extra);
 
 /// @brief Apply a supplied function to all elements in a list.
 /// @param list the linked list
 /// @param fun the function to be applied
 /// @param extra an additional argument (may be NULL) that will be passed to all internal calls of fun
-void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_char_function fun, void *extra);
+void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_int_function fun, void *extra);
