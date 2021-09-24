@@ -318,8 +318,16 @@ bool ioopm_iterator_has_next(ioopm_list_iterator_t *iter)
 
 int ioopm_iterator_next(ioopm_list_iterator_t *iter)
 {
-    iter->current = iter->current->next;
-    return iter->current->value;
+    if (ioopm_iterator_has_next(iter) == true)
+    {
+        iter->current = iter->current->next;
+        return iter->current->value;
+    }
+    else
+    {
+        return iter->current->value;
+    }
+
 }
 
 int ioopm_iterator_remove(ioopm_list_iterator_t *iter)

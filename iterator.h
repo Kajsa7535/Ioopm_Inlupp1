@@ -11,18 +11,18 @@ struct iterator
 };
 
 /// @brief Create an iterator for a given list
-/// @param the list to be iterated over
+/// @param list the list to be iterated over
 /// @return an iteration positioned at the start of list
 ioopm_list_iterator_t *ioopm_list_iterator(ioopm_list_t *list);
 
 /// @brief Checks if there are more elements to iterate over
 /// @param iter the iterator
-/// @return true if
+/// @return true if a next element is available
 bool ioopm_iterator_has_next(ioopm_list_iterator_t *iter);
 
-/// @brief Step the iterator forward one ste
+/// @brief Step the iterator forward one step
 /// @param iter the iterator
-/// @return the next element
+/// @return the next element if available, otherwise the current element
 int ioopm_iterator_next(ioopm_list_iterator_t *iter);
 
 /// NOTE: REMOVE IS OPTIONAL TO IMPLEMENT 
