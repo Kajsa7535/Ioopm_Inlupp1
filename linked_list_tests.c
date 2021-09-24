@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <CUnit/Basic.h>
 #include "linked_list.h"
+#include "iterator.h"
 
 static int length_of_list(ioopm_list_t *list)
 {
@@ -346,6 +347,68 @@ void test22_linked_apply_to_all(void)
   ioopm_linked_list_destroy(list);
 }
 
+void test23_iterator_next(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+  ioopm_linked_list_append(list, 3);
+
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+  ioopm_iterator_next(iter);
+  int result = iter->current->value;
+
+  CU_ASSERT(result == 1);
+  ioopm_iterator_destroy(iter);
+  ioopm_linked_list_destroy(list);
+}
+
+void test24_iterator_has_next(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+ // ioopm_linked_list_prepend(list, 0);
+
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+  bool result = ioopm_iterator_has_next(iter);
+
+  CU_ASSERT_FALSE(result);
+  ioopm_iterator_destroy(iter);
+  ioopm_linked_list_destroy(list);
+}
+
+void test25_iterator_reset(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+  ioopm_iterator_next(iter);
+  ioopm_iterator_reset(iter);
+  int result = iter->current->value;
+
+  CU_ASSERT(result == 0);
+  ioopm_iterator_destroy(iter);
+  ioopm_linked_list_destroy(list);
+}
+
+void test26_iterator_current(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_linked_list_prepend(list, 0);
+  ioopm_linked_list_append(list, 1);
+  ioopm_linked_list_append(list, 2);
+
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+  ioopm_iterator_next(iter);
+  int result = ioopm_iterator_current(iter);
+
+  CU_ASSERT(result == 1);
+  ioopm_iterator_destroy(iter);
+  ioopm_linked_list_destroy(list);
+}
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;
@@ -384,7 +447,11 @@ int main()
     (NULL == CU_add_test(test_suite2, "test 19", test19_linked_list_all_not))|| 
     (NULL == CU_add_test(test_suite2, "test 20", test20_linked_list_any))|| 
     (NULL == CU_add_test(test_suite2, "test 21", test21_linked_list_any_not))|| 
-    (NULL == CU_add_test(test_suite2, "test 22", test22_linked_apply_to_all))
+    (NULL == CU_add_test(test_suite2, "test 22", test22_linked_apply_to_all))|| 
+    (NULL == CU_add_test(test_suite2, "test 23", test23_iterator_next))|| 
+    (NULL == CU_add_test(test_suite2, "test 24", test24_iterator_has_next))|| 
+    (NULL == CU_add_test(test_suite2, "test 25", test25_iterator_reset))|| 
+    (NULL == CU_add_test(test_suite2, "test 26", test26_iterator_current))
   )
     {
       CU_cleanup_registry();

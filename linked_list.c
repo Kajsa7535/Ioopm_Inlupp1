@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <CUnit/Basic.h>
 #include "linked_list.h"
+#include "iterator.h"
 
 //TODO: Ta bort alla index kollare för negativa index 
 
@@ -293,7 +294,62 @@ void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_int_function fun,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ITERATOR FUNCTIONS
 
+ioopm_list_iterator_t *ioopm_list_iterator(ioopm_list_t *list)
+{
+    ioopm_list_iterator_t *iter = calloc(1, sizeof(ioopm_list_iterator_t));
+    iter->current = list->first;
+    iter->list = list;
+    return iter;
+}
+
+bool ioopm_iterator_has_next(ioopm_list_iterator_t *iter)
+{
+    if (iter->list->size == 0) 
+    {
+        return false; 
+    }
+    else
+    {
+        return iter->current->next != NULL;
+    }
+}
+
+int ioopm_iterator_next(ioopm_list_iterator_t *iter)
+{
+    iter->current = iter->current->next;
+    return iter->current->value;
+}
+
+int ioopm_iterator_remove(ioopm_list_iterator_t *iter)
+{
+    // current dubbelpekare, pekare till listan, sista elementet specialfall med linked_list_remove
+    //TODO: Skapa denna funktion om tid finns över
+    return 0;
+}
+
+void ioopm_iterator_insert(ioopm_list_iterator_t *iter, int element)
+{
+    //TODO: Skapa denna funktion om tid finns över
+}
+
+void ioopm_iterator_reset(ioopm_list_iterator_t *iter)
+{
+    iter->current = iter->list->first;
+}
+
+int ioopm_iterator_current(ioopm_list_iterator_t *iter)
+{
+    return iter->current->value;
+}
+
+void ioopm_iterator_destroy(ioopm_list_iterator_t *iter)
+{
+    free(iter);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 int main(void)
 {
