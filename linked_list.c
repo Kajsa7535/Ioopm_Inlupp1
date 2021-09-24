@@ -6,6 +6,25 @@
 #include "linked_list.h"
 #include "iterator.h"
 
+struct link 
+{
+    int value;  // holds the value
+    ioopm_link_t *next; // points to the next entry (possibly NULL)
+};
+
+struct list 
+{
+    ioopm_link_t *first;
+    ioopm_link_t *last;
+    int size;
+};
+
+struct iterator 
+{
+    ioopm_link_t *current; // ska vara dubbelpekare ???
+    ioopm_list_t *list;
+};
+
 //TODO: Ta bort alla index kollare för negativa index 
 
 ioopm_list_t *ioopm_linked_list_create()

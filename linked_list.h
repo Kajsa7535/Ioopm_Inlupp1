@@ -7,19 +7,6 @@ typedef struct link ioopm_link_t;
 typedef bool(*ioopm_int_predicate)(int value, void *extra);
 typedef void(*ioopm_apply_int_function)(int *value, void *extra);
 
-struct link // TODO: Var ska den ligga? .c eller .h 
-{
-    int value;  // holds the value
-    ioopm_link_t *next; // points to the next entry (possibly NULL)
-};
-
-struct list //TODO: Kan sätta en global variable size nu!
-{
-    ioopm_link_t *first;
-    ioopm_link_t *last;
-    int size;
-};
-
 
 /// @brief Creates a new linked list
 /// @return A new linked list with a dummy

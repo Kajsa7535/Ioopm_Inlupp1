@@ -7,6 +7,19 @@
 
 #define No_Buckets 17
 
+struct entry 
+{
+  int key;       // holds the key
+  char *value;   // holds the value
+  entry_t *next; // points to the next entry (possibly NULL)
+};
+
+struct hash_table
+{
+  entry_t buckets[17];
+  size_t size;
+};
+
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
 char *ioopm_lookup_key(ioopm_hash_table_t *ht, int key);
 ioopm_hash_table_t *ioopm_hash_table_create();
@@ -161,9 +174,9 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key) //
   }
 }
 
-static int length_of_bucket(entry_t *entry)
+static size_t length_of_bucket(entry_t *entry)
 {
-  int acc = 0;
+  size_t acc = 0;
   while (entry->next != NULL)
   {
     entry = entry->next;
@@ -189,7 +202,7 @@ static void bucket_destroy(entry_t *entry)
 {
   entry_t *dummy_entry = entry;
   entry_t *prev_entry;
-  int acc = length_of_bucket(entry);
+  size_t acc = length_of_bucket(entry);
   // Case: Last entry
   for (; acc > 0; acc--)
   {
@@ -208,9 +221,10 @@ void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) // TODO: Skriv om till rek
 {
   ioopm_hash_table_clear(ht);
   free(ht);
+  ht = NULL;
 }
 
-int ioopm_hash_table_size(ioopm_hash_table_t *ht)
+size_t ioopm_hash_table_size(ioopm_hash_table_t *ht)
 {
   return ht->size;
 }

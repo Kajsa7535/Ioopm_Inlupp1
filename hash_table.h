@@ -20,18 +20,7 @@ typedef struct hash_table ioopm_hash_table_t;
 typedef bool(*ioopm_predicate)(int key, char *value, void *extra);
 typedef void(*ioopm_apply_function)(int key, char **value, void *extra); // ha med i apply_to_ALLL
 
-struct entry // TODO: Var ska den ligga? .c eller .h 
-{
-  int key;       // holds the key
-  char *value;   // holds the value
-  entry_t *next; // points to the next entry (possibly NULL)
-};
 
-struct hash_table
-{
-  entry_t buckets[17];
-  int size;
-};
 
 
 //Helpfunction to ioopm_hash_table_lookup
@@ -69,7 +58,7 @@ char *ioopm_hash_table_remove(ioopm_hash_table_t *ht, int key);
 /// @brief returns the number of key => value entries in the hash table
 /// @param h hash table operated upon
 /// @return the number of key => value entries in the hash table
-int ioopm_hash_table_size(ioopm_hash_table_t *ht);
+size_t ioopm_hash_table_size(ioopm_hash_table_t *ht);
 
 /// @brief checks if the hash table is empty
 /// @param h hash table operated upon

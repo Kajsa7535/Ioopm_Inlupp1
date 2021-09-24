@@ -4,6 +4,18 @@
 #include <CUnit/Basic.h>
 #include "hash_table.h"
 
+struct entry 
+{
+  int key;       // holds the key
+  char *value;   // holds the value
+  entry_t *next; // points to the next entry (possibly NULL)
+};
+
+struct hash_table
+{
+  entry_t buckets[17];
+  size_t size;
+};
 
 static void update_value(int key, char **value, void *arg)
 {
@@ -37,7 +49,6 @@ static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
   
   return first_entry;
 }
-
 
 int init_suite(void)
 {
@@ -449,7 +460,7 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_is_empty_not_empty)) || 
     (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
     (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear)) || 
-    (NULL == CU_add_test(test_suite1, "test 18A", test18A_hash_table_keys)) || 
+    //(NULL == CU_add_test(test_suite1, "test 18A", test18A_hash_table_keys)) || 
     (NULL == CU_add_test(test_suite1, "test 18B", test18B_hash_table_keys_empty)) ||
     (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values)) || 
     (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_values_empty)) || 

@@ -4,11 +4,6 @@
 
 typedef struct iterator ioopm_list_iterator_t;
 
-struct iterator 
-{
-    ioopm_link_t *current; // ska vara dubbelpekare ???
-    ioopm_list_t *list;
-};
 
 /// @brief Create an iterator for a given list
 /// @param list the list to be iterated over

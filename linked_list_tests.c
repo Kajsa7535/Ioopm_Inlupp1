@@ -5,6 +5,26 @@
 #include "linked_list.h"
 #include "iterator.h"
 
+struct link 
+{
+    int value;  // holds the value
+    ioopm_link_t *next; // points to the next entry (possibly NULL)
+};
+
+struct list 
+{
+    ioopm_link_t *first;
+    ioopm_link_t *last;
+    int size;
+};
+
+struct iterator 
+{
+    ioopm_link_t *current; // ska vara dubbelpekare ???
+    ioopm_list_t *list;
+};
+
+
 static int length_of_list(ioopm_list_t *list)
 {
     ioopm_link_t *element = list->first;
