@@ -317,8 +317,7 @@ void test18A_hash_table_keys(void) // TODO: Make test case for empty (no keys)
   bool cmp3 = expected[2] == result3;
   bool cmp4 = expected[3] == result4;
   ioopm_hash_table_destroy(ht);
-  free(result);
-
+  ioopm_linked_list_destroy(result);
   CU_ASSERT(cmp1 && cmp2 && cmp3 && cmp4);
 }
 
