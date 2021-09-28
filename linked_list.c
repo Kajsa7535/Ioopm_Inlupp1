@@ -14,20 +14,20 @@ struct link
 
 struct list 
 {
-    ioopm_link_t *first;
-    ioopm_link_t *last;
-    size_t size;
+    ioopm_link_t *first; // points to the first element
+    ioopm_link_t *last; // points to the last element
+    size_t size; // counts the number of elements in the list
 };
 
 struct iterator 
 {
-    ioopm_link_t *current; // ska vara dubbelpekare ???
+    ioopm_link_t *current;  
     ioopm_list_t *list;
 };
 
 //TODO: Ta bort alla index kollare för negativa index 
 
-ioopm_list_t *ioopm_linked_list_create()
+ioopm_list_t *ioopm_linked_list_create() 
 {
   ioopm_list_t *link = calloc(1, sizeof(ioopm_list_t));
   //link->last = link->first;
@@ -60,7 +60,7 @@ static int length_of_list(ioopm_list_t *list)
     return acc;
 }*/
 
-//(0,->) (1, ->) (2,null) (4, null)
+//(0,->) (1, ->) (2,->) (4, null)
 
 void ioopm_linked_list_append(ioopm_list_t *list, int value)
 {
@@ -195,7 +195,6 @@ int ioopm_linked_list_remove(ioopm_list_t *list, int index)
          return linked_list_remove_middle(list, index);
     }
 }
-//(0,->) (1, ->) (2,->) (4, null)
 
 void ioopm_linked_list_destroy(ioopm_list_t *list)
 {
@@ -349,11 +348,45 @@ int ioopm_iterator_next(ioopm_list_iterator_t *iter)
 
 }
 
+static ioopm_link_t *iterator_find_previous_element(ioopm_list_iterator_t *iter)
+{
+    ioopm_link_t *element = iter->list->first;
+    while(element->next != iter->current)
+    {
+        element = element->next;
+    }
+    return element;
+}
+
+//(0,->) (1, ->) (2,null) (4, null)
+
 int ioopm_iterator_remove(ioopm_list_iterator_t *iter)
 {
     // current dubbelpekare, pekare till listan, sista elementet specialfall med linked_list_remove
     //TODO: Skapa denna funktion om tid finns över
-    return 0;
+    //ioopm_link_t *current_element = iter->current;
+    ioopm_link_t *remove_element = iter->current;
+    int remove_value;
+    if(remove_element == iter->list->first) //Compare pointers
+    {
+        iter->list->first = remove_element->next;
+    }
+    else if(remove_element == iter->list->last) //Compare pointers
+    {
+        ioopm_link_t *prev_element = iterator_find_previous_element(iter);
+        prev_element->next = NULL;
+        iter->list->last = prev_element;
+    }
+    else
+    {
+        ioopm_link_t *prev_element = iterator_find_previous_element(iter);
+        ioopm_link_t *next_element = iter->current->next;
+        prev_element->next = next_element;
+        
+    }
+    remove_value = remove_element->value;
+    free (remove_element);
+    return remove_value;
 }
 
 void ioopm_iterator_insert(ioopm_list_iterator_t *iter, int element)

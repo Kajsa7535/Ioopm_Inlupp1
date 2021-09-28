@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <CUnit/Basic.h>
 #include "hash_table.h"
+#include "linked_list.h"
 
 #define No_Buckets 17
 
@@ -20,12 +21,25 @@ struct hash_table
   size_t size;
 };
 
-void ioopm_hash_table_insert(ioopm_hash_table_t *ht, int key, char *value);
-char *ioopm_lookup_key(ioopm_hash_table_t *ht, int key);
-ioopm_hash_table_t *ioopm_hash_table_create();
-static entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
-static entry_t *entry_create(int key, char *value, entry_t *next);
-bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, int key, char **result);
+struct link 
+{
+    int value;  // holds the value
+    ioopm_link_t *next; // points to the next entry (possibly NULL)
+};
+
+struct list 
+{
+    ioopm_link_t *first;
+    ioopm_link_t *last;
+    size_t size;
+};
+
+struct iterator 
+{
+    ioopm_link_t *current; // ska vara dubbelpekare ???
+    ioopm_list_t *list;
+};
+
 
 ioopm_hash_table_t *ioopm_hash_table_create()
 {
@@ -244,10 +258,9 @@ void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
   ht->size = 0;
 }
 
-int *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när hashtable är tomt
+ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när hashtable är tomt
 {
-  int *result_array = calloc(ioopm_hash_table_size(ht), sizeof(int));
-  int acc = 0;
+  ioopm_list_t *result_list = ioopm_linked_list_create();
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -256,11 +269,10 @@ int *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när hashtabl
     {
       entry = entry->next;
       int key = entry->key;
-      result_array[acc] = key;
-      acc++;
+      ioopm_linked_list_append(result_list, key);
     }
   }
-  return result_array;
+  return result_list;
 }
 
 char **ioopm_hash_table_values(ioopm_hash_table_t *ht)

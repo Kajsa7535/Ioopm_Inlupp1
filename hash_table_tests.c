@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <CUnit/Basic.h>
 #include "hash_table.h"
+#include "linked_list.h"
 
 struct entry 
 {
@@ -17,6 +18,25 @@ struct hash_table
   size_t size;
 };
 
+struct link 
+{
+    int value;  // holds the value
+    ioopm_link_t *next; // points to the next entry (possibly NULL)
+};
+
+struct list 
+{
+    ioopm_link_t *first;
+    ioopm_link_t *last;
+    size_t size;
+};
+
+struct iterator 
+{
+    ioopm_link_t *current; // ska vara dubbelpekare ???
+    ioopm_list_t *list;
+};
+
 static void update_value(int key, char **value, void *arg)
 {
   char **other_char_ptr = arg;
@@ -29,6 +49,13 @@ static bool value_equiv(int key_ignored, char *value, void *x) //TODO: Fråga om
   char **other_char_ptr = x;
   char *other_value = *other_char_ptr;
   return strcmp(value,other_value) == 0;
+}
+
+static bool key_equiv(int key, char *value_ignored, void *x)
+{
+  int *other_key_ptr = x;
+  int other_key = *other_key_ptr;
+  return key == other_key;
 }
 
 static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
@@ -131,7 +158,7 @@ void test6_lookup_non_existing(void)
 }
 
 
-void test7_remove_entry_right(void)
+void test7A_remove_entry_right(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
@@ -139,6 +166,16 @@ void test7_remove_entry_right(void)
   ioopm_hash_table_destroy(ht);
   
   CU_ASSERT_EQUAL(strcmp(expected, "test1"), 0);
+}
+
+void test7B_remove_entry_not(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  char *result = ioopm_hash_table_remove(ht, 2);
+  ioopm_hash_table_destroy(ht);
+  
+  CU_ASSERT_PTR_NULL(result);
 }
 
 void test8_remove_entry_right_null(void)
@@ -270,11 +307,15 @@ void test18A_hash_table_keys(void) // TODO: Make test case for empty (no keys)
   ioopm_hash_table_insert(ht, 19, "ioopm");
   ioopm_hash_table_insert(ht, 2, "test2");
   ioopm_hash_table_insert(ht, 3, "test3");
-  int *result = ioopm_hash_table_keys(ht);
-  bool cmp1 = expected[0] == result[0];
-  bool cmp2 = expected[1] == result[1];
-  bool cmp3 = expected[2] == result[2];
-  bool cmp4 = expected[3] == result[3];
+  ioopm_list_t *result = ioopm_hash_table_keys(ht);
+  int result1 = ioopm_linked_list_get(result, 0);
+  int result2 = ioopm_linked_list_get(result, 1);
+  int result3 = ioopm_linked_list_get(result, 2);
+  int result4 = ioopm_linked_list_get(result, 3);
+  bool cmp1 = expected[0] == result1;
+  bool cmp2 = expected[1] == result2;
+  bool cmp3 = expected[2] == result3;
+  bool cmp4 = expected[3] == result4;
   ioopm_hash_table_destroy(ht);
   free(result);
 
@@ -284,13 +325,12 @@ void test18A_hash_table_keys(void) // TODO: Make test case for empty (no keys)
 void test18B_hash_table_keys_empty(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  int *result = ioopm_hash_table_keys(ht);
-  bool cmp = (sizeof(result) == sizeof(NULL)); //sizeof(NULL) == 8
+  ioopm_list_t *list = ioopm_hash_table_keys(ht);
+  bool result = ioopm_linked_list_is_empty(list);
+  CU_ASSERT(result);
   ioopm_hash_table_destroy(ht);
-  free(result);
-  CU_ASSERT(cmp);
+  ioopm_linked_list_destroy(list);
 }
-
 
 void test19_hash_table_values(void)
 {
@@ -384,7 +424,7 @@ void test25_hash_table_has_value_not(void)
   CU_ASSERT(!result);
 }
 
-void test26_hash_table_all(void)
+void test26A_hash_table_all_value(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
   ioopm_hash_table_insert(ht, 1, "test1");
@@ -395,6 +435,17 @@ void test26_hash_table_all(void)
   bool result = ioopm_hash_table_all(ht, value_equiv, &value);
   ioopm_hash_table_destroy(ht);
   CU_ASSERT(result);
+}
+
+void test26B_hash_table_all_key(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create();
+  ioopm_hash_table_insert(ht, 1, "test1");
+  ioopm_hash_table_insert(ht, 2, "test2");
+  int key = 1;
+  bool result = ioopm_hash_table_all(ht, key_equiv, &key);
+  ioopm_hash_table_destroy(ht);
+  CU_ASSERT_FALSE(result);
 }
 
 void test27_hash_table_all_not(void)
@@ -449,7 +500,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 4", test4_lookup)) || 
     (NULL == CU_add_test(test_suite1, "test 5", test5_lookup_existing)) ||
     (NULL == CU_add_test(test_suite1, "test 6", test6_lookup_non_existing)) ||
-    (NULL == CU_add_test(test_suite1, "test 7", test7_remove_entry_right)) || 
+    (NULL == CU_add_test(test_suite1, "test 7A", test7A_remove_entry_right)) ||
+    (NULL == CU_add_test(test_suite1, "test 7B", test7B_remove_entry_not)) || 
     (NULL == CU_add_test(test_suite1, "test 8", test8_remove_entry_right_null)) || 
     (NULL == CU_add_test(test_suite1, "test 9", test9_remove_entry_ht)) ||
     (NULL == CU_add_test(test_suite1, "test 10", test10_remove_entry_middle)) || 
@@ -460,7 +512,7 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_is_empty_not_empty)) || 
     (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_clear_size)) || 
     (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_clear)) || 
-    //(NULL == CU_add_test(test_suite1, "test 18A", test18A_hash_table_keys)) || 
+    (NULL == CU_add_test(test_suite1, "test 18A", test18A_hash_table_keys)) || 
     (NULL == CU_add_test(test_suite1, "test 18B", test18B_hash_table_keys_empty)) ||
     (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_values)) || 
     (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_values_empty)) || 
@@ -469,7 +521,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 23", test23_hash_table_has_value_identical)) || 
     (NULL == CU_add_test(test_suite1, "test 24", test24_hash_table_has_value_equivalent)) || 
     (NULL == CU_add_test(test_suite1, "test 25", test25_hash_table_has_value_not)) || 
-    (NULL == CU_add_test(test_suite1, "test 26", test26_hash_table_all)) || 
+    (NULL == CU_add_test(test_suite1, "test 26A", test26A_hash_table_all_value)) || 
+    (NULL == CU_add_test(test_suite1, "test 26B", test26B_hash_table_all_key)) || 
     (NULL == CU_add_test(test_suite1, "test 27", test27_hash_table_all_not)) || 
     (NULL == CU_add_test(test_suite1, "test 28", test28_hash_table_apply_all))
   )
