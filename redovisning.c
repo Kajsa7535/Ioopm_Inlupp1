@@ -30,6 +30,17 @@ int *fib(int *n)
     }
 }*/
 
+/* // TODO: REDOVISA Svansrekursion??????? 
+// acc argument always has to be zero initially
+static int length_of_bucket_recursive(entry_t *entry, int acc)
+{
+  if (entry->next == NULL)
+  {
+    return acc;
+  }
+  return length_of_bucket_recursive(entry->next, (acc + 1));
+}*/
+
 
 // ANVÄNDER SIG AV STACKEN
 int fib(int num)

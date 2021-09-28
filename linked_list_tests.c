@@ -4,6 +4,7 @@
 #include <CUnit/Basic.h>
 #include "linked_list.h"
 #include "iterator.h"
+#include "common.h"
 
 struct link 
 {
@@ -85,7 +86,7 @@ void test2_linked_list_append(void)
   ioopm_linked_list_append(list, 2);
   int result = list->first->value;
   ioopm_linked_list_destroy(list);
-
+  
   CU_ASSERT(result == 1);
 }
 
