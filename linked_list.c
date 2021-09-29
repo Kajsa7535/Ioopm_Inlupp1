@@ -94,12 +94,11 @@ void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
     else // TODO: KAN ANVÄNDA OSS AV FIND_PREVIOUS
     {
         ioopm_link_t *prev_element = list -> first; //first element
-        ioopm_link_t *next_element = list -> first -> next; // second element
         for (int i = 1; i < index; i++) // index 3 
         {
             prev_element = prev_element->next;
-            next_element = next_element->next;
         }
+        ioopm_link_t *next_element = prev_element -> next; // second element
 
         ioopm_link_t *new_element = element_create(value, next_element);
         prev_element->next = new_element;  
