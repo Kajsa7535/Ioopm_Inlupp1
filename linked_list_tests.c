@@ -134,7 +134,7 @@ void test3_linked_list_insert(void)
 
   ioopm_linked_list_insert(list, 1, int_elem(1));
   CU_ASSERT(ioopm_linked_list_contains(list, int_elem(1)));
-  CU_ASSERT(int_eq(int_elem(list->first->next, int_elem(1)));
+  CU_ASSERT(int_eq(int_elem(list->first->next), int_elem(1)));
 
   ioopm_linked_list_destroy(list);
 }
