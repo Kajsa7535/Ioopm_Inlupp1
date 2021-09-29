@@ -118,11 +118,11 @@ void test2_linked_list_append(void)
 void test3_linked_list_insert(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
-  int num = 100;
+  int num = 10;
 
-  for (int i = 0; i < 10; i++)
+  for (int i = 0; i < num; i++)
   {
-    int value = random()%num;
+    int value = random()%100;
     ioopm_linked_list_insert(list, 0, int_elem(value));
     CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
     CU_ASSERT(int_eq(int_elem(list->first->value), int_elem(value)));
@@ -482,7 +482,7 @@ int main()
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_linked_list_prepend)) ||
     (NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) ||
-    (NULL == CU_add_test(test_suite2, "test 3", test3_linked_list_insert)) /*|| 
+    (NULL == CU_add_test(test_suite1, "test 3", test3_linked_list_insert)) /*|| 
     (NULL == CU_add_test(test_suite2, "test 5", test5_linked_list_insert_last))|| 
     (NULL == CU_add_test(test_suite2, "test 6", test6_linked_list_insert_middle)) || 
     (NULL == CU_add_test(test_suite2, "test 7", test7_linked_list_insert_invalid)) || 
