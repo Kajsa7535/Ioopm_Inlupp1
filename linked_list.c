@@ -106,7 +106,7 @@ void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
 
         ioopm_link_t *new_element = element_create(value, next_element);
         prev_element->next = new_element;  
-        list->size += 1;  
+        list->size += 1;  // ÅTGÄRDAD BUGG, låg utanför else-sats
     } 
 }
 
