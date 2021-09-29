@@ -113,33 +113,27 @@ void test2_linked_list_append(void)
 
   ioopm_linked_list_destroy(list);
 }
-/*
-void test3_length_of_list(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 1);
-  ioopm_linked_list_append(list, 2);
-  size_t result = length_of_list(list);
-  ioopm_linked_list_destroy(list);
 
-  CU_ASSERT(result == 2);
+
+void test3_linked_list_insert(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+
+  for (int i = 0; i < 10; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_insert(list, 0, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+    CU_ASSERT(int_eq(int_elem(list->first->value), int_elem(value)));
+    ioopm_linked_list_insert(list, int_elem(list-size - 1), int_elem(value + 1));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value + 1)));
+    CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(value + 1)));
+  }
+
+  ioopm_linked_list_destroy(list);
 }
 
 /*
-void test4_linked_list_insert_first(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-  ioopm_linked_list_insert(list, 0, 10);
-  int result = list->first->value;
-  ioopm_linked_list_destroy(list);
-
-  CU_ASSERT(result == 10);
-}
-
 void test5_linked_list_insert_last(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create();
@@ -485,9 +479,8 @@ int main()
 
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_linked_list_prepend)) ||
-    (NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) /*||
-    (NULL == CU_add_test(test_suite1, "test 3", test3_length_of_list)) || 
-    (NULL == CU_add_test(test_suite2, "test 4", test4_linked_list_insert_first))|| 
+    (NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) ||
+    (NULL == CU_add_test(test_suite2, "test 3", test3_linked_list_insert)) /*|| 
     (NULL == CU_add_test(test_suite2, "test 5", test5_linked_list_insert_last))|| 
     (NULL == CU_add_test(test_suite2, "test 6", test6_linked_list_insert_middle)) || 
     (NULL == CU_add_test(test_suite2, "test 7", test7_linked_list_insert_invalid)) || 
