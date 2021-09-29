@@ -97,17 +97,16 @@ void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
     else // TODO: KAN ANVÄNDA OSS AV FIND_PREVIOUS
     {
         ioopm_link_t *prev_element = list -> first; //first element
-        ioopm_link_t *next_element = list -> first -> next; // second element
         for (int i = 1; i < index; i++) // index 3 
         {
             prev_element = prev_element->next;
-            next_element = next_element->next;
         }
+        ioopm_link_t *next_element = prev_element -> next; // second element
 
         ioopm_link_t *new_element = element_create(value, next_element);
-        prev_element->next = new_element;    
+        prev_element->next = new_element;  
+        list->size += 1;  // ÅTGÄRDAD BUGG, låg utanför else-sats
     } 
-    list->size += 1;
 }
 
 // CHECK
@@ -252,7 +251,9 @@ void ioopm_linked_list_clear(ioopm_list_t *list)
         ioopm_link_t *tmp = current;    
         current = current->next;      
         free(tmp);    
-    }    
+    }   
+    // Caselist->first = NULL; 
+    list->size = 0; 
 }
 
 
@@ -352,6 +353,7 @@ elem_t ioopm_iterator_next(ioopm_list_iterator_t *iter)
     }
     else
     {
+        iter->current = iter->list->first;
         return iter->current->value;
     }
 
@@ -418,26 +420,33 @@ void ioopm_iterator_destroy(ioopm_list_iterator_t *iter)
     free(iter);
 }
 
-/*
+
 bool dummy (elem_t value1, elem_t value2) 
 { 
     return true;
-}*/
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 int main(void)
 {
-    ioopm_list_t *list = ioopm_linked_list_create(dummy);
-    ioopm_linked_list_prepend(list, int_elem(0));
-    ioopm_linked_list_append(list, int_elem(1));
-    ioopm_linked_list_append(list, int_elem(2));
-    ioopm_linked_list_append(list, int_elem(3));
+    ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-    int test = extract_int_hash_key(string_elem("b"));
-
-    printf("%d", test);
-}*/
-
+    for (int i = 0; i < 10; i++)
+    {
+        int value = random()%100;
+        ioopm_linked_list_prepend(list, int_elem(value));
+        if (ioopm_linked_list_contains(list, int_elem(value)))
+        {
+            puts("yey\n");
+        }
+        else
+        {
+            puts("nej :(\n");
+        }
+    }
+}
+*/
 
 // TODO: Update function specifications in .h-file 
 // TODO: Extend the documentation with how you deal with failures and all other assumptions or caveats

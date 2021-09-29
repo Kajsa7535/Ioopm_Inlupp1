@@ -32,7 +32,7 @@ elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key);
 
 /// @brief Create a new hash table
 /// @return A new empty hash table
-ioopm_hash_table_t *ioopm_hash_table_create();
+ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq, ioopm_eq_function value_eq);
 
 /// @brief Delete a hash table and free its memory
 /// @param ht a hash table to be deleted

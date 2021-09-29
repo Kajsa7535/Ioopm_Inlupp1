@@ -44,6 +44,7 @@ static size_t length_of_list(ioopm_list_t *list)
     return acc;
 }
 
+
 static bool value_int_equiv(int value, void *x)
 {
   int *other_int_ptr = x;
@@ -58,6 +59,16 @@ static void update_int_value(int *value, void *arg)
   *value = other_value;
 }
 
+bool int_eq(elem_t e1, elem_t e2)
+{
+  return e1.int_value == e2.int_value;
+}
+
+bool string_eq(elem_t e1, elem_t e2)
+{
+  return strcmp(e1.string_value, e2.string_value) == 0;
+}
+
 int init_suite(void)
 {
   return 0;
@@ -68,84 +79,69 @@ int clean_suite(void)
   return 0;
 }
 
+//TODO: Skriv test för ioopm clear
 void test1_linked_list_prepend(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 2);
-  ioopm_linked_list_prepend(list, 1);
-  int result = list->first->next->value;
-  ioopm_linked_list_destroy(list);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  CU_ASSERT(result == 2);
+  int value = random()%100;
+  ioopm_linked_list_prepend(list, int_elem(value));
+  CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(value))); // Test if only one element has a correct last pointer
+
+  for (int i = 0; i < 10; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_prepend(list, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+    CU_ASSERT(int_eq(int_elem(list->first->value), int_elem(value)));
+  }
+
+  ioopm_linked_list_destroy(list);
 }
 
 void test2_linked_list_append(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  int result = list->first->value;
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+
+  for (int i = 0; i < 10; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_append(list, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+    CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(value)));
+  }
+
   ioopm_linked_list_destroy(list);
-  
-  CU_ASSERT(result == 1);
 }
 
 
-void test3_length_of_list(void)
+void test3_linked_list_insert(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 1);
-  ioopm_linked_list_append(list, 2);
-  size_t result = length_of_list(list);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  int num = 10;
+
+  for (int i = 0; i < num; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_insert(list, 0, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+    CU_ASSERT(int_eq(int_elem(list->first->value), int_elem(value)));
+  }
+
+  ioopm_linked_list_insert(list, num, int_elem(5));
+  CU_ASSERT(ioopm_linked_list_contains(list, int_elem(5)));
+  CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(5)));
+
+  ioopm_linked_list_insert(list, 1, int_elem(1));
+  CU_ASSERT(ioopm_linked_list_contains(list, int_elem(1)));
+  CU_ASSERT(int_eq(int_elem(list->first->next), int_elem(1)));
+
   ioopm_linked_list_destroy(list);
-
-  CU_ASSERT(result == 2);
-}
-
-void test4_linked_list_insert_first(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-  ioopm_linked_list_insert(list, 0, 10);
-  int result = list->first->value;
-  ioopm_linked_list_destroy(list);
-
-  CU_ASSERT(result == 10);
-}
-
-void test5_linked_list_insert_last(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-  ioopm_linked_list_insert(list, 4, 10);
-  int result = list->last->value;
-  ioopm_linked_list_destroy(list);
-
-  CU_ASSERT(result == 10);
-}
-
-void test6_linked_list_insert_middle(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-  ioopm_linked_list_insert(list, 2, 10);
-  int result1 = list->first->next->next->value;
-  int result2 = list->first->next->next->next->value;
-  ioopm_linked_list_destroy(list);
-
-  CU_ASSERT(result1 == 10 && result2 == 2);
 }
 
 
+
+/*
 void test7_linked_list_insert_invalid(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create();
@@ -430,6 +426,19 @@ void test26_iterator_current(void)
   ioopm_linked_list_destroy(list);
 }
 
+void test27_smart(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create();
+
+  for (int i = 0; i < 10; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_prepend(list, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+  }
+  ioopm_linked_list_destroy(list);
+}*/
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;
@@ -449,8 +458,7 @@ int main()
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_linked_list_prepend)) ||
     (NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) ||
-    (NULL == CU_add_test(test_suite1, "test 3", test3_length_of_list)) || 
-    (NULL == CU_add_test(test_suite2, "test 4", test4_linked_list_insert_first))|| 
+    (NULL == CU_add_test(test_suite1, "test 3", test3_linked_list_insert)) /*|| 
     (NULL == CU_add_test(test_suite2, "test 5", test5_linked_list_insert_last))|| 
     (NULL == CU_add_test(test_suite2, "test 6", test6_linked_list_insert_middle)) || 
     (NULL == CU_add_test(test_suite2, "test 7", test7_linked_list_insert_invalid)) || 
@@ -472,7 +480,7 @@ int main()
     (NULL == CU_add_test(test_suite2, "test 23", test23_iterator_next))|| 
     (NULL == CU_add_test(test_suite2, "test 24", test24_iterator_has_next))|| 
     (NULL == CU_add_test(test_suite2, "test 25", test25_iterator_reset))|| 
-    (NULL == CU_add_test(test_suite2, "test 26", test26_iterator_current))
+    (NULL == CU_add_test(test_suite2, "test 26", test26_iterator_current))*/
   )
     {
       CU_cleanup_registry();
