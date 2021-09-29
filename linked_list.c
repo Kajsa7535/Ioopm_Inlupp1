@@ -33,10 +33,10 @@ struct iterator
 //CHECK
 ioopm_list_t *ioopm_linked_list_create(ioopm_eq_function comp_function) 
 {
-  ioopm_list_t *link = calloc(1, sizeof(ioopm_list_t));
-  link->comp = comp_function;
-  //link->last = link->first;
-  return link;
+  ioopm_list_t *list = calloc(1, sizeof(ioopm_list_t));
+  list->comp = comp_function;
+  //list->last = list->first;
+  return list;
 }
 
 // CHECK
