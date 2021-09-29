@@ -118,17 +118,19 @@ void test2_linked_list_append(void)
 void test3_linked_list_insert(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  int num = 100;
 
   for (int i = 0; i < 10; i++)
   {
-    int value = random()%100;
+    int value = random()%num;
     ioopm_linked_list_insert(list, 0, int_elem(value));
     CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
     CU_ASSERT(int_eq(int_elem(list->first->value), int_elem(value)));
-    ioopm_linked_list_insert(list, int_elem(list->size) - 1, int_elem(value + 1));
-    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value + 1)));
-    CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(value + 1)));
   }
+
+  ioopm_linked_list_insert(list, num, int_elem(value + 1));
+  CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value + 1)));
+  CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(value + 1)));
 
   ioopm_linked_list_destroy(list);
 }
