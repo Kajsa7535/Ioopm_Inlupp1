@@ -139,21 +139,7 @@ static elem_t linked_list_remove_first(ioopm_list_t *list)
     return value;
 }
 
-// CHECK
-static elem_t linked_list_remove_last(ioopm_list_t *list)
-{
-    elem_t value = list->last->value;
-    ioopm_link_t *tmp_last = list->last;
-    ioopm_link_t *prev_element = find_previous_element(list, (list->size-1));
-    prev_element->next = NULL;
-    list->last = prev_element;
-    free(tmp_last);
-    list->size -= 1;
-    return value;
-}
-
-// CHECK
-static elem_t linked_list_remove_middle(ioopm_list_t *list, int index)
+static elem_t linked_list_remove_non_first(ioopm_list_t *list, int index)
 {
     ioopm_link_t *prev_element = find_previous_element(list, index);
     ioopm_link_t *remove_element = prev_element->next;
@@ -161,6 +147,10 @@ static elem_t linked_list_remove_middle(ioopm_list_t *list, int index)
 
     ioopm_link_t *next_element = remove_element->next;
     prev_element->next = next_element;
+    if (next_element == NULL)
+    {
+        list->last = prev_element;
+    }
     free(remove_element);
     list->size -= 1;
     return value;
@@ -176,15 +166,9 @@ elem_t ioopm_linked_list_remove(ioopm_list_t *list, int index)
     {
         return linked_list_remove_first(list);
     }
-    // Case: Last element in non-empty list
-    else if (index == list->size-1)
-    {
-        return linked_list_remove_last(list);
-    }
-    // Case: Not first nor last element in non-empty list
     else
     {
-         return linked_list_remove_middle(list, index);
+         return linked_list_remove_non_first(list, index);
     }
 }
 
