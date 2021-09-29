@@ -21,6 +21,8 @@ struct hash_table
   entry_t buckets[No_Buckets]; 
   size_t size;
   ioopm_hash_function hash_function;
+  ioopm_eq_function keys_eq_function;
+  ioopm_eq_function values_eq_function;
 };
 
 struct link 
@@ -54,13 +56,15 @@ bool ioopm_eq_function_test(elem_t element1, elem_t element2)
 }
 
 //CHECK
-ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func)
+ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq, ioopm_eq_function value_eq)
 {
   /// Allocate space for a ioopm_hash_table_t = 17 pointers to
   /// entry_t's, which will be set to NULL
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
   result -> size = 0;
   result -> hash_function = hash_func;
+  result -> keys_eq_function = key_eq;
+  result -> values_eq_function = value_eq;
   return result;
 }
 
