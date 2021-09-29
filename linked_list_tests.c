@@ -6,57 +6,40 @@
 #include "iterator.h"
 #include "common.h"
 
+
 struct link 
 {
-    int value;  // holds the value
+    elem_t value;  // holds the value
     ioopm_link_t *next; // points to the next entry (possibly NULL)
 };
 
 struct list 
 {
-    ioopm_link_t *first;
-    ioopm_link_t *last;
-    size_t size;
+    ioopm_link_t *first; // points to the first element
+    ioopm_link_t *last; // points to the last element
+    size_t size; // counts the number of elements in the list
+    ioopm_eq_function comp; 
 };
 
 struct iterator 
 {
-    ioopm_link_t *current; // ska vara dubbelpekare ???
+    ioopm_link_t *current;  
     ioopm_list_t *list;
 };
 
-
-static size_t length_of_list(ioopm_list_t *list)
-{
-    ioopm_link_t *element = list->first;
-    size_t acc = 0;
-  
-    if(list->first == NULL)
-    {
-        return acc;
-    }
-    
-    do 
-    {
-        acc = acc + 1;
-        element = element->next;
-    } while (element != NULL);
-    return acc;
-}
-
-
-static bool value_int_equiv(int value, void *x)
+static bool value_int_equiv(elem_t key, elem_t value, void *x)
 {
   int *other_int_ptr = x;
   int other_value = *other_int_ptr;
-  return value == other_value;
+  return value.int_value == other_value;
 }
 
-static void update_int_value(int *value, void *arg)
+
+static void update_int_value(elem_t key, elem_t *value, void *arg)
 {
   int *other_int_ptr = arg;
   int other_value = *other_int_ptr;
-  *value = other_value;
+  (*value).int_value = other_value;
 }
 
 bool int_eq(elem_t e1, elem_t e2)
@@ -84,16 +67,17 @@ void test1_linked_list_prepend(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
+  ioopm_eq_function func = *list->comp;
   int value = random()%100;
   ioopm_linked_list_prepend(list, int_elem(value));
-  CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(value))); // Test if only one element has a correct last pointer
+  CU_ASSERT(func((list->last->value), int_elem(value))); // Test if only one element has a correct last pointer
 
   for (int i = 0; i < 10; i++)
   {
     int value = random()%100;
     ioopm_linked_list_prepend(list, int_elem(value));
     CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
-    CU_ASSERT(int_eq(int_elem(list->first->value), int_elem(value)));
+    CU_ASSERT(func((list->first->value), int_elem(value)));
   }
 
   ioopm_linked_list_destroy(list);
@@ -108,348 +92,359 @@ void test2_linked_list_append(void)
     int value = random()%100;
     ioopm_linked_list_append(list, int_elem(value));
     CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
-    CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(value)));
+    CU_ASSERT(int_eq((list->last->value), int_elem(value)));
   }
 
   ioopm_linked_list_destroy(list);
 }
 
 
-void test3_linked_list_insert(void)
+void test3A_linked_list_insert_first(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
-  int num = 10;
+  CU_ASSERT(list->size == 0);
 
-  for (int i = 0; i < num; i++)
+  for (int i = 0; i < 10; i++) // Case: insert first in list
   {
     int value = random()%100;
     ioopm_linked_list_insert(list, 0, int_elem(value));
     CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
-    CU_ASSERT(int_eq(int_elem(list->first->value), int_elem(value)));
+    CU_ASSERT(int_eq((list->first->value), int_elem(value)));
+    CU_ASSERT(list->size == i+1);
+  }
+  ioopm_linked_list_destroy(list);
+}
+
+void test3B_linked_list_insert_last(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+
+  for (int i = 0; i < 10; i++) // Case: insert last in list
+  {
+    int value = random()%100;
+    ioopm_linked_list_insert(list, list->size, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+    CU_ASSERT(int_eq((list->last->value), int_elem(value)));
+  }
+  ioopm_linked_list_destroy(list);
+}
+
+void test3C_linked_list_insert_randomly(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+
+  int value = random()%100;
+  ioopm_linked_list_prepend(list, int_elem(value));
+
+  for (int i = 0; i < 10; i++) // Case: insert randomly in list
+  {
+    int value = random()%100;
+    int index = random()%list->size;
+    ioopm_linked_list_insert(list, index, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+    CU_ASSERT(int_eq(ioopm_linked_list_get(list, index), int_elem(value)));
   }
 
-  ioopm_linked_list_insert(list, num, int_elem(5));
-  CU_ASSERT(ioopm_linked_list_contains(list, int_elem(5)));
-  CU_ASSERT(int_eq(int_elem(list->last->value), int_elem(5)));
+  ioopm_linked_list_destroy(list);
+}
 
-  ioopm_linked_list_insert(list, 1, int_elem(1));
-  CU_ASSERT(ioopm_linked_list_contains(list, int_elem(1)));
-  CU_ASSERT(int_eq(int_elem(list->first->next), int_elem(1)));
+void test4_linked_list_remove(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  
+  for (int i = 0; i < 11; i++) // Prepends 11 random elements
+  {
+    int value = random()%100;
+    ioopm_linked_list_prepend(list, int_elem(value));
+  }
+  CU_ASSERT(list->size == 11)
+
+  for (int i = 0; i < 10; i++) // Removes 10 elements randomly
+  {
+    int index = random()%list->size; // genererar random index till element som tas bort från listan
+    CU_ASSERT(int_eq(ioopm_linked_list_get(list, index), ioopm_linked_list_remove(list, index))); // check that the elemt removed is the element on that index
+  }
+  
+  CU_ASSERT(list->size == 1); // check that size of linked list changes
+  ioopm_linked_list_remove(list, 0);
+  CU_ASSERT(ioopm_linked_list_is_empty(list));
 
   ioopm_linked_list_destroy(list);
 }
 
-
-
-/*
-void test7_linked_list_insert_invalid(void)
+void test5_linked_list_get(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_insert(list, 5, 10);
-  size_t length = length_of_list(list);
-  ioopm_linked_list_destroy(list);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  int value = random()%100;
+  ioopm_linked_list_prepend(list, int_elem(value));
 
-  CU_ASSERT(length == 2);
-}
-
-void test8_linked_list_remove_first(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-   ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-  int value = ioopm_linked_list_remove(list, 0);
-  ioopm_linked_list_destroy(list);
-
-  CU_ASSERT(value == 0);
-}
-
-void test9_linked_list_remove_last(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-  int value = ioopm_linked_list_remove(list, 3);
-  ioopm_linked_list_destroy(list);
-
-  CU_ASSERT(value == 3);
-}
-
-
-void test10_linked_list_remove_middle(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-
-  ioopm_linked_list_remove(list, 1);
-
-  CU_ASSERT(list->last->value == 3);
+   for (int i = 0; i < 10; i++) // Prepends 10 random elements
+  {
+    int value = random()%100;
+    int index = random()%list->size;
+    ioopm_linked_list_insert(list, index, int_elem(value));
+    CU_ASSERT(int_eq(ioopm_linked_list_get(list, index), int_elem(value)));
+  }
   ioopm_linked_list_destroy(list);
 }
 
-void test11_linked_list_get_first(void)
+void test6_linked_list_contains(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  int value = ioopm_linked_list_get(list, 0);
-
-  CU_ASSERT(value == 0);
-  ioopm_linked_list_destroy(list);
-}
-
-void test12_linked_list_get_last(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-
-  int value = ioopm_linked_list_get(list, 3);
-
-  CU_ASSERT(value == 3);
-  ioopm_linked_list_destroy(list);
-}
-
-void test13_linked_list_contain_first(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-
-  bool result = ioopm_linked_list_contains(list, 0);
-
-  CU_ASSERT(result);
-  ioopm_linked_list_destroy(list);
-}
-
-void test14_linked_list_contain_last(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-
-  bool result = ioopm_linked_list_get(list, 3);
-
-  CU_ASSERT(result);
-  ioopm_linked_list_destroy(list);
-}
-
-void test15_linked_list_contain_not(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-
-  bool result = ioopm_linked_list_contains(list,6);
-
+  bool result = ioopm_linked_list_contains(list, int_elem(1)); // Case: Empty list
   CU_ASSERT_FALSE(result);
+
+  int value = random()%100;
+  ioopm_linked_list_prepend(list, int_elem(value));
+
+  for (int i = 0; i < 10; i++) // Case: insert randomly in list
+  {
+    int value = random()%100;
+    int index = random()%list->size;
+    ioopm_linked_list_insert(list, index, int_elem(value));
+    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
+  }
+
   ioopm_linked_list_destroy(list);
 }
 
-void test16_linked_list_size(void)
+void test7_linked_list_size(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  
+  CU_ASSERT(list->size == ioopm_linked_list_size(list)); // Case: Empty list
 
-  size_t size = ioopm_linked_list_size(list);
+  int value = random()%100;
+  ioopm_linked_list_prepend(list, int_elem(value));
 
-  CU_ASSERT(size == 4);
+ for (int i = 0; i < 10; i++) // Case: insert randomly in list
+  {
+    int value = random()%100;
+    int index = random()%list->size;
+    ioopm_linked_list_insert(list, index, int_elem(value));
+    CU_ASSERT(list->size == ioopm_linked_list_size(list));
+  }
+
   ioopm_linked_list_destroy(list);
 }
 
-void test17_linked_list_is_empty(void)
+void test8_linked_list_is_empty(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  bool result = ioopm_linked_list_is_empty(list);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  CU_ASSERT(ioopm_linked_list_is_empty(list));
 
-  CU_ASSERT(result);
+  int value = random()%100;
+  ioopm_linked_list_prepend(list, int_elem(value));
+
+ for (int i = 0; i < 10; i++) // Case: insert randomly in list
+  {
+    int value = random()%100;
+    int index = random()%list->size;
+    ioopm_linked_list_insert(list, index, int_elem(value));
+  }
+
+  CU_ASSERT_FALSE(ioopm_linked_list_is_empty(list));
+
   ioopm_linked_list_destroy(list);
 }
 
-void test18_linked_list_all(void)
+void test9_linked_list_all(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 1);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 1);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
   int value = 1;
-  bool result = ioopm_linked_list_all(list, value_int_equiv, &value);
 
-  CU_ASSERT(result);
+  ioopm_linked_list_prepend(list, int_elem(value));
+
+  for (int i = 0; i < 10; i++) // Prepend 1 10 times in list
+  {
+    ioopm_linked_list_prepend(list, int_elem(value));
+  }
+
+  CU_ASSERT(ioopm_linked_list_all(list, value_int_equiv, &value));
+
+  ioopm_linked_list_prepend(list, int_elem(2)); // Case: not true
+  CU_ASSERT_FALSE(ioopm_linked_list_all(list, value_int_equiv, &value)); 
+
   ioopm_linked_list_destroy(list);
 }
 
-void test19_linked_list_all_not(void)
+
+void test10_linked_list_any(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 1);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 0);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
   int value = 1;
-  bool result = ioopm_linked_list_all(list, value_int_equiv, &value);
 
-  CU_ASSERT_FALSE(result);
+  ioopm_linked_list_prepend(list, int_elem(2));
+
+  for (int i = 0; i < 10; i++) // Prepend 1 10 times in list
+  {
+    ioopm_linked_list_prepend(list, int_elem(2));
+  }
+
+  CU_ASSERT_FALSE(ioopm_linked_list_any(list, value_int_equiv, &value));
+
+  ioopm_linked_list_prepend(list, int_elem(value)); // Case: not true
+  CU_ASSERT(ioopm_linked_list_any(list, value_int_equiv, &value)); 
+
   ioopm_linked_list_destroy(list);
 }
 
-void test20_linked_list_any(void)
+void test11_linked_apply_to_all(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 1);
-  ioopm_linked_list_append(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 3);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  int value = 1;
-  bool result = ioopm_linked_list_any(list, value_int_equiv, &value);
+  int value1 = 1;
+  int value2 = 2;
 
-  CU_ASSERT(result);
+  ioopm_linked_list_prepend(list, int_elem(value2));
+
+  for (int i = 0; i < 10; i++) // Prepend 1 10 times in list
+  {
+    ioopm_linked_list_prepend(list, int_elem(value2));
+  }
+  
+  CU_ASSERT(ioopm_linked_list_all(list, value_int_equiv, &value2));
+  ioopm_linked_apply_to_all(list, update_int_value, &value1);
+  CU_ASSERT(ioopm_linked_list_all(list, value_int_equiv, &value1));
+
   ioopm_linked_list_destroy(list);
 }
 
-void test21_linked_list_any_not(void)
+void test12_iterator_next(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-  ioopm_linked_list_append(list, 3);
-
-  int value = 1;
-  bool result = ioopm_linked_list_any(list, value_int_equiv, &value);
-
-  CU_ASSERT_FALSE(result);
-  ioopm_linked_list_destroy(list);
-}
-
-void test22_linked_apply_to_all(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
-
-  int value = 1;
-  ioopm_linked_apply_to_all(list, update_int_value, &value);
-  bool result = ioopm_linked_list_all(list, value_int_equiv, &value);
-
-  CU_ASSERT(result);
-  ioopm_linked_list_destroy(list);
-}
-
-void test23_iterator_next(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-  ioopm_linked_list_append(list, 3);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  
+  for (int i = 0; i < 10; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_prepend(list, int_elem(value));
+  }
 
   ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
-  ioopm_iterator_next(iter);
-  int result = iter->current->value;
+  CU_ASSERT(int_eq(iter->current->value, ioopm_linked_list_get(list, 0)));
 
-  CU_ASSERT(result == 1);
+  for (int k = 1; k < 10; k++)
+  {
+    CU_ASSERT(int_eq(ioopm_iterator_next(iter), ioopm_linked_list_get(list, k))); 
+  }
+
   ioopm_iterator_destroy(iter);
   ioopm_linked_list_destroy(list);
 }
 
-void test24_iterator_has_next(void)
+
+void test13_iterator_has_next(void)
 {
-  ioopm_list_t *list = ioopm_linked_list_create();
- // ioopm_linked_list_prepend(list, 0);
-
-  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
-  bool result = ioopm_iterator_has_next(iter);
-
-  CU_ASSERT_FALSE(result);
-  ioopm_iterator_destroy(iter);
-  ioopm_linked_list_destroy(list);
-}
-
-void test25_iterator_reset(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-
-  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
-  ioopm_iterator_next(iter);
-  ioopm_iterator_reset(iter);
-  int result = iter->current->value;
-
-  CU_ASSERT(result == 0);
-  ioopm_iterator_destroy(iter);
-  ioopm_linked_list_destroy(list);
-}
-
-void test26_iterator_current(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
-  ioopm_linked_list_prepend(list, 0);
-  ioopm_linked_list_append(list, 1);
-  ioopm_linked_list_append(list, 2);
-
-  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
-  ioopm_iterator_next(iter);
-  int result = ioopm_iterator_current(iter);
-
-  CU_ASSERT(result == 1);
-  ioopm_iterator_destroy(iter);
-  ioopm_linked_list_destroy(list);
-}
-
-void test27_smart(void)
-{
-  ioopm_list_t *list = ioopm_linked_list_create();
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
   for (int i = 0; i < 10; i++)
   {
     int value = random()%100;
     ioopm_linked_list_prepend(list, int_elem(value));
-    CU_ASSERT(ioopm_linked_list_contains(list, int_elem(value)));
   }
+
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+  CU_ASSERT(ioopm_iterator_has_next(iter)); 
+  for (int k = 1; k < 10; k++)
+  {
+    CU_ASSERT(ioopm_iterator_has_next(iter));
+    ioopm_iterator_next(iter);
+  }
+   CU_ASSERT_FALSE(ioopm_iterator_has_next(iter)); 
+
+  ioopm_iterator_destroy(iter);
   ioopm_linked_list_destroy(list);
-}*/
+}
+
+
+void test14_iterator_reset(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+
+  for (int i = 0; i < 10; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_prepend(list, int_elem(value));
+  }
+
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+
+  CU_ASSERT_PTR_EQUAL(iter->current, list->first);
+
+  for (int k = 1; k < 10; k++)
+  {
+    ioopm_iterator_next(iter);
+  }
+
+  CU_ASSERT_PTR_EQUAL(iter->current, list->last);
+  ioopm_iterator_reset(iter);
+  CU_ASSERT_PTR_EQUAL(iter->current, list->first);
+
+  ioopm_iterator_destroy(iter);
+  ioopm_linked_list_destroy(list);
+}
+
+
+void test15_iterator_current(void)
+{
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  
+  for (int i = 0; i < 10; i++)
+  {
+    int value = random()%100;
+    ioopm_linked_list_prepend(list, int_elem(value));
+  }
+
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+  CU_ASSERT(int_eq(ioopm_iterator_current(iter), ioopm_linked_list_get(list, 0)));
+
+  for (int k = 1; k < 10; k++)
+  {
+    ioopm_iterator_next(iter);
+    CU_ASSERT(int_eq(ioopm_iterator_current(iter), ioopm_linked_list_get(list, k))); 
+  }
+
+  ioopm_iterator_destroy(iter);
+  ioopm_linked_list_destroy(list);
+}
 
 int main()
 {
   CU_pSuite test_suite1 = NULL;
   CU_pSuite test_suite2 = NULL;
+  CU_pSuite test_suite3 = NULL;
+  CU_pSuite test_suite4 = NULL;
 
   if (CUE_SUCCESS != CU_initialize_registry())
     return CU_get_error();
 
   test_suite1 = CU_add_suite("Test Suite 1", init_suite, clean_suite);
   test_suite2 = CU_add_suite("Test Suite 2", init_suite, clean_suite);
+  test_suite3 = CU_add_suite("Test Suite 3", init_suite, clean_suite);
+  test_suite4 = CU_add_suite("Test Suite 4", init_suite, clean_suite);
+  
   if (NULL == test_suite1)
+    {
+      CU_cleanup_registry();
+      return CU_get_error();
+    }
+
+  if (NULL == test_suite2)
+    {
+      CU_cleanup_registry();
+      return CU_get_error();
+    }
+
+  if (NULL == test_suite3)
+    {
+      CU_cleanup_registry();
+      return CU_get_error();
+    }
+
+  if (NULL == test_suite4)
     {
       CU_cleanup_registry();
       return CU_get_error();
@@ -458,30 +453,22 @@ int main()
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_linked_list_prepend)) ||
     (NULL == CU_add_test(test_suite1, "test 2", test2_linked_list_append)) ||
-    (NULL == CU_add_test(test_suite1, "test 3", test3_linked_list_insert)) /*|| 
-    (NULL == CU_add_test(test_suite2, "test 5", test5_linked_list_insert_last))|| 
-    (NULL == CU_add_test(test_suite2, "test 6", test6_linked_list_insert_middle)) || 
-    (NULL == CU_add_test(test_suite2, "test 7", test7_linked_list_insert_invalid)) || 
-    (NULL == CU_add_test(test_suite2, "test 8", test8_linked_list_remove_first)) || 
-    (NULL == CU_add_test(test_suite2, "test 9", test9_linked_list_remove_last)) || 
-    (NULL == CU_add_test(test_suite2, "test 10", test10_linked_list_remove_middle))|| 
-    (NULL == CU_add_test(test_suite2, "test 11", test11_linked_list_get_first))|| 
-    (NULL == CU_add_test(test_suite2, "test 12", test12_linked_list_get_last))|| 
-    (NULL == CU_add_test(test_suite2, "test 13", test13_linked_list_contain_first))|| 
-    (NULL == CU_add_test(test_suite2, "test 14", test14_linked_list_contain_last))|| 
-    (NULL == CU_add_test(test_suite2, "test 15", test15_linked_list_contain_not))|| 
-    (NULL == CU_add_test(test_suite2, "test 16", test16_linked_list_size))|| 
-    (NULL == CU_add_test(test_suite2, "test 17", test17_linked_list_is_empty))|| 
-    (NULL == CU_add_test(test_suite2, "test 18", test18_linked_list_all))|| 
-    (NULL == CU_add_test(test_suite2, "test 19", test19_linked_list_all_not))|| 
-    (NULL == CU_add_test(test_suite2, "test 20", test20_linked_list_any))|| 
-    (NULL == CU_add_test(test_suite2, "test 21", test21_linked_list_any_not))|| 
-    (NULL == CU_add_test(test_suite2, "test 22", test22_linked_apply_to_all))|| 
-    (NULL == CU_add_test(test_suite2, "test 23", test23_iterator_next))|| 
-    (NULL == CU_add_test(test_suite2, "test 24", test24_iterator_has_next))|| 
-    (NULL == CU_add_test(test_suite2, "test 25", test25_iterator_reset))|| 
-    (NULL == CU_add_test(test_suite2, "test 26", test26_iterator_current))*/
-  )
+    (NULL == CU_add_test(test_suite1, "test 3A", test3A_linked_list_insert_first)) || 
+    (NULL == CU_add_test(test_suite1, "test 3B", test3B_linked_list_insert_last)) || 
+    (NULL == CU_add_test(test_suite1, "test 3C", test3C_linked_list_insert_randomly)) ||
+    (NULL == CU_add_test(test_suite1, "test 4", test4_linked_list_remove)) || 
+    (NULL == CU_add_test(test_suite2, "test 5", test5_linked_list_get)) ||
+    (NULL == CU_add_test(test_suite2, "test 6", test6_linked_list_contains)) || 
+    (NULL == CU_add_test(test_suite2, "test 7", test7_linked_list_size)) || 
+    (NULL == CU_add_test(test_suite2, "test 8", test8_linked_list_is_empty)) ||
+    (NULL == CU_add_test(test_suite3, "test 9", test9_linked_list_all)) ||
+    (NULL == CU_add_test(test_suite3, "test 10", test10_linked_list_any)) || 
+    (NULL == CU_add_test(test_suite3, "test 11", test11_linked_apply_to_all)) || 
+    (NULL == CU_add_test(test_suite4, "test 12", test12_iterator_next)) || 
+    (NULL == CU_add_test(test_suite4, "test 13", test13_iterator_has_next)) || 
+    (NULL == CU_add_test(test_suite4, "test 14", test14_iterator_reset)) || 
+    (NULL == CU_add_test(test_suite4, "test 15", test15_iterator_current))
+    )
     {
       CU_cleanup_registry();
       return CU_get_error();

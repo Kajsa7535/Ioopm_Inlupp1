@@ -4,7 +4,6 @@
 
 typedef struct iterator ioopm_list_iterator_t;
 
-
 /// @brief Create an iterator for a given list
 /// @param list the list to be iterated over
 /// @return an iteration positioned at the start of list

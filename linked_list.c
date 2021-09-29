@@ -82,11 +82,8 @@ void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value)
 void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
 {
     size_t max = list->size;
-    if (index < 0 || index > max)
-    {
-        puts("Wrong input!");
-    }
-    else if (index == 0)
+    assert(index >= 0 && index <= max);
+    if (index == 0)
     {
         ioopm_linked_list_prepend(list, value);
     }
@@ -106,7 +103,7 @@ void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
 
         ioopm_link_t *new_element = element_create(value, next_element);
         prev_element->next = new_element;  
-        list->size += 1;  // ÅTGÄRDAD BUGG, låg utanför else-sats
+        list->size += 1;
     } 
 }
 
@@ -370,7 +367,7 @@ static ioopm_link_t *iterator_find_previous_element(ioopm_list_iterator_t *iter)
     return element;
 }
 
-//(0,->) (1, ->) (2,null) (4, null)
+
 //TODO: GÖR KLART NÄR TID FINNSS!
 elem_t ioopm_iterator_remove(ioopm_list_iterator_t *iter)
 {
@@ -400,6 +397,7 @@ elem_t ioopm_iterator_remove(ioopm_list_iterator_t *iter)
     free (remove_element);
     return remove_value;
 }
+
 
 void ioopm_iterator_insert(ioopm_list_iterator_t *iter, int element)
 {
@@ -431,23 +429,9 @@ bool dummy (elem_t value1, elem_t value2)
 /*
 int main(void)
 {
-    ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+  
+}*/
 
-    for (int i = 0; i < 10; i++)
-    {
-        int value = random()%100;
-        ioopm_linked_list_prepend(list, int_elem(value));
-        if (ioopm_linked_list_contains(list, int_elem(value)))
-        {
-            puts("yey\n");
-        }
-        else
-        {
-            puts("nej :(\n");
-        }
-    }
-}
-*/
 
 // TODO: Update function specifications in .h-file 
 // TODO: Extend the documentation with how you deal with failures and all other assumptions or caveats
