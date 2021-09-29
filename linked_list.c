@@ -252,7 +252,7 @@ void ioopm_linked_list_clear(ioopm_list_t *list)
         current = current->next;      
         free(tmp);    
     }   
-    // Caselist->first = NULL; 
+    list->first = NULL;
     list->size = 0; 
 }
 
