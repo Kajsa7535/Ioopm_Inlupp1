@@ -81,7 +81,7 @@ void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value)
 //CHECK
 void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
 {
-    size_t max = list->size - 1;
+    size_t max = list->size;
     if (index < 0 || index > max)
     {
         puts("Wrong input!");
