@@ -8,7 +8,6 @@
 #include "common.h"
 
 #define No_Buckets 17
-#define NULL __DARWIN_NULL
 
 
 // TODO: fixa static and public functions
