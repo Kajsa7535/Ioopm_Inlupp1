@@ -1,28 +1,39 @@
+STD_FLAGS = -g -pedantic -Wall -c
+TEST_FLAGS = -g -pedantic -Wall -lcunit
+GCOV_FLAGS = -Wall -fprofile-arcs -ftest-coverage -lcunit
+MEMTEST_FLAGS = --leak-check=full
+
 hash_table: hash_table.c linked_list.c
-	gcc -g -pedantic -Wall linked_list.c hash_table.c -o $@
+	gcc hash_table.c linked_list.c $(STD_FLAGS)
 
-hash_table_tests: hash_table_tests.c hash_table.c linked_list.c
-	gcc -g -pedantic -Wall hash_table.c linked_list.c hash_table_tests.c -o $@ -lcunit
+ht_tests: hash_table_tests.c hash_table
+	gcc hash_table_tests.c hash_table.c linked_list.c $(TEST_FLAGS) 
 
-test_hash_table: hash_table_tests
-	./hash_table_tests
+test_ht: ht_tests
+	./a.out
 
-valgrind_hash_table_tests: hash_table_tests
-	valgrind --leak-check=full ./hash_table_tests
+memtest_ht: ht_tests
+	valgrind $(MEMTEST_FLAGS) ./a.out
 
-gcov_hash_table: hash_table_tests.c hash_table.c
-	gcc -Wall -fprofile-arcs -ftest-coverage hash_table_tests.c hash_table.c -lcunit
+gcov_ht: ht_tests
+	gcc $(GCOV_FLAGS) $^
 
-linked_list: linked_list.c linked_list.h
-	gcc -g -pedantic -Wall linked_list.c
+
+
+linked_list: linked_list.c
+	gcc $(STD_FLAGS) $^
 	
-linked_list_tests: linked_list_tests.c linked_list.c common.h
-	gcc -g -pedantic -Wall linked_list.c linked_list_tests.c -o $@ -lcunit
+linked_list_tests: linked_list_tests.c linked_list.c
+	gcc $(TEST_FLAGS) $^
 
 test_linked_list: linked_list_tests
-	./linked_list_tests
+	./a.out
 
-valgrind_linked_list_tests: linked_list_tests
-	valgrind --leak-check=full ./linked_list_tests
+memtest_linked_list: linked_list_tests
+	valgrind $(MEMTEST_FLAGS) ./a.out
 
-	 
+clean:
+	rm -f *.o
+	rm -f hash_table hash_table_tests valgrind_hash_table_tests gcov_hash_table linked_list linked_list_tests valgrind_linked_list_tests	
+
+.PHONY: test_ht test_linked_list clean

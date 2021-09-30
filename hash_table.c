@@ -147,12 +147,12 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
   int bucket = calculate_bucket(key, hash_func);
 
   entry_t *tmp = find_previous_entry_for_key(ht, &ht->buckets[bucket], key);
-  entry_t *next = tmp->next;
+  entry_t *current = tmp->next;
 
-  if (next && hash_func(next->key) == hash_func(key))
+  if (current && hash_func(current->key) == hash_func(key))
   {
     /// If entry was found, return true.
-    *result = (next->value); // Lägger in the värde som fanns i key i 'result'
+    *result = (current->value); // Lägger in the värde som fanns i key i 'result'
     return true;
   }
   else
@@ -424,30 +424,27 @@ bool string_eq(elem_t e1, elem_t e2)
   return strcmp(e1.string_value, e2.string_value) == 0;
 }
 
-/*
+
 int main(void)
 {
 
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
   elem_t *result = NULL;
-  bool test = true;
-  printf("%d\n", test);
-  bool b_value = ioopm_hash_table_lookup(ht, string_elem("NEMEN"), result);
+  bool b_value = ioopm_hash_table_lookup(ht, int_elem(1), result);
   printf("%d\n", b_value);
-  for (int i = 0; i < 5; i++)
-  {
-    int key_insert = 100; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
-    int pls = 100 %17;
-    printf("%d\n", pls);
-    //printf("%d\n", key_insert);
-    ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
-    //ioopm_hash_table_insert(ht, int_elem(key_insert+1), string_elem("WOWWWW"));
-    //ioopm_hash_table_insert(ht, int_elem(key_insert+2), string_elem("LOVEIT"));
-    //ioopm_hash_table_insert(ht, int_elem(key_insert+3), string_elem("HAHAH"));
-    //bool b_value2 = ioopm_hash_table_lookup(ht, int_elem(key_insert), result);
-   
+  int key_insert = 100; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
+  int pls = 100 %17;
+  printf("%d\n", pls);
+  //printf("%d\n", key_insert);
+  ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
+  ioopm_hash_table_insert(ht, int_elem(key_insert+17), string_elem("WOWWWW"));
+  ioopm_hash_table_insert(ht, int_elem(key_insert+34), string_elem("LOVEIT"));
+  ioopm_hash_table_insert(ht, int_elem(key_insert+51), string_elem("HAHAH"));
 
-  }
+
+  //bool b_value2 = ioopm_hash_table_lookup(ht, int_elem(key_insert), result);
+
+  //printf("%d\n", b_value2);
   int testa = 100;
   entry_t *testEntry = &ht->buckets[15]; 
   elem_t value1 = testEntry->next->value;
@@ -458,5 +455,4 @@ int main(void)
 
  
 }*/
-
 
