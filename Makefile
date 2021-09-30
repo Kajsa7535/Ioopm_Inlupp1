@@ -18,13 +18,11 @@ memtest_ht: ht_tests
 gcov_ht: ht_tests
 	gcc $(GCOV_FLAGS) $^
 
-
-
 linked_list: linked_list.c
-	gcc $(STD_FLAGS) $^
+	gcc linked_list.c $(STD_FLAGS)
 	
 linked_list_tests: linked_list_tests.c linked_list.c
-	gcc $(TEST_FLAGS) $^
+	gcc linked_list_tests.c linked_list.c $(TEST_FLAGS)
 
 test_linked_list: linked_list_tests
 	./a.out
