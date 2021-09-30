@@ -5,7 +5,6 @@
  /// Meta: struct definition goes in C file
 typedef struct list ioopm_list_t;
 typedef struct link ioopm_link_t;
-typedef bool(*ioopm_eq_function)(elem_t a, elem_t b);
 
 
 //typedef bool(*ioopm_int_predicate)(int value, void *extra);

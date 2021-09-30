@@ -22,8 +22,7 @@ typedef struct hash_table ioopm_hash_table_t;
 
 typedef int (*ioopm_hash_function)(elem_t key);
 
-
-
+entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key);
 
 //Helpfunction to ioopm_hash_table_lookup
 elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key);
@@ -31,8 +30,9 @@ elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key);
 //tatic entry_t *find_previous_entry_for_key(entry_t *bucket, int searchKey);
 
 /// @brief Create a new hash table
+/// @param hash_func hash function that 
 /// @return A new empty hash table
-ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq, ioopm_eq_function value_eq);
+ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function value_eq);
 
 /// @brief Delete a hash table and free its memory
 /// @param ht a hash table to be deleted
@@ -71,7 +71,7 @@ bool ioopm_hash_table_is_empty(ioopm_hash_table_t *ht);
 /// @param h hash table operated upon
 void ioopm_hash_table_clear(ioopm_hash_table_t *ht);
 
-/// @brief return the keys for all entries in a hash map (in no particular order, but same as ioopm_hash_table_values)
+/// @brief return the keys for all entries in a linked list (in no particular order, but same as ioopm_hash_table_values)
 /// @param h hash table operated upon
 /// @return a linked list of keys for hash table h
 ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht);

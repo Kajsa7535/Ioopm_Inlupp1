@@ -253,16 +253,6 @@ void ioopm_linked_list_clear(ioopm_list_t *list)
     list->size = 0; 
 }
 
-
-//CHECK
-static bool value_int_equiv(int key_ignore, elem_t value, void *x)
-{
-  int *other_int_ptr = x;
-  int other_value = *other_int_ptr;
-  return value.int_value == other_value;
-}
-
-
 //CHECK
 bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_predicate prop, void *extra)
 {
@@ -297,13 +287,6 @@ bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_predicate prop, void *extra
     return false;
 }
 
-// HUR SKA MAN KUNNA JÄMFÖRA TVÅ ELEMENT?
-static void update_int_value(int key_ignored, elem_t *value, void *arg)
-{
-  elem_t *other_int_ptr = arg;
-  elem_t other_value = *other_int_ptr;
-  *value = other_value;
-}
 
 //CHECK
 

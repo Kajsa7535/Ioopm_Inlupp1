@@ -5,10 +5,13 @@
 #include <CUnit/Basic.h>
 #include "hash_table.h"
 #include "linked_list.h"
+#include "common.h"
 
 #define No_Buckets 17
 #define NULL __DARWIN_NULL
 
+
+// TODO: fixa static and public functions
 struct entry 
 {
   elem_t key;       // holds the key
@@ -21,7 +24,6 @@ struct hash_table
   entry_t buckets[No_Buckets]; 
   size_t size;
   ioopm_hash_function hash_function;
-  ioopm_eq_function keys_eq_function;
   ioopm_eq_function values_eq_function;
 };
 
@@ -44,10 +46,12 @@ struct iterator
     ioopm_list_t *list;
 };
 
+
+//HASH FUNCTION!!!
 // CHECK
-int extract_int_hash_key(elem_t key)
+static int extract_int_hash_key(elem_t key)
 {
-  return key.int_value; // following a very terse naming scheme -- improve?
+  return key.int_value; 
 }
 
 bool ioopm_eq_function_test(elem_t element1, elem_t element2)
@@ -56,20 +60,19 @@ bool ioopm_eq_function_test(elem_t element1, elem_t element2)
 }
 
 //CHECK
-ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq, ioopm_eq_function value_eq)
+ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function value_eq)
 {
   /// Allocate space for a ioopm_hash_table_t = 17 pointers to
   /// entry_t's, which will be set to NULL
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
   result -> size = 0;
   result -> hash_function = hash_func;
-  result -> keys_eq_function = key_eq;
   result -> values_eq_function = value_eq;
   return result;
 }
 
 // CHECK
-static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key)
+entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key)
 {
   /// Saves the first (dummy) entry as first_entry
   entry_t *first_entry = entry;
@@ -281,15 +284,11 @@ void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
   ht->size = 0;
 }
 
-bool dummy (elem_t value1, elem_t value2) 
-{ 
-    return true;
-}
 
 // CHECK
 ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när hashtable är tomt
 {
-  ioopm_list_t *result_list = ioopm_linked_list_create(dummy);
+  ioopm_list_t *result_list = ioopm_linked_list_create(ht->values_eq_function);
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -307,7 +306,7 @@ ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när
 //CHECK
 ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
 {
-  ioopm_list_t *result_list = ioopm_linked_list_create(dummy); //calloc(ioopm_hash_table_size(ht) + 1, sizeof(char *));
+  ioopm_list_t *result_list = ioopm_linked_list_create(ht->values_eq_function); //calloc(ioopm_hash_table_size(ht) + 1, sizeof(char *));
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -419,31 +418,45 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+bool string_eq(elem_t e1, elem_t e2)
+{
+  return strcmp(e1.string_value, e2.string_value) == 0;
+}
 
-
+/*
 int main(void)
 {
-  int num = 97;
-  char c = 'a';
-  bool b = true;
-  elem_t elem1 = int_elem(num);
-  elem_t elem2 = char_elem(c);
-  bool result = ioopm_eq_function_test(elem1, elem2);
-  if (result)
+
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  elem_t *result = NULL;
+  bool test = true;
+  printf("%d\n", test);
+  bool b_value = ioopm_hash_table_lookup(ht, string_elem("NEMEN"), result);
+  printf("%d\n", b_value);
+  for (int i = 0; i < 5; i++)
   {
-    puts("yay!\n");
+    int key_insert = 100; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
+    int pls = 100 %17;
+    printf("%d\n", pls);
+    //printf("%d\n", key_insert);
+    ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
+    //ioopm_hash_table_insert(ht, int_elem(key_insert+1), string_elem("WOWWWW"));
+    //ioopm_hash_table_insert(ht, int_elem(key_insert+2), string_elem("LOVEIT"));
+    //ioopm_hash_table_insert(ht, int_elem(key_insert+3), string_elem("HAHAH"));
+    //bool b_value2 = ioopm_hash_table_lookup(ht, int_elem(key_insert), result);
+   
+
   }
-  else
-  {
-    puts(":(\n");
-  }
-  /*ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 3, "test1");
-  ioopm_hash_table_insert(ht, 21, "ioopm");
-  ioopm_hash_table_insert(ht, 2, "test2");
-  bool result = ioopm_hash_table_has_key(ht, 3);
-  printf("result = (%d)\n", result);
-  ioopm_hash_table_destroy(ht);*/
-}
+  int testa = 100;
+  entry_t *testEntry = &ht->buckets[15]; 
+  elem_t value1 = testEntry->next->value;
+  bool value = string_eq(value1, string_elem("TESTAR"));
+  
+
+  printf("%d\n", value);
+
+ 
+}*/
 
 

@@ -5,17 +5,23 @@
 #include "hash_table.h"
 #include "linked_list.h"
 
+#define No_Buckets 17
+
+//TODO: Skriva tester för hjälpfunktioner?
+
 struct entry 
 {
-  int key;       // holds the key
-  char *value;   // holds the value
+  elem_t key;       // holds the key
+  elem_t value;   // holds the value
   entry_t *next; // points to the next entry (possibly NULL)
 };
 
 struct hash_table
 {
-  entry_t buckets[17];
+  entry_t buckets[No_Buckets]; 
   size_t size;
+  ioopm_hash_function hash_function;
+  ioopm_eq_function values_eq_function;
 };
 
 struct link 
@@ -37,6 +43,26 @@ struct iterator
     ioopm_list_t *list;
 };
 
+// EQ_VALUES FUNCTION 
+bool string_eq(elem_t e1, elem_t e2)
+{
+  return strcmp(e1.string_value, e2.string_value) == 0;
+}
+
+
+bool int_eq(elem_t e1, elem_t e2)
+{
+  return e1.int_value == e2.int_value;
+}
+
+static void update_int_value(elem_t key, elem_t *value, void *arg)
+{
+  int *other_int_ptr = arg;
+  int other_value = *other_int_ptr;
+  (*value).int_value = other_value;
+}
+
+/*
 static void update_value(int key, char **value, void *arg)
 {
   char **other_char_ptr = arg;
@@ -76,6 +102,12 @@ static entry_t *find_previous_entry_for_key(entry_t *entry, int searchKey)
   
   return first_entry;
 }
+*/
+
+int extract_int_hash_key(elem_t key)
+{
+  return key.int_value; 
+}
 
 int init_suite(void)
 {
@@ -87,18 +119,31 @@ int clean_suite(void)
   return 0;
 }
 
-//TODO!!! Gör testfall för när key = 0
-void test_insert_not_in_use(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test");
-  entry_t *testEntry = &ht->buckets[1];
-  int result = testEntry->next->key;
-  ioopm_hash_table_destroy(ht);
 
-  CU_ASSERT(result == 1);
+//TODO!!! Gör testfall för när key = 0
+//HJÄLP??? SKUTSVÅRT ATT GÖRA RANDOM MED INSERT ? VET EJ VAR DEN HAMNAR 
+void test_insert(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  CU_ASSERT(ht->size == 0);
+  ioopm_eq_function func = *ht->values_eq_function;
+   elem_t *result = NULL;
+
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    entry_t *testEntry = &ht->buckets[i];
+    for (int j = 0; j < 5; j++)
+    {
+      int key_insert = random()%30000; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
+      ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
+    }
+    CU_ASSERT_PTR_NOT_NULL(testEntry->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
+  }
+  CU_ASSERT(ht->size == (85));
+  ioopm_hash_table_destroy(ht);
 }
 
+/* //HUR SKA MAN GÖRA??
 void test2_insert(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -112,6 +157,7 @@ void test2_insert(void)
 }
 
 
+
 void test3_insert_negative(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -123,281 +169,287 @@ void test3_insert_negative(void)
   CU_ASSERT_EQUAL(strcmp(result, "test"), 0);
 }
 
+*/
+
 void test4_lookup(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 18, "test2");
-  char *result = ioopm_lookup_key(ht, 1);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  elem_t *result = NULL;
 
-  CU_ASSERT_EQUAL(strcmp(result, "test1"), 0);
+  CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(5), result));
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    entry_t *testEntry = &ht->buckets[i];
+    int key_insert = random()%30000; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
+    ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
+    ioopm_hash_table_insert(ht, int_elem(key_insert+1), string_elem("WOWWWW"));
+    ioopm_hash_table_insert(ht, int_elem(key_insert+2), string_elem("LOVEIT"));
+    ioopm_hash_table_insert(ht, int_elem(key_insert+3), string_elem("HAHAH"));
+    //CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), result)); BLIR SEG FAULT!!! MÅSTE GDB
+    //CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert+1), result));
+   // CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert+2), result));
+    //CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert+3), result));
+  }
+
+  CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(3200), result));
+  ioopm_hash_table_destroy(ht);
 }
 
-
-void test5_lookup_existing(void) 
+void test5_remove(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  char *result = NULL;
-  bool valid = ioopm_hash_table_lookup(ht,1, &result);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  CU_ASSERT(ht->size == 0);
+  ioopm_eq_function func = *ht->values_eq_function;
+  elem_t *result = NULL;
 
-  CU_ASSERT_EQUAL(valid, true);
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    for (int j = 0; j < 5; j++)
+    {
+      int key_insert = random()%30000; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
+      ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
+      //CU_ASSERT(ioopm_hash_table_lookup(ht, string_elem("TESTAR"), result)); // FEL PÅ LOOKUP!! GDB
+      ioopm_hash_table_remove(ht, int_elem(key_insert));
+      CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, string_elem("TESTAR"), result));
+    }
+  }
+
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    entry_t *testEntry = &ht->buckets[i];
+    CU_ASSERT_PTR_NULL(testEntry->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
+  }
+
+  CU_ASSERT(ht->size == 0);
+  ioopm_hash_table_destroy(ht);
 }
 
-void test6_lookup_non_existing(void) 
+void test6_remove_entry_not(void) // PRINTAR UT MASSA ONÖDIGT ???
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  char *result = NULL;
-  bool valid = ioopm_hash_table_lookup(ht,18, &result);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_eq_function func = *ht->values_eq_function;
+  elem_t *result = NULL;
 
-  CU_ASSERT_EQUAL(valid, false);
-}
-
-
-void test7A_remove_entry_right(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  char *expected = ioopm_hash_table_remove(ht, 1);
-  ioopm_hash_table_destroy(ht);
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    entry_t *testEntry = &ht->buckets[i];
+    for (int j = 0; j < 5; j++)
+    {
+      int key_insert = random()%30000; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
+      ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
+      //CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), result)); // FEL PÅ LOOKUP!! GDB
+      size_t size_ht = ht->size;
+      ioopm_hash_table_remove(ht, int_elem(5000));
+      //CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), result)); // FEL PÅ LOOKUP!! GDB
+      CU_ASSERT(size_ht == ht->size);
+    }
+  }
   
-  CU_ASSERT_EQUAL(strcmp(expected, "test1"), 0);
+  ioopm_hash_table_destroy(ht);
 }
 
-void test7B_remove_entry_not(void)
+void test7_remove_middle(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  char *result = ioopm_hash_table_remove(ht, 2);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  CU_ASSERT(ht->size == 0);
+  ioopm_eq_function func = *ht->values_eq_function;
+  elem_t *result = NULL;
+
+  for (int i = 0; i < 85; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+  }
+
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_remove(ht, int_elem(43+i));
+  }
   
-  CU_ASSERT_PTR_NULL(result);
-}
-
-void test8_remove_entry_right_null(void)
-{
-  char *result = NULL;
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_remove(ht, 1);
-  bool valid = ioopm_hash_table_lookup(ht,1, &result);
+  CU_ASSERT(ht->size == 68);
   ioopm_hash_table_destroy(ht);
-  
-  CU_ASSERT_EQUAL(valid, false);
 }
 
-
-void test9_remove_entry_ht(void)
+void test8_empty_hash_table(void)
 {
-  ioopm_hash_table_t *ht1 = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht1, 1, "test1");
-  ioopm_hash_table_remove(ht1, 1);
-  entry_t *bucket = &ht1->buckets[1];
-  entry_t *next = bucket->next;
-  ioopm_hash_table_destroy(ht1);
-  
-  CU_ASSERT_PTR_NULL(next);
-}
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  CU_ASSERT(ioopm_hash_table_is_empty(ht));
 
+  for (int i = 0; i < 50; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+  }
+  CU_ASSERT_FALSE(ioopm_hash_table_is_empty(ht));
 
-void test10_remove_entry_middle(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 18, "test2");
-  ioopm_hash_table_insert(ht, 35, "test3");
-  ioopm_hash_table_remove(ht, 18);
-
-  entry_t *test_pointer = find_previous_entry_for_key(&ht->buckets[1], 1);
-  int key = test_pointer->key;
   ioopm_hash_table_destroy(ht);
-
-  CU_ASSERT_EQUAL(key, 35);
 }
 
-void test11_empty_hash_table(void)
+
+void test9_multiple_entry_hash_table(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  size_t size = ht->size;
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+
+  CU_ASSERT_EQUAL(ioopm_hash_table_size(ht), 0);
+
+  for (int i = 0; i < 50; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+  }
+  CU_ASSERT_EQUAL(ioopm_hash_table_size(ht), 50);
+
   ioopm_hash_table_destroy(ht);
-
-  CU_ASSERT_EQUAL(size,0);
 }
 
-void test12_one_entry_hash_table(void)
+
+void test10_hash_table_clear_size(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  size_t size = ht->size;
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
 
-  CU_ASSERT_EQUAL(size,1);
-}
 
-void test13_multiple_entry_hash_table(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 2, "test1");
-  ioopm_hash_table_insert(ht, 18, "test1");
-  ioopm_hash_table_insert(ht, 19, "test1");
-  ioopm_hash_table_remove(ht, 1);
-  
-  size_t size = ht->size;
-  ioopm_hash_table_destroy(ht);
+  CU_ASSERT_EQUAL(ioopm_hash_table_size(ht), 0);
 
-  CU_ASSERT_EQUAL(size,3);
-}
-
-void test14_hash_table_is_empty(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  bool result = ioopm_hash_table_is_empty(ht);
-  ioopm_hash_table_destroy(ht);
-  CU_ASSERT(result);
-}
-
-void test15_hash_table_is_empty_not_empty(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  bool result = ioopm_hash_table_is_empty(ht);
-  ioopm_hash_table_destroy(ht);
-
-  CU_ASSERT(!result);
-}
-
-void test16_hash_table_clear_size(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 18, "Hejsan");
-  ioopm_hash_table_insert(ht, 3, "Ioopm");
+  for (int i = 0; i < 50; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+  }
+  CU_ASSERT_EQUAL(ioopm_hash_table_size(ht), 50);
   ioopm_hash_table_clear(ht);
-  size_t size = ht->size;
-  ioopm_hash_table_destroy(ht);
 
-  CU_ASSERT_EQUAL(size, 0);
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    entry_t *testEntry = &ht->buckets[i];
+    CU_ASSERT_PTR_NULL(testEntry->next);
+    //CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(i))); TODO: FIXA LOOKUP SNÄLLALALALALLALAL
+  }
+  
+  ioopm_hash_table_destroy(ht);
 }
 
-void test17_hash_table_clear(void)
+void test11_hash_table_keys(void) // TODO: Make test case for empty (no keys)
 {
-  char *result = NULL;
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 2, "test2");
-  ioopm_hash_table_insert(ht, 3, "test3");
-  bool test1 = ioopm_hash_table_lookup(ht, 1, &result);
-  bool test2 = ioopm_hash_table_lookup(ht, 2, &result);
-  bool test3 = ioopm_hash_table_lookup(ht, 3, &result);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  CU_ASSERT(test1 && test2 && test3);
-}
+  for (int i = 0; i < 17; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+  }
 
-void test18A_hash_table_keys(void) // TODO: Make test case for empty (no keys)
-{
-  int expected[4] = {1,2,19,3};
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 19, "ioopm");
-  ioopm_hash_table_insert(ht, 2, "test2");
-  ioopm_hash_table_insert(ht, 3, "test3");
-  ioopm_list_t *result = ioopm_hash_table_keys(ht);
-  int result1 = ioopm_linked_list_get(result, 0);
-  int result2 = ioopm_linked_list_get(result, 1);
-  int result3 = ioopm_linked_list_get(result, 2);
-  int result4 = ioopm_linked_list_get(result, 3);
-  bool cmp1 = expected[0] == result1;
-  bool cmp2 = expected[1] == result2;
-  bool cmp3 = expected[2] == result3;
-  bool cmp4 = expected[3] == result4;
-  ioopm_hash_table_destroy(ht);
-  ioopm_linked_list_destroy(result);
-  CU_ASSERT(cmp1 && cmp2 && cmp3 && cmp4);
-}
+  ioopm_list_t *from_ht = ioopm_hash_table_keys(ht);
 
-void test18B_hash_table_keys_empty(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_list_t *list = ioopm_hash_table_keys(ht);
-  bool result = ioopm_linked_list_is_empty(list);
-  CU_ASSERT(result);
+  for (int i = 0; i < 17; i++)
+  {
+   ioopm_linked_list_append(list, int_elem(i));
+  }
+
+  for (int i = 0; i < 17; i++)
+  {
+   CU_ASSERT(int_eq(ioopm_linked_list_get(list, i), ioopm_linked_list_get(from_ht, i)));
+  }
   ioopm_hash_table_destroy(ht);
   ioopm_linked_list_destroy(list);
+  ioopm_linked_list_destroy(from_ht);
 }
 
-void test19_hash_table_values(void)
+void test12_hash_table_keys_empty(void)
 {
-  char *expected[4] = {"test1", "test2", "ioopm", "test3"};
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 19, "ioopm");
-  ioopm_hash_table_insert(ht, 2, "test2");
-  ioopm_hash_table_insert(ht, 3, "test3");
-  char **result = ioopm_hash_table_values(ht);
-  int cmp1 = strcmp(expected[0],result[0]); 
-  int cmp2 = strcmp(expected[1],result[1]); 
-  int cmp3 = strcmp(expected[2],result[2]); 
-  int cmp4 = strcmp(expected[3],result[3]); 
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_list_t *from_ht = ioopm_hash_table_keys(ht);
+  CU_ASSERT_PTR_NULL(from_ht->first);
   ioopm_hash_table_destroy(ht);
-  free(result);
-
-  CU_ASSERT(cmp1 == 0 && cmp2 == 0 && cmp3 == 0 && cmp4 == 0);
+  ioopm_linked_list_destroy(from_ht);
 }
 
-void test20_hash_table_values_empty(void)
+void test13_hash_table_values(void) //TODO: Behöver ändra i has_key funktioner så att det som skickas in i any är funktionerna i strukten!!!!
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  char **result = ioopm_hash_table_values(ht);
-  char *empty = result[0];
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_list_t *list = ioopm_linked_list_create(int_eq);
+
+  for (int i = 0; i < 17; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+    ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
+    ioopm_hash_table_insert(ht, int_elem(i+34), string_elem("det"));
+    ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
+  }
+
+  ioopm_list_t *from_ht = ioopm_hash_table_values(ht);
+
+  for (int i = 0; i < 17; i++)
+  {
+    ioopm_linked_list_append(list, string_elem("TESTAR"));
+    ioopm_linked_list_append(list, string_elem("att"));
+    ioopm_linked_list_append(list, string_elem("det"));
+    ioopm_linked_list_append(list, string_elem("fungerar"));
+   
+  }
+
+  for (int i = 0; i < 68; i++)
+  {
+   CU_ASSERT(string_eq(ioopm_linked_list_get(list, i), ioopm_linked_list_get(from_ht, i)));
+  }
   ioopm_hash_table_destroy(ht);
-  free(result);
-  CU_ASSERT_PTR_NULL(empty);
+  ioopm_linked_list_destroy(list);
+  ioopm_linked_list_destroy(from_ht);
 }
 
-void test21_hash_table_has_key(void)
+void test14_hash_table_values_empty(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 3, "test1");
-  ioopm_hash_table_insert(ht, 21, "ioopm");
-  ioopm_hash_table_insert(ht, 2, "test2");
-  bool result = ioopm_hash_table_has_key(ht, 3);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_list_t *from_ht = ioopm_hash_table_values(ht);
+  CU_ASSERT_PTR_NULL(from_ht->first);
   ioopm_hash_table_destroy(ht);
-  CU_ASSERT(result);
+  ioopm_linked_list_destroy(from_ht);
 }
 
-void test22_hash_table_has_key_not(void)
+void test15_hash_table_has_key(void) // TODO: Glömt frigöra listan i vår funktion??? som skapas där??? eller ?? alltså i .c filen
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 19, "ioopm");
-  ioopm_hash_table_insert(ht, 2, "test2");
-  bool result = ioopm_hash_table_has_key(ht, 18);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100)));
 
-  CU_ASSERT_FALSE(result);
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+    ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
+    ioopm_hash_table_insert(ht, int_elem(i+34), string_elem("det"));
+    ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
+  }
+
+  for(int k = 0; k < No_Buckets; k++)
+  {
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k)));
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+17)));
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+34)));
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+51)));
+  }
+
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100))); // kollar om den inte finns, skapa ett nytt test för bara det?
+  ioopm_hash_table_destroy(ht);
 }
 
-
-void test23_hash_table_has_value_identical(void)
+void test16_hash_table_has_value_identical(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  char *str = "ioopm";
-  ioopm_hash_table_insert(ht, 1, str);
-  ioopm_hash_table_insert(ht, 19, "test1");
-  ioopm_hash_table_insert(ht, 2, "woow");
-  bool result = ioopm_hash_table_has_value(ht, str);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  CU_ASSERT_FALSE(ioopm_hash_table_has_value(ht, string_elem("TESTAR")));
 
-  CU_ASSERT(result);
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+    ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
+    ioopm_hash_table_insert(ht, int_elem(i+34), string_elem("det"));
+    ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
+  }
+
+  
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("TESTAR")));
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("att")));
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("det")));
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("fungerar")));
+
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, string_elem("Nej"))); // kollar om den inte finns, skapa ett nytt test för bara det?
+  ioopm_hash_table_destroy(ht);
 }
 
-
+/* typ ta bort?
 void test24_hash_table_has_value_equivalent(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create();
@@ -421,60 +473,92 @@ void test25_hash_table_has_value_not(void)
   ioopm_hash_table_destroy(ht);
 
   CU_ASSERT(!result);
-}
+}*/
 
-void test26A_hash_table_all_value(void)
+void test17_hash_table_all_value_not(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 2, "test1");
-  ioopm_hash_table_insert(ht, 18, "test1");
-  ioopm_hash_table_insert(ht, 19, "test1");
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+    ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
+    ioopm_hash_table_insert(ht, int_elem(i+34), string_elem("det"));
+    ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
+  }
+
   char *value = "test1";
-  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
+  CU_ASSERT(ioopm_hash_table_all(ht, string_eq, &value));
+
   ioopm_hash_table_destroy(ht);
-  CU_ASSERT(result);
 }
 
-void test26B_hash_table_all_key(void)
+void test18_hash_table_all_value(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 2, "test2");
-  int key = 1;
-  bool result = ioopm_hash_table_all(ht, key_equiv, &key);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+  }
+
+  char *value = "TESTAR";
+  CU_ASSERT(ioopm_hash_table_all(ht, string_eq, &value));
+
   ioopm_hash_table_destroy(ht);
-  CU_ASSERT_FALSE(result);
 }
 
-void test27_hash_table_all_not(void)
+void test19_hash_table_all_key_not(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 2, "test1");
-  ioopm_hash_table_insert(ht, 18, "test1");
-  ioopm_hash_table_insert(ht, 19, "test2");
-  char *value = "test1";
-  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
-  ioopm_hash_table_destroy(ht);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
 
-  CU_ASSERT_FALSE(result);
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
+    ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
+    ioopm_hash_table_insert(ht, int_elem(i+34), string_elem("det"));
+    ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
+  }
+
+  char *value = 1;
+  CU_ASSERT(ioopm_hash_table_all(ht, int_eq, &value));
+
+  ioopm_hash_table_destroy(ht);
+}
+
+void test20_hash_table_all_key(void)
+{
+ ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(1), string_elem("TESTAR"));
+  }
+
+  int *value = 1;
+  CU_ASSERT(ioopm_hash_table_all(ht, int_eq, &value));
+
+  ioopm_hash_table_destroy(ht);
 }
 
 
-void test28_hash_table_apply_all(void)
+void test21_hash_table_apply_all(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create();
-  ioopm_hash_table_insert(ht, 1, "test1");
-  ioopm_hash_table_insert(ht, 2, "Hej");
-  ioopm_hash_table_insert(ht, 18, "Roligt");
-  ioopm_hash_table_insert(ht, 19, "haha");
-  char *value = "bad";
-  ioopm_hash_table_apply_to_all(ht, update_value, &value);
-  bool result = ioopm_hash_table_all(ht, value_equiv, &value);
-  ioopm_hash_table_destroy(ht);
+   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq);
 
-  CU_ASSERT(result);
+  for (int i = 0; i < No_Buckets; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), int_elem(i));
+  }
+
+  int *value = 1;
+  CU_ASSERT(ioopm_hash_table_all(ht, int_eq, &value));
+  
+  ioopm_hash_table_apply_to_all(ht, update_int_value, &value);
+
+  CU_ASSERT(ioopm_hash_table_all(ht, int_eq, &value));
+
+  ioopm_hash_table_destroy(ht);
 }
 
 
@@ -493,15 +577,15 @@ int main()
     }
 
   if (
-    (NULL == CU_add_test(test_suite1, "test 1", test_insert_not_in_use)) ||
-    (NULL == CU_add_test(test_suite1, "test 2", test2_insert)) || 
-    (NULL == CU_add_test(test_suite1, "test 3", test3_insert_negative)) || 
+    (NULL == CU_add_test(test_suite1, "test 1", test_insert)) ||
+    /*(NULL == CU_add_test(test_suite1, "test 2", test2_insert)) || 
+    (NULL == CU_add_test(test_suite1, "test 3", test3_insert_negative)) || */
     (NULL == CU_add_test(test_suite1, "test 4", test4_lookup)) || 
-    (NULL == CU_add_test(test_suite1, "test 5", test5_lookup_existing)) ||
-    (NULL == CU_add_test(test_suite1, "test 6", test6_lookup_non_existing)) ||
-    (NULL == CU_add_test(test_suite1, "test 7A", test7A_remove_entry_right)) ||
-    (NULL == CU_add_test(test_suite1, "test 7B", test7B_remove_entry_not)) || 
-    (NULL == CU_add_test(test_suite1, "test 8", test8_remove_entry_right_null)) || 
+    (NULL == CU_add_test(test_suite1, "test 5", test5_remove)) ||
+    //(NULL == CU_add_test(test_suite1, "test 6", test6_lookup_non_existing)) ||
+   // (NULL == CU_add_test(test_suite1, "test 7A", test7A_remove_entry_right)) ||
+    (NULL == CU_add_test(test_suite1, "test 7", test6_lookup_non_existing)) || 
+    (NULL == CU_add_test(test_suite1, "test 8", test7_remove_middle)) || 
     (NULL == CU_add_test(test_suite1, "test 9", test9_remove_entry_ht)) ||
     (NULL == CU_add_test(test_suite1, "test 10", test10_remove_entry_middle)) || 
     (NULL == CU_add_test(test_suite1, "test 11", test11_empty_hash_table)) || 

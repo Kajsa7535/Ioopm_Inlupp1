@@ -27,13 +27,14 @@ struct iterator
     ioopm_list_t *list;
 };
 
+// FUNKTIONCS THAT IS NEEDED IN THE TESTS!
+
 static bool value_int_equiv(elem_t key, elem_t value, void *x)
 {
   int *other_int_ptr = x;
   int other_value = *other_int_ptr;
   return value.int_value == other_value;
 }
-
 
 static void update_int_value(elem_t key, elem_t *value, void *arg)
 {
@@ -253,7 +254,8 @@ void test9_linked_list_all(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  int value = 1;
+  int value = random()%100;
+  int value2 = random()%100;
 
   ioopm_linked_list_prepend(list, int_elem(value));
 
@@ -264,7 +266,7 @@ void test9_linked_list_all(void)
 
   CU_ASSERT(ioopm_linked_list_all(list, value_int_equiv, &value));
 
-  ioopm_linked_list_prepend(list, int_elem(2)); // Case: not true
+  ioopm_linked_list_prepend(list, int_elem(value2)); // Case: not true
   CU_ASSERT_FALSE(ioopm_linked_list_all(list, value_int_equiv, &value)); 
 
   ioopm_linked_list_destroy(list);
@@ -275,13 +277,14 @@ void test10_linked_list_any(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  int value = 1;
+  int value = random()%100;
+  int value2 = random()%100;
 
-  ioopm_linked_list_prepend(list, int_elem(2));
+  ioopm_linked_list_prepend(list, int_elem(value2));
 
   for (int i = 0; i < 10; i++) // Prepend 1 10 times in list
   {
-    ioopm_linked_list_prepend(list, int_elem(2));
+    ioopm_linked_list_prepend(list, int_elem(value2));
   }
 
   CU_ASSERT_FALSE(ioopm_linked_list_any(list, value_int_equiv, &value));
@@ -296,8 +299,8 @@ void test11_linked_apply_to_all(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  int value1 = 1;
-  int value2 = 2;
+  int value1 = random()%100;
+  int value2 = random()%100;
 
   ioopm_linked_list_prepend(list, int_elem(value2));
 
