@@ -162,8 +162,10 @@ void test4_linked_list_remove(void)
 
   for (int i = 0; i < 10; i++) // Removes 10 elements randomly
   {
-    int index = random()%list->size; // genererar random index till element som tas bort från listan
-    CU_ASSERT(int_eq(ioopm_linked_list_get(list, index), ioopm_linked_list_remove(list, index))); // check that the elemt removed is the element on that index
+    int index = random()%((list->size)-1); // genererar random index till element som tas bort från listan
+    elem_t get = ioopm_linked_list_get(list, index);
+    elem_t remove = ioopm_linked_list_remove(list, index);
+    CU_ASSERT(int_eq(get, remove)); // check that the elemt removed is the element on that index
   }
   
   CU_ASSERT(list->size == 1); // check that size of linked list changes

@@ -2,22 +2,13 @@
 #include <stdbool.h>
 #include "common.h"
 
- /// Meta: struct definition goes in C file
 typedef struct list ioopm_list_t;
 typedef struct link ioopm_link_t;
 
-
-//typedef bool(*ioopm_int_predicate)(int value, void *extra);
-//typedef void(*ioopm_apply_int_function)(int *value, void *extra);
-
-
 /// @brief Creates a new linked list
-/// @return A new linked list with a dummy
-ioopm_list_t *ioopm_linked_list_create(ioopm_eq_function comp_function); // ÄNDRAT!!!!
-
-/// @brief Tear down the linked list and return all its memory (but not the memory of the elements)
-/// @param list the list to be destroyed
-void ioopm_linked_list_destroy(ioopm_list_t *list);
+/// @param comp_function a function to compare two elements
+/// @return a new linked list with a dummy
+ioopm_list_t *ioopm_linked_list_create(ioopm_eq_function comp_function);
 
 /// @brief Insert at the end of a linked list in O(1) time
 /// @param list the linked list that will be appended
@@ -26,31 +17,35 @@ void ioopm_linked_list_append(ioopm_list_t *list, elem_t value);
 
 /// @brief Insert at the front of a linked list in O(1) time
 /// @param list the linked list that will be prepended
-/// @param value the value to be appended
+/// @param value the value to be prepended
 void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value);
 
 /// @brief Insert an element into a linked list in O(n) time.
 /// The valid values of index are [0,n] for a list of n elements,
 /// where 0 means before the first element and n means after
-/// the last element.
+/// the last element
 /// @param list the linked list that will be extended
 /// @param index the position in the list
-/// @param value the value to be appended
+/// @param value the value to be inserted
 void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value);
 
 /// @brief Remove an element from a linked list in O(n) time.
 /// The valid values of index are [0,n-1] for a list of n elements,
 /// where 0 means the first element and n-1 means the last element.
-/// @param list the linked list that will be extended
+/// @param list the linked list from which a link will be extended
 /// @param index the position in the list
-/// @param value the value to be appended
-/// @return the value returned (*)
+/// @param value the value to be removed
+/// @return the removed value returned
 elem_t ioopm_linked_list_remove(ioopm_list_t *list, int index);
+
+/// @brief Tear down the linked list and return all its memory (but not the memory of the elements)
+/// @param list the list to be destroyed
+void ioopm_linked_list_destroy(ioopm_list_t *list);
 
 /// @brief Retrieve an element from a linked list in O(n) time.
 /// The valid values of index are [0,n-1] for a list of n elements,
 /// where 0 means the first element and n-1 means the last element.
-/// @param list the linked list that will be extended
+/// @param list the linked list from which a value will be obtained
 /// @param index the position in the list
 /// @return the value at the given position
 elem_t ioopm_linked_list_get(ioopm_list_t *list, int index);
@@ -82,7 +77,6 @@ void ioopm_linked_list_clear(ioopm_list_t *list);
 /// @param extra an additional argument (may be NULL) that will be passed to all internal calls of prop
 /// @return true if prop holds for all elements in the list, else false
 bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_predicate prop, void *extra);
-//TODO: ioopm_char_predicate hur ska den se ut????????
 
 /// @brief Test if a supplied property holds for any element in a list.
 /// The function returns as soon as the return value can be determined.
