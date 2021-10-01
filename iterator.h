@@ -2,6 +2,19 @@
 #include <stdbool.h>
 #include "linked_list.h"
 
+/**
+ * @file hash_table.h
+ * @ Kajsa Odén Uhrenius & William Brunnsberg
+ * @date 24 Sep 2021
+ * @brief Iterator that iterates and performs changes over elements in a list.
+ *
+ * Here typically goes a more extensive explanation of what the header
+ * defines. Doxygens tags are words preceeded by either a backslash @\
+ * or by an at symbol @@.
+ *
+ * @see $CANVAS_OBJECT_REFERENCE$/assignments/gf5efa1610dfd73b58fef071f6c1d7a90
+ */
+
 typedef struct iterator ioopm_list_iterator_t;
 
 /// @brief Create an iterator for a given list

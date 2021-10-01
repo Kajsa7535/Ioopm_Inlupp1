@@ -9,6 +9,7 @@
 
 #define No_Buckets 17
 
+// TODO: Fix gcov in make file
 
 // TODO: fixa static and public functions
 struct entry 
@@ -71,7 +72,7 @@ ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm
 }
 
 // CHECK
-entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key)
+static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key)
 {
   /// Saves the first (dummy) entry as first_entry
   entry_t *first_entry = entry;
@@ -87,7 +88,6 @@ entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, ele
     }
     tmp_entry = entry;
   }
-
   return first_entry;
 }
 
@@ -390,15 +390,6 @@ bool ioopm_hash_table_all(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
   }
   return true;
 }
-
-/*
-// TODO: fix
-static void update_value(int key, char **value, void *arg) // används bara vid testning av ioopm_hash_table_apply_to_all
-{
-  char **other_char_ptr = arg;
-  char *other_value = *other_char_ptr;
-  *value = other_value;
-}*/
 
 //CHECK
 void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function apply_fun, void *arg)

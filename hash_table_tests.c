@@ -43,6 +43,25 @@ struct iterator
     ioopm_list_t *list;
 };
 
+static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key)
+{
+  /// Saves the first (dummy) entry as first_entry
+  entry_t *first_entry = entry;
+  entry_t *tmp_entry = entry;
+  ioopm_hash_function hash_func = ht->hash_function;
+
+  while (entry->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
+  {
+    entry = entry->next;
+    if (hash_func(entry->key) == hash_func(search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
+    {
+      return tmp_entry;
+    }
+    tmp_entry = entry;
+  }
+  return first_entry;
+}
+
 // EQ_VALUES FUNCTION 
 bool string_eq(elem_t e1, elem_t e2)
 {

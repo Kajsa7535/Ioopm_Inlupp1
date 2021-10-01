@@ -1,5 +1,18 @@
 #pragma once
 
+/**
+ * @file hash_table.h
+ * @ Kajsa Odén Uhrenius & William Brunnsberg
+ * @date Sep 28 2021
+ * @brief Defines the union elem, that can contain arbitrary data types.
+ *
+ * Here typically goes a more extensive explanation of what the header
+ * defines. Doxygens tags are words preceeded by either a backslash @\
+ * or by an at symbol @@.
+ *
+ * @see $CANVAS_OBJECT_REFERENCE$/assignments/gf5efa1610dfd73b58fef071f6c1d7a90
+ */
+
 #define int_elem(x) (elem_t) { .int_value=(x) }
 #define void_elem(x) (elem_t) { .void_value=(x) }
 #define bool_elem(x) (elem_t) { .bool_value=(x) }

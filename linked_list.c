@@ -30,7 +30,6 @@ struct iterator
     ioopm_list_t *list;
 };
 
-
 ioopm_list_t *ioopm_linked_list_create(ioopm_eq_function comp_function) 
 {
   ioopm_list_t *list = calloc(1, sizeof(ioopm_list_t));

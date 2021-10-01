@@ -2,6 +2,19 @@
 #include <stdbool.h>
 #include "common.h"
 
+/**
+ * @file linked_list.h
+ * @ Kajsa Odén Uhrenius & William Brunnsberg
+ * @date 21 Sep 2021
+ * @brief Simple linked list that maps elem_t values
+ *
+ * Here typically goes a more extensive explanation of what the header
+ * defines. Doxygens tags are words preceeded by either a backslash @\
+ * or by an at symbol @@.
+ *
+ * @see $CANVAS_OBJECT_REFERENCE$/assignments/gf5efa1610dfd73b58fef071f6c1d7a90
+ */
+
 typedef struct list ioopm_list_t;
 typedef struct link ioopm_link_t;
 
