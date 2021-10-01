@@ -31,6 +31,9 @@ test_linked_list: linked_list_tests
 memtest_linked_list: linked_list_tests
 	valgrind $(MEMTEST_FLAGS) ./a.out
 
+freq_count: freq_count.c
+	gcc freq_count.c $(STD_FLAGS)
+
 all: ht_tests linked_list_tests
 
 test: test_linked_list test_ht

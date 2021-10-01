@@ -22,16 +22,17 @@ void process_word(char *word, ioopm_hash_table_t *ht)
 {
   // FIXME: Rewrite to match your own interface, error-handling, etc.
     elem_t result = {.int_value = 0};
+    int freq;
     if (ioopm_hash_table_has_key(ht, (elem_t) {.string_value = word}))
     {
         (ioopm_hash_table_lookup(ht, (elem_t) {.void_value = word}, &result));
-        int freq = result.int_value;
+        freq = result.int_value;
     } 
     else
     {
-        int freq = 0;
+        freq = 0;
     }
-  ioopm_hash_table_insert(ht, (elem_t) {.p = strdup(word)}, (elem_t) {.i = freq + 1});
+    ioopm_hash_table_insert(ht, (elem_t) {.void_value = strdup(word)}, (elem_t) {.int_value = freq + 1});
 }
 
 void process_file(char *filename, ioopm_hash_table_t *ht)
