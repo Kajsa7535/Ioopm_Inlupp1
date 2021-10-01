@@ -1,26 +1,25 @@
 Mål att redovisa: 
 
 M39: Pekare till pekare
-E10: Implementera genericitet genom void-pekare
+- iterator remove
 I22: Defensiv programmering
 I24: Olika metoder för felhantering
 F14: Svansrekursion?
-
-A1: Procedurell abstraktion 
-Q49: Enhetstestning
-(Q50: Mät och resonera kring testkvalitet FRÅGA OM HJÄLP!!!!!)
-- Verktyg för att kolla test coverage
-R52: Debuggning med GDB
-- Hitta en bugg (typ segmentation fault) som vi kan redovisa med
-
-TODO T55: Mer Avacerad Versionhantering
-- Måste lära oss hur man gör först
+G15: Aliasering
+- Const
+TODO P45: Gör en informell kodgranskning under fas 1
+P47: Åtgärda defekter efter en kodgranskning
+P48: Stäm av ett program mot en refactoringkatalog
+TODO T56: Continuous Integration
+U57: Byggverktyget Make
+- "bör inte göras förens sprint 2", men står inte att man inte får 
+G15: från step 12
 
 
 A1: Procedurell abstraktion
 - Vi har till exempel skapat en funktion som kallas "calculate_bucket" (som fungerar för negativa tal) som används på ett flertal ställen i koden. Detta hjälper eftersom det gör koden mycket mer läsbar (och kortare!). Dessutom, om man behöver göra en ändring så behöver man enbart göra det i den nya proceduren, istället för att leta efter varje ställe den avnvänds på.
 - "läckande abstaktion": Bil exempel: En automat-bil är abstraherad, vi har en ratt, broms och gas. I en manuell bil så "läcker" abstaktionen genom att vi som användare exempelvis kan accelerera för fort på en låg växel så att bilen tar skada. I kod så kan samma sak ske; vi kan till exempel låta användaren göra något som inte borde vara tillåtet eller att vi inte gömmer saker som borde gömmas, som om en bil inte gömmer alla sina komponenter för köraren. 
-- Control abstaktion: Ser till att vi som programmerare inte behöver skriva alla binära steg varje gång vi ska addera två variabler eller likande. Det gör det enklare att programmera och undvika fel. 
+- Control abstaktion: Ser till att vi som prog rammerare inte behöver skriva alla binära steg varje gång vi ska addera två variabler eller likande. Det gör det enklare att programmera och undvika fel. 
 - Data abstaktion: Våra entries läggs in i en hash table, som inte användaren ser. Vi skulle lika väl kunna lägga in dem i en binary search tree eller någon annan form av datastruktur. Det som användaren ser, är att keys, values osv i entries, vilket är dem abstrakta egenskaperna, men själva implementationen är inte synlig. Data abstraktionen är att man kan se och använda interfacet, men inte själva datastrukturen. Tex hur vårt hashtable är uppbyggt, 
 - ioopm_hash_table_destroy. "inkapslad" i flera olika funktioner som utför var sin "procedur". Funktionen ska "destroya" ett hashtable, minnet som man allokerat med calloc ska frigöras. Namnen skulle kunna bli bättre, om en person som inte läst koden innan och inte riktigt har koll på vad en bucket är kan bli lite förvirrad av vår hjälpfunktion "bucket_destroy" gör för något, sedan hade while/for loopen kunnat läggas i en egen funktion för att "köra" den preceduren och göra läsbarheten ännu lättare genom att ge den funktionen ett vettigt namn. 
 - exempel på läckande abstraktion: entry_destroy måste man veta hur den ska användas och när man ska använda den, för att inte orsaka något fel.
@@ -102,6 +101,66 @@ Redovisning Torsdag 23 September:
 R52: Debuggning med GDB
 
 F14: Svansrekursion
+
+
+
+
+REDOVISNING MÅNDAG 27 september:
+
+
+E10: Man kan skapa generella funktioner genom att använda void-pekare, tex apply_all funktionen. 
+Den kan i vårat exempel använda sig av två olika hjälpfunktioner; value_equiv och key_equiv. Dessa hjälpfunktioner tar olika argumenttyper, vilket vår voidpekar-argument i apply_all funktionen möjliggör. C vet från början inte vad den ska tolka argumentet som för typ, men beroende på vilken hjälpfunktion man använder så tolkar den voidpekar-argumentet på olika sätt. Med detta sagt så har funktionen en viss genericitet.Vi kan visa det i våra tester...
+
+RÖD TRÅD:
+Nu har vi sett att vi kan ha olika typer av argument på samma funktion mha void-pekare i våra tester, men hur vet vi att våra tester är bra?
+
+Q50: 
+- Hur vet man att de test man har är “bra”? 
+    Ett bra enhetstest kan köras helt automatiserat, är läsbart och prövar endast en enda logisk funktion/koncept. Man kan inte veta om ett test är bra. Det man kan resonera om är om ett test lyckas misslyckas, så hjälper det med att åtgärda fel i en funktion, och därmed är det bra eftersom det gjort nytta. 
+- Hur vet man vad testen egentligen testar?
+- Använd ett lämpligt verktyg för att t.ex. mäta code coverage, d.v.s. hur stor del av koden som faktiskt testas av testen. 
+    Visa med ioopm_hash_table_remove: Före test 7B och efter test 7B lagts till
+- Vilka andra kvalitetsmått på tester finns? 
+    Hur läsbart det är? Om det täcker alla basfall och edgecases. LCOV, får fram en code coverage report. 
+- Måste man testa sina tester? 
+    Nej man måste "nöja" sig någonstanns. Annars kan man fortsätta i alla oändlighet. 
+- Måste man testa testernas tester? Blir inte detta en oändlig regression?
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+REDOVISNING FREDAG 1 OKTOBER
+
+I22: Defensiv programmering
+- Defensiv programmering är en slags "approach" som ska förbättra kod genom att minska antalet buggar och problem, se till att koden är läsbar och se till att programmet beter sig förutsägbart oavsett vilka inputs som anges.
+- Fördelarna med att ha defensiv programmering i åtanke är bland annat att man undviker vissa fel som annars skulle tagit tid att åtgärda.
+- En typ av defensiv programmering är "offensiv programmering", som istället fokuserar på hur fel som uppstår utanför programmet hanteras. Man litar alltså på att programmet fungerar och istället bara kollar att till exempel inputs är korrekta. EXEMPEL: ioopm_lookup_key i hash_table.c skriver ut "This key does not map to anything!" om inte sökt key finns. Detta kan användas som en check till andra funktioner för att kolla att en input är valid.
+- Att återanvända kod är en typ av defensiv programmering OM man har testat just den delen och vet att den fungerar. 
+    EXEMPEL: Först skrev vi klart alla hash table funktioner och såg till att de fungerade med olika tester. När vi sedan skulle börja med linked list så insåg vi att det var många väldigt lika funktioner, och att en linked list såg väldigt lik ut hur en bucket såg ut i ett hash table. Vi kunde därför använda hur vår kod såg ut i hash table och föra över det till linked list funktionerna. TEX all, any och apply ta all funktionerna. 
+- Assertions: kan skydda programmet från att utföra något som inte är korrekt. Dessa bör enbart användas för saker som aldrig borde kunna uppstå. EXEMPEL: linked list RAD 94, man ska aldrig kunna skicka in ett index som är utanför storleken på listan.
+- Exceptions: Detta förklarar vi i felhanteringen
+- Previllkor: Ett villkor eller predikat som måste stämma INNAN en del av en kod utförs. Brukar inkluderas i dokumentationen av den delen av kod som det berör. EXEMPEL: linked_list_insert index måste vara inom [0,N] där N är längden på listan (står i .h fil).
+- Postvillkor: Ett villkor eller predikat som måste stämma EFTER en del av en kod utförs. Assertions kan användas för att testa om det stämmer. Brukar inkluderas i dokumentationen av den delen av kod som det berör. 
+- Informationsgömningsprincipen: Inkapsling är en typ av infomrationsgömning. Man "gömmer" saker bakom ett gränssnitt. Informationsgömning är viktigt för att skydda från läckande abstaktioner. EXEMPEL: inkapsling i remove funktioner
+- Hjälpfunktioner: Hjälper felökning genom att man kan testa en mindre del av koden i taget. EXEMPEL: find_previous_entry_for_key. TEX: find previous entry for key. Tidigare så fick vi en bugg i vår lookup funktion, som använder sig av find_previous_entry_for_key. Genom att göra testfall på den först så kunde vi utesluta att det var i den delen av koden som buggen låg. 
+
+- RÖD TRÅD: Defensiv programmering är en typ av felhantering, vilket leder oss in på mål I24: "Olika metoder för felhantering".
+- RÖD TRÅD: Det kan gå fel med aliasering tex och kan hittas med hjälp av defensiv programmering.
+
+I24: Olika metoder för felhantering
+- Crash don’t trash: Det är viktigt att upptäcka fel så fort som möjligt. Om ett fel kan finnas fort så innebär det att man kan låta ett program krascha tidigare. Fördelen med att krascha kan vara att man undviker att korrupt data skrivs och läses. Med en krasch kan man istället få information om vad som gått fel, istället för att få andra typer av fel.
+- Defensiv programmering: Detta har vi redan förklarat. 
+- Undantagshantering: Ett exception (eller undantag) är ett problem som uppstår vid utförandet av ett program. När ett exception uppstår så avbryts programmet, vilket inte alltid är eftertraktat, så istället så kan man hantera dessa undantag genom att "kasta" och "fånga" exceptions, så att det går att köra vidare programmet. Ett try/catch block är ett sats som kör en kod som är benägen att orsaka exceptions i try-delen och om undantag uppstår så hanterar catch-delen det. Man kan ha flera catch-delar för olika typer av undantag. Om ett undantag inte hanteras så måste man ange det med en "throw". Det går att skriva sina egna undantag också. 
+- Hur fel hanteras i C med errno: errno är en form av global variabel i C som indikerar errors som uppkommer under ett funktionsanrop. Det finns en header fil vid namn "error.h" där olika errorkoder är definierade. Det finns även perror() och sterror() funktioner som används för att visa det textmeddelande som är kopplat till en viss errno errorkod. 
+- Konsekvens att byta mellan felhanteringsmetoder i ett program: Man kommer behöva skriva om sina funktioner och testa att de nya felhanteringmetoderna fungerar som förväntat. 
+
+G15: Aliasering
+- Aliasering - data kan delas mellan olika objekt. En förändring som sker via en pekare kan bli synlig för alla andra funktioner, eller liknande, som har en pekare till samma data. 
+- Tex i linked_list.c har vi en remove funktion som tar bort det element ur listan som ligger på det index som man skickade in i funktionen. I vår struct så har vi first och last pekare, sedan så har vi även pekare mellan elementen i listan. Om vi tex skulle ta bort det sista elementet i listan med hjälp av vår remove funktion så skulle listan pekas om (sista elementet frigörs, det nya sista elementet pekar på null osv). Om vi nu skulle ta ut värdet på list->last så skulle det ha ändrats om, utan att vi använt oss av last pekaren.
+- Det här kan vara ett problem också. Om vi hade glömt att peka om last pekaren när vi tar bort det sista elementet så uppstår det problem. När vi då försöker komma åt datan med hjälp av last pekaren så kommer den försöka accessa minne som inte längre är allokerat.  
+( KASNKE ONÖDIGT? KAN SVARA OM DE FRÅGAR HUR MAN KAN UNDVIKA PROBELM - Ett sätt att undvika detta är att med hjälp av kopiering. Man kopierar då det värde man behöver och kan då ändra på det istället. Men just i vårt fall så behövs inte det, då vi faktiskt vill ändra både i listan och i last pekaren.)
+
+
 
 
 FRÅGA X59: Essä
