@@ -48,9 +48,9 @@ void ioopm_iterator_insert(ioopm_list_iterator_t *iter, int element);
 /// @param iter the iterator
 void ioopm_iterator_reset(ioopm_list_iterator_t *iter);
 
-/// @brief Return the current element from the underlying list
+/// @brief Return the current element value from the underlying list
 /// @param iter the iterator
-/// @return the current element
+/// @return the current element value
 elem_t ioopm_iterator_current(ioopm_list_iterator_t *iter);
 
 /// @brief Destroy the iterator and return its resources

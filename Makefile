@@ -1,4 +1,4 @@
-STD_FLAGS = -g -pedantic -Wall -c
+STD_FLAGS = -g -pedantic -Wall
 TEST_FLAGS = -g -pedantic -Wall -lcunit
 GCOV_FLAGS = -Wall -fprofile-arcs -ftest-coverage -lcunit
 MEMTEST_FLAGS = --leak-check=full
@@ -31,8 +31,8 @@ test_linked_list: linked_list_tests
 memtest_linked_list: linked_list_tests
 	valgrind $(MEMTEST_FLAGS) ./a.out
 
-freq_count: freq_count.c
-	gcc freq_count.c $(STD_FLAGS)
+freq-count: freq-count.c hash_table.c linked_list.c
+	gcc freq-count.c hash_table.c linked_list.c $(STD_FLAGS)
 
 all: ht_tests linked_list_tests
 
