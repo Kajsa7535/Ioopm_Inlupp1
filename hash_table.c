@@ -6,6 +6,7 @@
 #include "hash_table.h"
 #include "linked_list.h"
 #include "common.h"
+#include "iterator.h"
 
 #define No_Buckets 17
 
@@ -19,6 +20,8 @@ struct entry
   entry_t *next; // points to the next entry (possibly NULL)
 };
 
+
+// TODO: fixa så att det finns en value eq func och en key eq func! som användaren får skicka in
 struct hash_table
 {
   entry_t buckets[No_Buckets]; 
@@ -57,7 +60,6 @@ bool ioopm_eq_function_test(elem_t element1, elem_t element2)
 {
   return (extract_int_hash_key(element1) == extract_int_hash_key(element2));
 }
-
 
 ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function value_eq)
 {
@@ -335,11 +337,19 @@ static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
   return extract_int_hash_key(key) == extract_int_hash_key(other_key);
 }
 
+static bool string_eq(elem_t key, elem_t value_ignored, void *x)
+{
+  elem_t *other_key_ptr = x;
+  elem_t other_key = *other_key_ptr;
+
+  return strcmp(key.string_value, other_key.string_value) == 0;
+}
+
 
 // TODO: VI måste ändra så att man inte skickar in key:eqiv osv då det inte kommer fungera om vi har strings som key istället
 bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key)
 {
-  return ioopm_hash_table_any(ht, key_equiv, &key);
+  return ioopm_hash_table_any(ht, string_eq, &key);
 }
 
 
@@ -407,41 +417,58 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 /*
-bool string_eq(elem_t e1, elem_t e2)
+void process_word(char *word, ioopm_hash_table_t *ht)
 {
-  return strcmp(e1.string_value, e2.string_value) == 0;
+  // FIXME: Rewrite to match your own interface, error-handling, etc.
+    int freq;
+    if (ioopm_hash_table_has_key(ht, (elem_t) {.string_value = word}))
+    {
+        freq = (ioopm_lookup_key(ht, (elem_t) {.void_value = word})).int_value;
+    } 
+    else
+    {
+        freq = 0;
+    }
+    ioopm_hash_table_insert(ht, (elem_t) {.void_value = strdup(word)}, (elem_t) {.int_value = freq + 1});
 }
 
 
 int main(void)
 {
-
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
-  elem_t *result = NULL;
-  bool b_value = ioopm_hash_table_lookup(ht, int_elem(1), result);
-  printf("%d\n", b_value);
-  int key_insert = 100; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
-  int pls = 100 %17;
-  printf("%d\n", pls);
-  //printf("%d\n", key_insert);
-  ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
-  ioopm_hash_table_insert(ht, int_elem(key_insert+17), string_elem("WOWWWW"));
-  ioopm_hash_table_insert(ht, int_elem(key_insert+34), string_elem("LOVEIT"));
-  ioopm_hash_table_insert(ht, int_elem(key_insert+51), string_elem("HAHAH"));
+  
+  ioopm_hash_table_insert(ht, string_elem("tjo"), int_elem(1));
+  ioopm_hash_table_insert(ht, string_elem("hej"), int_elem(2));
+  ioopm_hash_table_insert(ht, string_elem("wow"), int_elem(3));
+  ioopm_hash_table_insert(ht, string_elem("yey"), int_elem(4));
 
+  elem_t first_val = ioopm_lookup_key(ht, string_elem("hej"));
+  printf("first: %d\n", first_val.int_value);
 
-  //bool b_value2 = ioopm_hash_table_lookup(ht, int_elem(key_insert), result);
+  //process_word("hej", ht);
+  ioopm_hash_table_insert(ht, string_elem("hej"), int_elem(3));
+  elem_t new_val = ioopm_lookup_key(ht, string_elem("hej"));
+  printf("second: %d\n", new_val.int_value);
+  //size_t size = ioopm_hash_table_size(ht);
+  
+  //char **result_array = calloc(size+1, sizeof(char *));
 
-  //printf("%d\n", b_value2);
-  int testa = 100;
-  entry_t *testEntry = &ht->buckets[15]; 
-  elem_t value1 = testEntry->next->value;
-  bool value = string_eq(value1, string_elem("TESTAR"));
+  
+  for(; ioopm_iterator_has_next(iter); acc++)
+  {
+    printf("%d\n", acc);
+    result_array[acc] = (ioopm_iterator_current(iter)).string_value; // Seg fault
+    ioopm_iterator_next(iter);
+  }
   
 
-  printf("%d\n", value);
+  //printf("%s\n", ioopm_iterator_current(iter).string_value);
 
- 
-}*/
+  //result_array[acc] = ioopm_iterator_current(iter).string_value; // Final element
 
+
+}
+*/
