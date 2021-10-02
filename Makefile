@@ -35,7 +35,7 @@ freq-count: freq-count.c hash_table.c linked_list.c
 	gcc freq-count.c hash_table.c linked_list.c $(STD_FLAGS)
 
 memtest_freq-count: freq-count
-	valgrind $(MEMTEST_FLAGS) ./a.out file1.txt
+	valgrind $(MEMTEST_FLAGS) ./a.out 10k-words.txt
 
 all: ht_tests linked_list_tests
 

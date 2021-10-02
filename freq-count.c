@@ -37,7 +37,6 @@ void process_word(char *word, ioopm_hash_table_t *ht)
     char *word_cpy = strdup(word);
     ioopm_hash_table_insert(ht, string_elem(word_cpy), int_elem(freq + 1));
     free(word_cpy);
-    word_cpy = NULL;
 }
 
 // Opens file, processes the words in the file and close the file at EOF
@@ -63,7 +62,6 @@ void process_file(char *filename, ioopm_hash_table_t *ht)
     {
       process_word(word, ht);
     }
-
     free(buf);
   }
 
@@ -124,13 +122,13 @@ int main(int argc, char *argv[])
 
     int size = ioopm_hash_table_size(ht);
     sort_keys(keys, size); 
-    free(keys);
 
     for (int i = 0; i < size; ++i)
     {
       int freq = (ioopm_lookup_key(ht, (elem_t) {.void_value = keys[i]})).int_value;
       printf("%s: %d\n", keys[i], freq);
     }
+    free(keys);
   }
   else
   {
