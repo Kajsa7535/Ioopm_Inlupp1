@@ -34,7 +34,10 @@ void process_word(char *word, ioopm_hash_table_t *ht)
     {
         freq = 0;
     }
-    ioopm_hash_table_insert(ht, string_elem(strdup(word)), int_elem(freq + 1));
+    char *word_cpy = strdup(word);
+    ioopm_hash_table_insert(ht, string_elem(word_cpy), int_elem(freq + 1));
+    free(word_cpy);
+    word_cpy = NULL;
 }
 
 // Opens file, processes the words in the file and close the file at EOF
@@ -115,10 +118,13 @@ int main(int argc, char *argv[])
     {
       process_file(argv[i], ht);
     }
-    char **keys = linked_list_to_array(ioopm_hash_table_keys(ht)); 
+    ioopm_list_t *list = ioopm_hash_table_keys(ht);
+    char **keys = linked_list_to_array(list); 
+    ioopm_linked_list_destroy(list);
 
     int size = ioopm_hash_table_size(ht);
     sort_keys(keys, size); 
+    free(keys);
 
     for (int i = 0; i < size; ++i)
     {
