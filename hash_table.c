@@ -10,8 +10,6 @@
 
 #define No_Buckets 17
 
-// TODO: Fix gcov in make file
-
 // TODO: fixa static and public functions
 struct entry 
 {
@@ -20,14 +18,14 @@ struct entry
   entry_t *next; // points to the next entry (possibly NULL)
 };
 
-
 // TODO: fixa så att det finns en value eq func och en key eq func! som användaren får skicka in
 struct hash_table
 {
   entry_t buckets[No_Buckets]; 
   size_t size;
   ioopm_hash_function hash_function;
-  ioopm_eq_function values_eq_function;
+  ioopm_eq_function value_eq_function;
+  ioopm_eq_function key_eq_function;
 };
 
 struct link 
@@ -61,14 +59,15 @@ bool ioopm_eq_function_test(elem_t element1, elem_t element2)
   return (extract_int_hash_key(element1) == extract_int_hash_key(element2));
 }
 
-ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function value_eq)
+ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq_func, ioopm_eq_function value_eq_func)
 {
   /// Allocate space for a ioopm_hash_table_t = 17 pointers to
   /// entry_t's, which will be set to NULL
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
   result -> size = 0;
   result -> hash_function = hash_func;
-  result -> values_eq_function = value_eq;
+  result -> key_eq_function = key_eq_func;
+  result -> value_eq_function = value_eq_func;
   return result;
 }
 
@@ -78,12 +77,11 @@ static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *ent
   /// Saves the first (dummy) entry as first_entry
   entry_t *first_entry = entry;
   entry_t *tmp_entry = entry;
-  ioopm_hash_function hash_func = ht->hash_function;
 
   while (entry->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
   {
     entry = entry->next;
-    if (hash_func(entry->key) == hash_func(search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
+    if (ht->key_eq_function(entry->key,search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
     {
       return tmp_entry;
     }
@@ -119,15 +117,14 @@ static int calculate_bucket(elem_t key, ioopm_hash_function hash_function)
 
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
 {
-  ioopm_hash_function hash_func = ht->hash_function;
-  int bucket = calculate_bucket(key, hash_func);
+  int bucket = calculate_bucket(key, ht->hash_function);
 
   /// Search for an existing entry for a key
   entry_t *entry = find_previous_entry_for_key(ht, &ht->buckets[bucket], key);
   entry_t *next = entry->next;
 
   /// Check if the next entry should be updated or not
-  if (next != NULL && hash_func(next->key) == hash_func(key))
+  if (next != NULL && ht->key_eq_function(next->key, key))
   {
     next->value = value;
   }
@@ -142,13 +139,12 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
 bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
 {
   /// Find the previous entry for key
-  ioopm_hash_function hash_func = ht->hash_function;
-  int bucket = calculate_bucket(key, hash_func);
+  int bucket = calculate_bucket(key, ht->hash_function);
 
   entry_t *tmp = find_previous_entry_for_key(ht, &ht->buckets[bucket], key);
   entry_t *current = tmp->next;
 
-  if (current && hash_func(current->key) == hash_func(key))
+  if (current && ht->key_eq_function((current->key), key))
   {
     /// If entry was found, return true.
     *result = (current->value); // Lägger in the värde som fanns i key i 'result'
@@ -186,8 +182,7 @@ static void entry_destroy(entry_t *p)
 
 elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key) //
 {
-  ioopm_hash_function hash_func = ht->hash_function;
-  int bucket = calculate_bucket(key, hash_func);
+  int bucket = calculate_bucket(key, ht->hash_function);
 
   elem_t value; // TODO: Not initialized yet
   if (ioopm_hash_table_lookup(ht, key, &value))
@@ -287,7 +282,7 @@ void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
 
 ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när hashtable är tomt
 {
-  ioopm_list_t *result_list = ioopm_linked_list_create(ht->values_eq_function);
+  ioopm_list_t *result_list = ioopm_linked_list_create(ht->key_eq_function);
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -305,7 +300,7 @@ ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när
 
 ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
 {
-  ioopm_list_t *result_list = ioopm_linked_list_create(ht->values_eq_function); //calloc(ioopm_hash_table_size(ht) + 1, sizeof(char *));
+  ioopm_list_t *result_list = ioopm_linked_list_create(ht->value_eq_function); //calloc(ioopm_hash_table_size(ht) + 1, sizeof(char *));
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -321,6 +316,7 @@ ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
   return result_list;
 }
 
+/*
 //TODO: fix
 static bool value_equiv(elem_t key_ignored, elem_t value, void *x)
 {
@@ -335,27 +331,20 @@ static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
   elem_t *other_key_ptr = x;
   elem_t other_key = *other_key_ptr;
   return extract_int_hash_key(key) == extract_int_hash_key(other_key);
-}
-
-static bool string_eq(elem_t key, elem_t value_ignored, void *x)
-{
-  elem_t *other_key_ptr = x;
-  elem_t other_key = *other_key_ptr;
-
-  return strcmp(key.string_value, other_key.string_value) == 0;
-}
+}*/
 
 
 // TODO: VI måste ändra så att man inte skickar in key:eqiv osv då det inte kommer fungera om vi har strings som key istället
-bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key)
+bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key, ioopm_predicate pred) // TODO: Ännnu ett argument?
 {
-  return ioopm_hash_table_any(ht, string_eq, &key);
+  return ioopm_hash_table_any(ht, pred, &key);
 }
 
 
-bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, elem_t value)
+bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, elem_t value, ioopm_predicate pred )
 {
-  return ioopm_hash_table_any(ht, value_equiv, &value);
+
+  return ioopm_hash_table_any(ht, pred, &value);
 }
 
 

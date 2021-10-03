@@ -24,19 +24,18 @@ void sort_keys(char *keys[], size_t no_keys)
 // Inserts word into hash table with value 1 if it does not exist, otherwise adds 1 to value
 void process_word(char *word, ioopm_hash_table_t *ht)
 {
-  // FIXME: Rewrite to match your own interface, error-handling, etc.
+    elem_t ignore = {.void_value = "hej"};
     int freq;
-    if (ioopm_hash_table_has_key(ht, string_elem(word)))
+    if (ioopm_hash_table_lookup(ht, void_elem(word), &ignore))
     {
-        freq = (ioopm_lookup_key(ht, (elem_t) {.void_value = word})).int_value;
+      freq = (ioopm_lookup_key(ht, (elem_t) {.void_value = word})).int_value;
+      ioopm_hash_table_insert(ht, void_elem(word), int_elem(freq + 1));
     } 
     else
     {
-        freq = 0;
+      freq = 0;
+      ioopm_hash_table_insert(ht, void_elem(strdup(word)), int_elem(freq + 1)); // strdup orsakar mem leaks
     }
-    char *word_cpy = strdup(word);
-    ioopm_hash_table_insert(ht, string_elem(word_cpy), int_elem(freq + 1));
-    free(word_cpy);
 }
 
 // Opens file, processes the words in the file and close the file at EOF
@@ -92,15 +91,15 @@ static char **linked_list_to_array(ioopm_list_t *list)
 {
   ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
   size_t size = ioopm_linked_list_size(list);
-  char **result_array = calloc(size+1, sizeof(char*));
+  char **result_array = calloc(size+1, sizeof(char*) * size);
   int acc = 0;
   
   for(; ioopm_iterator_has_next(iter); acc++)
   {
-    result_array[acc] = ((ioopm_iterator_current(iter)).string_value); // Seg fault
+    result_array[acc] = ((ioopm_iterator_current(iter)).void_value);
     ioopm_iterator_next(iter);
   }
-  result_array[acc] = (ioopm_iterator_current(iter).string_value); // Final element
+  result_array[acc] = (ioopm_iterator_current(iter).void_value); // Final element
   ioopm_iterator_destroy(iter);
   return result_array;
 }
@@ -108,7 +107,7 @@ static char **linked_list_to_array(ioopm_list_t *list)
 
 int main(int argc, char *argv[])
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(string_sum_hash, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(string_sum_hash, string_eq, string_eq);
 
   if (argc > 1)
   {
@@ -116,6 +115,7 @@ int main(int argc, char *argv[])
     {
       process_file(argv[i], ht);
     }
+
     ioopm_list_t *list = ioopm_hash_table_keys(ht);
     char **keys = linked_list_to_array(list); 
     ioopm_linked_list_destroy(list);
@@ -123,18 +123,21 @@ int main(int argc, char *argv[])
     int size = ioopm_hash_table_size(ht);
     sort_keys(keys, size); 
 
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < size; i++)
     {
       int freq = (ioopm_lookup_key(ht, (elem_t) {.void_value = keys[i]})).int_value;
       printf("%s: %d\n", keys[i], freq);
     }
+
+    for (int i = 0; i < size; i++) {
+      free(keys[i]);
+    }
+
     free(keys);
   }
   else
   {
     puts("Usage: freq-count file1 ... filen");
   }
-  // FIXME: Leaks memory! Use valgrind to find out where that memory is 
-  // being allocated, and then insert code here to free it.
   ioopm_hash_table_destroy(ht);
 }

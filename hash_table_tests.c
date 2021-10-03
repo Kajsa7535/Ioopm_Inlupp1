@@ -21,7 +21,7 @@ struct hash_table
   entry_t buckets[No_Buckets]; 
   size_t size;
   ioopm_hash_function hash_function;
-  ioopm_eq_function values_eq_function;
+  ioopm_eq_function eq_function;
 };
 
 struct link 
@@ -48,12 +48,11 @@ static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *ent
   /// Saves the first (dummy) entry as first_entry
   entry_t *first_entry = entry;
   entry_t *tmp_entry = entry;
-  ioopm_hash_function hash_func = ht->hash_function;
 
   while (entry->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
   {
     entry = entry->next;
-    if (hash_func(entry->key) == hash_func(search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
+    if (ht->eq_function(entry->key, search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
     {
       return tmp_entry;
     }
@@ -82,16 +81,21 @@ static bool value_int_equiv(elem_t key, elem_t value, void *x)
   return value.int_value == other_value;
 }
 
-static bool key_int_equiv(elem_t key, elem_t value, void *x)
-{
-  int *other_int_ptr = x;
-  int other_key = *other_int_ptr;
-  return key.int_value == other_key;
-}
-
 bool int_eq(elem_t e1, elem_t e2)
 {
   return e1.int_value == e2.int_value;
+}
+
+int extract_int_hash_key(elem_t key)
+{
+  return key.int_value; 
+}
+
+static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
+{
+  elem_t *other_key_ptr = x;
+  elem_t other_key = *other_key_ptr;
+  return extract_int_hash_key(key) == extract_int_hash_key(other_key);
 }
 
 static void update_int_value(elem_t key, elem_t *value, void *arg)
@@ -101,10 +105,6 @@ static void update_int_value(elem_t key, elem_t *value, void *arg)
   (*value).int_value = other_value;
 }
 
-int extract_int_hash_key(elem_t key)
-{
-  return key.int_value; 
-}
 
 int init_suite(void)
 {
@@ -119,7 +119,7 @@ int clean_suite(void)
 
 void test1_insert(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   CU_ASSERT(ht->size == 0);
   elem_t result = {.int_value = 0};
 
@@ -140,7 +140,7 @@ void test1_insert(void)
 
 void test3_prev_entry(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
   
   ioopm_hash_table_insert(ht, int_elem(1), string_elem("TESTAR"));
@@ -157,7 +157,7 @@ void test3_prev_entry(void)
 
 void test4_lookup(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   elem_t result = {.int_value = 0};
 
   CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(5), &result));
@@ -180,7 +180,7 @@ void test4_lookup(void)
 
 void test5_remove(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   CU_ASSERT(ht->size == 0);
   elem_t result = {.int_value = 0};
 
@@ -208,7 +208,7 @@ void test5_remove(void)
 
 void test6_remove_entry_not(void) // PRINTAR UT MASSA ONÖDIGT ???
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   elem_t result = {.int_value = 0};
 
   for (int i = 0; i < No_Buckets; i++)
@@ -230,7 +230,7 @@ void test6_remove_entry_not(void) // PRINTAR UT MASSA ONÖDIGT ???
 
 void test7_remove_middle(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   CU_ASSERT(ht->size == 0);
 
   for (int i = 0; i < 85; i++)
@@ -249,7 +249,7 @@ void test7_remove_middle(void)
 
 void test8_empty_hash_table(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   CU_ASSERT(ioopm_hash_table_is_empty(ht));
 
   for (int i = 0; i < 50; i++)
@@ -263,7 +263,7 @@ void test8_empty_hash_table(void)
 
 void test9_multiple_entry_hash_table(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
   CU_ASSERT_EQUAL(ioopm_hash_table_size(ht), 0);
 
@@ -279,7 +279,7 @@ void test9_multiple_entry_hash_table(void)
 
 void test10_hash_table_clear_size(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   elem_t result = {.int_value = 0};
 
   CU_ASSERT_EQUAL(ioopm_hash_table_size(ht), 0);
@@ -303,7 +303,7 @@ void test10_hash_table_clear_size(void)
 
 void test11_hash_table_keys(void) // TODO: Make test case for empty (no keys)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
   for (int i = 0; i < 17; i++)
@@ -329,7 +329,7 @@ void test11_hash_table_keys(void) // TODO: Make test case for empty (no keys)
 
 void test12_hash_table_keys_empty(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   ioopm_list_t *from_ht = ioopm_hash_table_keys(ht);
   CU_ASSERT_PTR_NULL(from_ht->first);
   ioopm_hash_table_destroy(ht);
@@ -338,7 +338,7 @@ void test12_hash_table_keys_empty(void)
 
 void test13_hash_table_values(void) //TODO: Behöver ändra i has_key funktioner så att det som skickas in i any är funktionerna i strukten!!!!
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
   for (int i = 0; i < 17; i++)
@@ -361,7 +361,7 @@ void test13_hash_table_values(void) //TODO: Behöver ändra i has_key funktioner
 
   for (int i = 0; i < 68; i++)
   {
-   CU_ASSERT(string_eq(ioopm_linked_list_get(list, i), ioopm_linked_list_get(from_ht, i)));
+   CU_ASSERT(int_eq(ioopm_linked_list_get(list, i), ioopm_linked_list_get(from_ht, i)));
   }
   ioopm_hash_table_destroy(ht);
   ioopm_linked_list_destroy(list);
@@ -370,7 +370,7 @@ void test13_hash_table_values(void) //TODO: Behöver ändra i has_key funktioner
 
 void test14_hash_table_values_empty(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   ioopm_list_t *from_ht = ioopm_hash_table_values(ht);
   CU_ASSERT_PTR_NULL(from_ht->first);
   ioopm_hash_table_destroy(ht);
@@ -379,8 +379,8 @@ void test14_hash_table_values_empty(void)
 
 void test15_hash_table_has_key(void) // TODO: Glömt frigöra listan i vår funktion??? som skapas där??? eller ?? alltså i .c filen
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
-  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100)));
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100), key_equiv));
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -392,20 +392,20 @@ void test15_hash_table_has_key(void) // TODO: Glömt frigöra listan i vår funk
 
   for(int k = 0; k < No_Buckets; k++)
   {
-    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k)));
-    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+17)));
-    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+34)));
-    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+51)));
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k), key_equiv));
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+17), key_equiv));
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+34), key_equiv));
+    CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+51), key_equiv));
   }
 
-  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100))); // kollar om den inte finns, skapa ett nytt test för bara det?
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100), key_equiv)); // kollar om den inte finns, skapa ett nytt test för bara det?
   ioopm_hash_table_destroy(ht);
 }
 
 void test16_hash_table_has_value_identical(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
-  CU_ASSERT_FALSE(ioopm_hash_table_has_value(ht, string_elem("TESTAR")));
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
+  CU_ASSERT_FALSE(ioopm_hash_table_has_value(ht, string_elem("TESTAR"), value_string_equiv));
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -415,18 +415,18 @@ void test16_hash_table_has_value_identical(void)
     ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
   }
 
-  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("TESTAR")));
-  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("att")));
-  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("det")));
-  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("fungerar")));
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("TESTAR"), value_string_equiv));
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("att"), value_string_equiv));
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("det"), value_string_equiv));
+  CU_ASSERT(ioopm_hash_table_has_value(ht, string_elem("fungerar"), value_string_equiv));
 
-  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, string_elem("Nej"))); // kollar om den inte finns, skapa ett nytt test för bara det?
+  CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, string_elem("Nej"), key_equiv)); // kollar om den inte finns, skapa ett nytt test för bara det?
   ioopm_hash_table_destroy(ht);
 }
 
 void test17_hash_table_all_value_not(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -444,7 +444,7 @@ void test17_hash_table_all_value_not(void)
 
 void test18_hash_table_all_value(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -459,7 +459,7 @@ void test18_hash_table_all_value(void)
 
 void test19_hash_table_all_key_not(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -478,12 +478,12 @@ void test19_hash_table_all_key_not(void)
 
 void test20_hash_table_all_key(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
   ioopm_hash_table_insert(ht, int_elem(1), string_elem("TEST"));
 
   int value = 1;
-  CU_ASSERT(ioopm_hash_table_all(ht, key_int_equiv, &value));
+  CU_ASSERT(ioopm_hash_table_all(ht, key_equiv, &value));
 
   ioopm_hash_table_destroy(ht);
 }
@@ -491,7 +491,7 @@ void test20_hash_table_all_key(void)
 
 void test21_hash_table_apply_all(void)
 {
-   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq);
+   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -499,7 +499,7 @@ void test21_hash_table_apply_all(void)
   }
 
   int value = 1;
-  CU_ASSERT_FALSE(ioopm_hash_table_all(ht, key_int_equiv, &value));
+  CU_ASSERT_FALSE(ioopm_hash_table_all(ht, key_equiv, &value));
   
   ioopm_hash_table_apply_to_all(ht, update_int_value, &value);
 
