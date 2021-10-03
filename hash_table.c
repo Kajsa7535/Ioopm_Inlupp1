@@ -174,20 +174,27 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
   if (check_bucket_load(ht))
   {
     int bucket = calculate_bucket(ht, key, ht->hash_function);
+    elem_t ignored = {.string_value = ""};
 
     /// Search for an existing entry for a key
-    entry_t **entry = find_previous_entry_for_key_ptr(ht, &(ht->buckets[bucket]), key);
-    entry_t *next = (*entry)->next;
-
-    /// Check if the next entry should be updated or not
-    if (next != NULL && ht->key_eq_function(next->key, key))
+    if(ht->size == 0)
     {
-      next->value = value;
+      ht->buckets[bucket] = entry_create(key, value, NULL);
+      ht->size += 1;
     }
     else
     {
-      (*entry)->next = entry_create(key, value, next); // insert the new entry in the beginning of the linked list ?
-      ht->size += 1;
+      if (ioopm_hash_table_lookup(ht, key, &ignored))
+      {
+        entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key);
+        (*prev_entry)->next->value = value;
+      }
+      else
+      {
+        entry_t *prev_first = ht->buckets[bucket];
+        ht->buckets[bucket] = entry_create(key, value, prev_first);
+        ht->size += 1;
+      }
     }
   }
   else
@@ -487,33 +494,50 @@ void process_word(char *word, ioopm_hash_table_t *ht)
 }
 
 
+bool string_eq(elem_t e1, elem_t e2)
+{
+  return strcmp(e1.string_value, e2.string_value) == 0;
+}
+
+bool int_eq(elem_t e1, elem_t e2)
+{
+  return e1.int_value == e2.int_value;
+}
+
+static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
+{
+  elem_t *other_key_ptr = x;
+  elem_t other_key = *other_key_ptr;
+  return extract_int_hash_key(key) == extract_int_hash_key(other_key);
+}
+
 int main(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, string_eq);
-  
-  ioopm_hash_table_insert(ht, string_elem("tjo"), int_elem(1));
-  ioopm_hash_table_insert(ht, string_elem("hej"), int_elem(2));
-  ioopm_hash_table_insert(ht, string_elem("wow"), int_elem(3));
-  ioopm_hash_table_insert(ht, string_elem("yey"), int_elem(4));
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
 
-  elem_t first_val = ioopm_lookup_key(ht, string_elem("hej"));
-  printf("first: %d\n", first_val.int_value);
-
-  //process_word("hej", ht);
-  ioopm_hash_table_insert(ht, string_elem("hej"), int_elem(3));
-  elem_t new_val = ioopm_lookup_key(ht, string_elem("hej"));
-  printf("second: %d\n", new_val.int_value);
-  //size_t size = ioopm_hash_table_size(ht);
+  //entry_t **test = find_previous_entry_for_key_ptr(ht, &ht->buckets[0], int_elem(17));
+  //printf("%d\n", test);
   
+  ioopm_hash_table_insert(ht, int_elem(1), string_elem("tjo"));
+  
+  if(ioopm_hash_table_has_key(ht, int_elem(1), key_equiv))
+  {
+    puts("yay!\n");
+  }
+  else
+  {
+    puts("dum dum dum.... \n");
+  }
+  //TODOioopm_hash_table_insert(ht, int_elem(2), string_elem("hej"));
+  //ioopm_hash_table_insert(ht, int_elem(3), string_elem("wow"));
+  //ioopm_hash_table_insert(ht, int_elem(4), string_elem("yey"));
+
+
+  
+
+
   //char **result_array = calloc(size+1, sizeof(char *));
 
-  
-  for(; ioopm_iterator_has_next(iter); acc++)
-  {
-    printf("%d\n", acc);
-    result_array[acc] = (ioopm_iterator_current(iter)).string_value; // Seg fault
-    ioopm_iterator_next(iter);
-  }
   
 
   //printf("%s\n", ioopm_iterator_current(iter).string_value);
@@ -521,5 +545,5 @@ int main(void)
   //result_array[acc] = ioopm_iterator_current(iter).string_value; // Final element
 
 
-}
-*/
+}*/
+
