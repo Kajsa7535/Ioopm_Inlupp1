@@ -130,9 +130,10 @@ static void hash_table_rehash (ioopm_hash_table_t *ht_old)
 
 static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key)
 {
+
   entry_t **tmp_entry = entry;
 
-  while ((*entry)->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
+  while ((*entry)->next != NULL) // SEG FAULT
   {
     *entry = (*entry)->next;
     if (ht->key_eq_function((*entry)->key,search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
@@ -142,6 +143,21 @@ static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t
     tmp_entry = entry;
   }
   return entry;
+  
+ /*
+  ioopm_eq_function eq_fun = ht->key_eq_function;
+  ioopm_hash_function hash_fun = ht ->hash_function;
+
+  if (*entry != NULL)
+  {
+    int hash = hash_fun((*entry)->key);
+    int hash_key = hash_fun(search_key);
+    if (hash_key < hash || (hash_key == hash && !eq_fun((*entry)->key, search_key)))
+    {
+      return find_previous_entry_for_key_ptr(ht, &(*entry)->next, search_key);
+    }
+  }
+  return entry;*/
 }
 
 
@@ -159,23 +175,47 @@ static entry_t *entry_create(elem_t key, elem_t value, entry_t *next)
 static int calculate_bucket(ioopm_hash_table_t *ht, elem_t key, ioopm_hash_function hash_function)
 {
   int key_elem = hash_function(key);
+  //printf("%d\n", key_elem); // TODO: -1 ger 17 som bucket???????? FIX
   int bucket = key_elem % primes[ht->index_primes];
+  //printf("%d\n", bucket);
   /// Calculate the bucket for this entry
   if (key_elem < 0) // checks if key is negative
   {
     bucket = primes[ht->index_primes] - abs(bucket);
   }
+  printf("%d\n", bucket);
   return bucket;
 }
 
 
-void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
+bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
+{
+  /// Find the previous entry for key
+  int bucket = calculate_bucket(ht, key, ht->hash_function);
+  entry_t **tmp = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key);
+  entry_t *current = (*tmp)->next;
+
+  if (current && ht->key_eq_function((current->key), key))
+  {
+    /// If entry was found, return true.
+    *result = (current->value); // Lägger in the värde som fanns i key i 'result'
+    return true;
+  }
+  else
+  {
+    /// ... else return false
+    return false;
+  }
+}
+
+
+void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value) // TODO: insert är fel, det blir fel men länkningen när man lägger in många entries
 {
   if (check_bucket_load(ht))
   {
     int bucket = calculate_bucket(ht, key, ht->hash_function);
+    //printf("%d\n", bucket);
     elem_t ignored = {.string_value = ""};
-
     /// Search for an existing entry for a key
     if(ht->size == 0)
     {
@@ -184,9 +224,9 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
     }
     else
     {
-      if (ioopm_hash_table_lookup(ht, key, &ignored))
+      if (ioopm_hash_table_lookup(ht, key, &ignored)) // Seg fault // 
       {
-        entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key);
+        entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key); // blir fel? skrivs inte över
         (*prev_entry)->next->value = value;
       }
       else
@@ -205,26 +245,6 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
 }
 
 
-bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
-{
-  /// Find the previous entry for key
-  int bucket = calculate_bucket(ht, key, ht->hash_function);
-
-  entry_t **tmp = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key);
-  entry_t *current = (*tmp)->next;
-
-  if (current && ht->key_eq_function((current->key), key))
-  {
-    /// If entry was found, return true.
-    *result = (current->value); // Lägger in the värde som fanns i key i 'result'
-    return true;
-  }
-  else
-  {
-    /// ... else return false
-    return false;
-  }
-}
 
 
 //TODO: Fråga på labben om man får dela upp den i två funktioner? Och byta namn på den man fick? Den gjorde inte som den skulle?
@@ -475,8 +495,6 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 /*
 void process_word(char *word, ioopm_hash_table_t *ht)
 {
@@ -492,7 +510,7 @@ void process_word(char *word, ioopm_hash_table_t *ht)
     }
     ioopm_hash_table_insert(ht, (elem_t) {.void_value = strdup(word)}, (elem_t) {.int_value = freq + 1});
 }
-
+*/
 
 bool string_eq(elem_t e1, elem_t e2)
 {
@@ -515,19 +533,61 @@ int main(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
 
-  //entry_t **test = find_previous_entry_for_key_ptr(ht, &ht->buckets[0], int_elem(17));
   //printf("%d\n", test);
   
-  ioopm_hash_table_insert(ht, int_elem(1), string_elem("tjo"));
+  ioopm_hash_table_insert(ht, int_elem(-1), string_elem("nem")); 
+  ioopm_hash_table_insert(ht, int_elem(18), string_elem("hej"));
+  ioopm_hash_table_insert(ht, int_elem(35), string_elem("nej"));
+  ioopm_hash_table_insert(ht, int_elem(52), string_elem("wow"));
+  entry_t *test = ht->buckets[1];
+  //entry_t  *pls = test;
+  printf("%s\n", test->value.string_value);
+  entry_t *pls = test -> next;
+  printf("%s\n", pls->value.string_value);
+
+/*
+  int bucket = calculate_bucket(ht, int_elem(-2), ht->hash_function);
+  int prim = primes[ht->index_primes];
+  printf("%d\n", prim);
+  printf("%d\n", bucket);
+*/
+  //printf("%s\n",pls->value.string_value);
+  //pls = pls -> next;
+  //printf("%s\n",pls->value.string_value);
+  //elem_t val = pls -> next -> value;
+
+  /*
+  entry_t *prev_first = ht->buckets[1];
+  elem_t val = prev_first -> value;*/
+  entry_t **test2 = find_previous_entry_for_key_ptr(ht, &ht->buckets[1], int_elem(35));
+  entry_t *pls2 = *test2; 
+  //printf("%s\n", val.string_value);
+  printf("%s\n", (pls2->value).string_value);
+/*
+  if ( *test == NULL) 
+  {
+    puts("yay!\n");
+  }
+  else
+  {
+     puts("dum dum dum.... \n");
+
+  }
+*/
+  /*
+  entry_t **tmp = find_previous_entry_for_key_ptr(ht, &ht->buckets[primes[ht->index_primes]], int_elem(4));
+  elem_t val = (*tmp)->next->value;
+  printf("%s\n", val.string_value);
   
-  if(ioopm_hash_table_has_key(ht, int_elem(1), key_equiv))
+  elem_t ignored = {.string_value = ""};*/
+  /*if(ioopm_hash_table_lookup(ht, int_elem(18), &ignored))
   {
     puts("yay!\n");
   }
   else
   {
     puts("dum dum dum.... \n");
-  }
+  }*/
   //TODOioopm_hash_table_insert(ht, int_elem(2), string_elem("hej"));
   //ioopm_hash_table_insert(ht, int_elem(3), string_elem("wow"));
   //ioopm_hash_table_insert(ht, int_elem(4), string_elem("yey"));
@@ -545,5 +605,4 @@ int main(void)
   //result_array[acc] = ioopm_iterator_current(iter).string_value; // Final element
 
 
-}*/
-
+}
