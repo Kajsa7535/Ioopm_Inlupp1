@@ -151,7 +151,7 @@ void test1_insert(void)
   CU_ASSERT(ht->size == 0);
   elem_t result = {.int_value = 0};
 
-  for (int i = 0; i < primes[ht->index_primes]; i++)
+  for (int i = 0; i < 15; i++)
   {
     entry_t **testEntry = &ht->buckets[i];
     for (int j = 0; j < 5; j++)
@@ -160,9 +160,9 @@ void test1_insert(void)
       ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
       CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result));
     }
-    CU_ASSERT_PTR_NOT_NULL((*testEntry)->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
+   // CU_ASSERT_PTR_NOT_NULL((*testEntry)->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
   }
-  CU_ASSERT(ht->size == (85));
+  CU_ASSERT(ht->size == (75));
   ioopm_hash_table_destroy(ht);
 }
 

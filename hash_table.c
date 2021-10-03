@@ -63,6 +63,10 @@ bool ioopm_eq_function_test(elem_t element1, elem_t element2)
   return (extract_int_hash_key(element1) == extract_int_hash_key(element2));
 }
 
+static void entry_destroy(entry_t *p)
+{
+  free(p);
+}
 
 static ioopm_hash_table_t *hash_table_create_with_load(double load_factor, int index_primes, size_t size, ioopm_hash_function hash_func, ioopm_eq_function key_eq_func, ioopm_eq_function value_eq_func)
 {
@@ -95,35 +99,52 @@ static bool check_bucket_load (ioopm_hash_table_t *ht)
   return (No_buckets*load_factor >= size); // if return true do not rehash
 }
 
-static void rehash_entry (ioopm_hash_table_t *ht_new, entry_t *entry)
+static void rehash_entry(ioopm_hash_table_t *ht_new, entry_t *entry)
 {
   elem_t key = entry->key;
   elem_t value = entry->value;
   ioopm_hash_table_insert(ht_new, key, value);
 }
+/*
+bucket 0....
+bucket 1: (1, "jej", ->) (18, "nej" ->) (35, "ja", null) 
+bucket 2: (2, "jej", ->) (19, "nej" ->) (36, "ja", null) 
+bucket 3: (3, "jej", ->) (20, "nej" ->) (37, "ja", null) 
+....*/
+
+static void rehash_bucket(ioopm_hash_table_t *ht, entry_t *old_bucket)
+{
+  entry_t *entry = old_bucket;
+  while (entry)
+  {
+    elem_t key = entry->key;
+    elem_t value = entry->value;
+    ioopm_hash_table_insert(ht, key, value);
+    entry_t *del_entry = entry;
+    entry = entry -> next;
+    entry_destroy(del_entry);
+  }
+}
 
 //TODO: check_index_primes som kollar att index är valid
 
-static void hash_table_rehash (ioopm_hash_table_t *ht_old)
+static void hash_table_rehash (ioopm_hash_table_t *ht)
 {
-  if((ht_old->index_primes) + 1 <= No_Primes)
+  if((ht->index_primes) + 1 <= No_Primes)
   {
-  ioopm_hash_table_t *ht_new = hash_table_create_with_load(ht_old->load_factor, (ht_old->index_primes)+1, ht_old->size, ht_old->hash_function, ht_old->key_eq_function, ht_old->value_eq_function);
-  
-  for(int i = 0; i < primes[ht_old->index_primes]; i++)
+  //ioopm_hash_table_t *ht_new = hash_table_create_with_load(ht_old->load_factor, (ht_old->index_primes)+1, ht_old->size, ht_old->hash_function, ht_old->key_eq_function, ht_old->value_eq_function);
+  entry_t **del_buckets = ht-> buckets;
+  size_t new_no_buckets = primes [(ht ->index_primes) + 1 ];
+
+  ht -> buckets = calloc (new_no_buckets, sizeof(entry_t *));
+  ht -> index_primes += 1;
+  ht -> size = 0;
+
+  for(int i = 0; i < primes[(ht->index_primes) - 1]; i++)
   {
-    entry_t *entry = ht_old -> buckets[i]; 
-    while (entry)
-    {
-      rehash_entry(ht_new, entry);
-      entry = entry -> next;
-    }
-  }
-  // pekar om old ht till nya???
-  ioopm_hash_table_t *ptr_old_ht = ht_old;
-  ht_old = ht_new; 
-  // free gamla ht
-  ioopm_hash_table_destroy(ptr_old_ht);
+    rehash_bucket(ht, del_buckets[i]);
+  } 
+  free(del_buckets);
   }
 }
 
@@ -183,29 +204,27 @@ static int calculate_bucket(ioopm_hash_table_t *ht, elem_t key, ioopm_hash_funct
   {
     bucket = primes[ht->index_primes] - abs(bucket);
   }
-  printf("%d\n", bucket);
   return bucket;
 }
 
 
 bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
-{
+{                 
   /// Find the previous entry for key
   int bucket = calculate_bucket(ht, key, ht->hash_function);
-  entry_t **tmp = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key);
-  entry_t *current = (*tmp)->next;
+  //entry_t **tmp = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key);
+  entry_t *current = ht->buckets[bucket]; 
 
-  if (current && ht->key_eq_function((current->key), key))
+  while (current)
   {
-    /// If entry was found, return true.
-    *result = (current->value); // Lägger in the värde som fanns i key i 'result'
-    return true;
+    if (ht->key_eq_function(current->key, key))
+    {
+      *result = (current->value);
+      return true;
+    }
+    current = current -> next;
   }
-  else
-  {
-    /// ... else return false
-    return false;
-  }
+  return false;
 }
 
 
@@ -263,12 +282,6 @@ elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key) //TODO: Gör fallet 
 }
 
 
-static void entry_destroy(entry_t *p)
-{
-  free(p);
-}
-
-
 elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key) //
 {
   int bucket = calculate_bucket(ht, key, ht->hash_function);
@@ -308,10 +321,10 @@ elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key) //
 static size_t length_of_bucket(entry_t *entry)
 {
   size_t acc = 0;
-  while (entry->next != NULL)
+  while (entry)
   {
-    entry = entry->next;
     acc++;
+    entry = entry->next;
   }
   return acc;
 }
@@ -319,19 +332,21 @@ static size_t length_of_bucket(entry_t *entry)
 
 static void bucket_destroy(entry_t *entry)
 {
-  entry_t *dummy_entry = entry;
+  entry_t *first_entry = entry;
   entry_t *prev_entry;
-  size_t acc = length_of_bucket(entry);
-  // Case: Last entry
-  for (; acc > 0; acc--)
+  
+  for (size_t acc = length_of_bucket(entry); acc > 0; acc--)
   {
-    entry = dummy_entry;
-    while (entry->next != NULL)
+    entry = first_entry;
+    while (entry->next)
     {
       prev_entry = entry;
       entry = entry->next;
     }
-    prev_entry->next = NULL;
+    if (acc > 1)
+    {
+      prev_entry->next = NULL;
+    }
     entry_destroy(entry);
   }
 }
@@ -494,115 +509,47 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-void process_word(char *word, ioopm_hash_table_t *ht)
-{
-  // FIXME: Rewrite to match your own interface, error-handling, etc.
-    int freq;
-    if (ioopm_hash_table_has_key(ht, (elem_t) {.string_value = word}))
-    {
-        freq = (ioopm_lookup_key(ht, (elem_t) {.void_value = word})).int_value;
-    } 
-    else
-    {
-        freq = 0;
-    }
-    ioopm_hash_table_insert(ht, (elem_t) {.void_value = strdup(word)}, (elem_t) {.int_value = freq + 1});
-}
-*/
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool string_eq(elem_t e1, elem_t e2)
-{
-  return strcmp(e1.string_value, e2.string_value) == 0;
-}
 
-bool int_eq(elem_t e1, elem_t e2)
-{
-  return e1.int_value == e2.int_value;
-}
+// bool string_eq(elem_t e1, elem_t e2)
+// {
+//   return strcmp(e1.string_value, e2.string_value) == 0;
+// }
 
-static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
-{
-  elem_t *other_key_ptr = x;
-  elem_t other_key = *other_key_ptr;
-  return extract_int_hash_key(key) == extract_int_hash_key(other_key);
-}
+// bool int_eq(elem_t e1, elem_t e2)
+// {
+//   return e1.int_value == e2.int_value;
+// }
 
-int main(void)
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
+// static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
+// {
+//   elem_t *other_key_ptr = x;
+//   elem_t other_key = *other_key_ptr;
+//   return extract_int_hash_key(key) == extract_int_hash_key(other_key);
+// }
 
-  //printf("%d\n", test);
+// int main(void)
+// {
+//   ioopm_hash_table_t *ht_old = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   
-  ioopm_hash_table_insert(ht, int_elem(-1), string_elem("nem")); 
-  ioopm_hash_table_insert(ht, int_elem(18), string_elem("hej"));
-  ioopm_hash_table_insert(ht, int_elem(35), string_elem("nej"));
-  ioopm_hash_table_insert(ht, int_elem(52), string_elem("wow"));
-  entry_t *test = ht->buckets[1];
-  //entry_t  *pls = test;
-  printf("%s\n", test->value.string_value);
-  entry_t *pls = test -> next;
-  printf("%s\n", pls->value.string_value);
-
-/*
-  int bucket = calculate_bucket(ht, int_elem(-2), ht->hash_function);
-  int prim = primes[ht->index_primes];
-  printf("%d\n", prim);
-  printf("%d\n", bucket);
-*/
-  //printf("%s\n",pls->value.string_value);
-  //pls = pls -> next;
-  //printf("%s\n",pls->value.string_value);
-  //elem_t val = pls -> next -> value;
-
-  /*
-  entry_t *prev_first = ht->buckets[1];
-  elem_t val = prev_first -> value;*/
-  entry_t **test2 = find_previous_entry_for_key_ptr(ht, &ht->buckets[1], int_elem(35));
-  entry_t *pls2 = *test2; 
-  //printf("%s\n", val.string_value);
-  printf("%s\n", (pls2->value).string_value);
-/*
-  if ( *test == NULL) 
-  {
-    puts("yay!\n");
-  }
-  else
-  {
-     puts("dum dum dum.... \n");
-
-  }
-*/
-  /*
-  entry_t **tmp = find_previous_entry_for_key_ptr(ht, &ht->buckets[primes[ht->index_primes]], int_elem(4));
-  elem_t val = (*tmp)->next->value;
-  printf("%s\n", val.string_value);
+//   ioopm_hash_table_insert(ht_old, int_elem(1), string_elem("nem")); 
+//   ioopm_hash_table_insert(ht_old, int_elem(18), string_elem("hej"));
+//   ioopm_hash_table_insert(ht_old, int_elem(35), string_elem("nej"));
+//   ioopm_hash_table_insert(ht_old, int_elem(52), string_elem("wow"));
   
-  elem_t ignored = {.string_value = ""};*/
-  /*if(ioopm_hash_table_lookup(ht, int_elem(18), &ignored))
-  {
-    puts("yay!\n");
-  }
-  else
-  {
-    puts("dum dum dum.... \n");
-  }*/
-  //TODOioopm_hash_table_insert(ht, int_elem(2), string_elem("hej"));
-  //ioopm_hash_table_insert(ht, int_elem(3), string_elem("wow"));
-  //ioopm_hash_table_insert(ht, int_elem(4), string_elem("yey"));
-
-
+//   bucket_destroy(ht_old->buckets[1]);
   
+//   if(ht_old->buckets[1])
+//   {
+//     puts("Finns fortfarande :(\n");
+//     printf("%p", (ht_old->buckets[1]).void_value);
+//   }
+//   else
+//   {
+//     puts("* Borta! * :D\n");
+//   }
+//   //printf("%s\n", (ht_old->buckets[1]->next-> value).string_value);
+//   ////printf("%s\n")
 
-
-  //char **result_array = calloc(size+1, sizeof(char *));
-
-  
-
-  //printf("%s\n", ioopm_iterator_current(iter).string_value);
-
-  //result_array[acc] = ioopm_iterator_current(iter).string_value; // Final element
-
-
-}
+// }
