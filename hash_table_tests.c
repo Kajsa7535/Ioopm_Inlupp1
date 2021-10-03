@@ -5,7 +5,12 @@
 #include "hash_table.h"
 #include "linked_list.h"
 
-#define No_Buckets 17
+#define No_Primes 11
+
+static const size_t primes[] = {17, 31, 67, 127, 257, 509, 1021, 2053, 4099, 8191, 16381};
+
+
+//#define No_Buckets 17
 
 //TODO: Skriva tester för hjälpfunktioner?
 
@@ -16,12 +21,16 @@ struct entry
   entry_t *next; // points to the next entry (possibly NULL)
 };
 
+// TODO: fixa så att det finns en value eq func och en key eq func! som användaren får skicka in
 struct hash_table
 {
-  entry_t buckets[No_Buckets]; 
   size_t size;
+  double load_factor;
+  int index_primes;
   ioopm_hash_function hash_function;
-  ioopm_eq_function eq_function;
+  ioopm_eq_function value_eq_function;
+  ioopm_eq_function key_eq_function;
+  entry_t **buckets; 
 };
 
 struct link 
@@ -43,6 +52,7 @@ struct iterator
     ioopm_list_t *list;
 };
 
+/*
 static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key)
 {
   /// Saves the first (dummy) entry as first_entry
@@ -59,6 +69,24 @@ static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *ent
     tmp_entry = entry;
   }
   return first_entry;
+}*/
+
+
+static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key)
+{
+  /// Saves the first (dummy) entry as first_entry
+  entry_t **tmp_entry = entry;
+
+  while ((*entry)->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
+  {
+    *entry = (*entry)->next;
+    if (ht->key_eq_function((*entry)->key,search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
+    {
+      return tmp_entry;
+    }
+    tmp_entry = entry;
+  }
+  return entry;
 }
 
 // EQ_VALUES FUNCTION 
@@ -119,20 +147,20 @@ int clean_suite(void)
 
 void test1_insert(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   CU_ASSERT(ht->size == 0);
   elem_t result = {.int_value = 0};
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
-    entry_t *testEntry = &ht->buckets[i];
+    entry_t **testEntry = &ht->buckets[i];
     for (int j = 0; j < 5; j++)
     {
       int key_insert = random()%30000; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
       ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
       CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result));
     }
-    CU_ASSERT_PTR_NOT_NULL(testEntry->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
+    CU_ASSERT_PTR_NOT_NULL((*testEntry)->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
   }
   CU_ASSERT(ht->size == (85));
   ioopm_hash_table_destroy(ht);
@@ -147,8 +175,8 @@ void test3_prev_entry(void)
   ioopm_hash_table_insert(ht, int_elem(18), string_elem("WOWWWW"));
   ioopm_hash_table_insert(ht, int_elem(35), string_elem("LOVEIT"));
   ioopm_hash_table_insert(ht, int_elem(52), string_elem("HAHAH"));
-  entry_t *prev_entry = find_previous_entry_for_key(ht, &ht->buckets[1], int_elem(18));
-  entry_t *test_entry = &ht->buckets[1];
+  entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[1], int_elem(18));
+  entry_t *test_entry = ht->buckets[1];
 
   CU_ASSERT_PTR_EQUAL(prev_entry, test_entry->next->next);
   
@@ -161,7 +189,7 @@ void test4_lookup(void)
   elem_t result = {.int_value = 0};
 
   CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(5), &result));
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     int key_insert = random()%300; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
     ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
@@ -184,7 +212,7 @@ void test5_remove(void)
   CU_ASSERT(ht->size == 0);
   elem_t result = {.int_value = 0};
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     for (int j = 0; j < 5; j++)
     {
@@ -196,9 +224,9 @@ void test5_remove(void)
     }
   }
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
-    entry_t *testEntry = &ht->buckets[i];
+    entry_t *testEntry = ht->buckets[i];
     CU_ASSERT_PTR_NULL(testEntry->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
   }
 
@@ -211,7 +239,7 @@ void test6_remove_entry_not(void) // PRINTAR UT MASSA ONÖDIGT ???
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   elem_t result = {.int_value = 0};
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     for (int j = 0; j < 5; j++)
     {
@@ -238,7 +266,7 @@ void test7_remove_middle(void)
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
   }
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     ioopm_hash_table_remove(ht, int_elem(43+i));
   }
@@ -291,9 +319,9 @@ void test10_hash_table_clear_size(void)
   CU_ASSERT_EQUAL(ioopm_hash_table_size(ht), 50);
   ioopm_hash_table_clear(ht);
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
-    entry_t *testEntry = &ht->buckets[i];
+    entry_t *testEntry = ht->buckets[i];
     CU_ASSERT_PTR_NULL(testEntry->next);
     CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(i), &result));
   }
@@ -382,7 +410,7 @@ void test15_hash_table_has_key(void) // TODO: Glömt frigöra listan i vår funk
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100), key_equiv));
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
     ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
@@ -390,7 +418,7 @@ void test15_hash_table_has_key(void) // TODO: Glömt frigöra listan i vår funk
     ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
   }
 
-  for(int k = 0; k < No_Buckets; k++)
+  for(int k = 0; k < primes[ht->index_primes]; k++)
   {
     CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k), key_equiv));
     CU_ASSERT(ioopm_hash_table_has_key(ht, int_elem(k+17), key_equiv));
@@ -407,7 +435,7 @@ void test16_hash_table_has_value_identical(void)
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   CU_ASSERT_FALSE(ioopm_hash_table_has_value(ht, string_elem("TESTAR"), value_string_equiv));
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
     ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
@@ -428,7 +456,7 @@ void test17_hash_table_all_value_not(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
     ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
@@ -446,7 +474,7 @@ void test18_hash_table_all_value(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
   }
@@ -461,7 +489,7 @@ void test19_hash_table_all_key_not(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
     ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
@@ -493,7 +521,7 @@ void test21_hash_table_apply_all(void)
 {
    ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
-  for (int i = 0; i < No_Buckets; i++)
+  for (int i = 0; i < primes[ht->index_primes]; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), int_elem(i));
   }
