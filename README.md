@@ -10,6 +10,8 @@ INLÄMNINGSUPPGIFT 1
 
 # Initial Profiling Results
 
+Vi använde oss av gprof för att få fram resultaten. Först kompilerade vi freq-count med -pg flaggan (gcc -pg hash_table.c linked_list.c freq-count.c) och sedan körde vi filen med de olika textfilerna som argument (./a.out name.txt). Slutligen körde vi gprof på ./a.out-filen (gprof ./a.out).
+
 For each input, what are the top 3 functions? (vi går efter "self seconds", men vi anger antalet calls)
 
 - small.txt: 
