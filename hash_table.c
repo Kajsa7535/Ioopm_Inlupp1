@@ -50,7 +50,7 @@ struct iterator
     ioopm_list_t *list;
 };
 
-
+// Creates a hash table with given load factor, index to the global primes-array for number of buckets, hash function, and compare functions for keys and values
 static ioopm_hash_table_t *hash_table_create_with_load(double load_factor, int index_primes, size_t size, ioopm_hash_function hash_func, ioopm_eq_function key_eq_func, ioopm_eq_function value_eq_func)
 {
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
@@ -65,13 +65,13 @@ static ioopm_hash_table_t *hash_table_create_with_load(double load_factor, int i
   return result;
 }
 
-
+// Creates a hash table with load factor 0.75, index 0 for the global primes-array for number of buckets, size 0, given hash function and compare functions for keys and values
 ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq_func, ioopm_eq_function value_eq_func)
 {
   return hash_table_create_with_load(0.75 , 0, 0, hash_func, key_eq_func, value_eq_func);
 }
 
-
+// Checks if the hash table should rehash according to its number of buckets, load factor and size
 static bool check_bucket_load (ioopm_hash_table_t *ht)
 {
   size_t size = ht->size;
@@ -80,12 +80,13 @@ static bool check_bucket_load (ioopm_hash_table_t *ht)
   return (No_buckets*load_factor >= size); // if return true do not rehash
 }
 
-
+// Frees an entry in the hash table
 static void entry_destroy(entry_t *p)
 {
   free(p);
 }
 
+// Rehashes one given bucket in given hash table
 static void rehash_bucket(ioopm_hash_table_t *ht, entry_t *old_bucket)
 {
   entry_t *entry = old_bucket;
@@ -100,7 +101,7 @@ static void rehash_bucket(ioopm_hash_table_t *ht, entry_t *old_bucket)
   }
 }
 
-
+// Rehashes all buckets in given hash table
 static void hash_table_rehash (ioopm_hash_table_t *ht)
 {
   if((ht->index_primes) + 1 <= No_Primes)
@@ -120,7 +121,7 @@ static void hash_table_rehash (ioopm_hash_table_t *ht)
   }
 }
 
-
+// Finds the pointer to the pointer of an entry that points to an entry with a certain key in a bucket
 static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key) 
 {
 
@@ -139,7 +140,7 @@ static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t
   return NULL; //should not be able to happen
 }
 
-
+// Creates an entry and allocates space for it
 static entry_t *entry_create(elem_t key, elem_t value, entry_t *next)
 {
   entry_t *entry = calloc(1, sizeof(entry_t));
@@ -150,7 +151,7 @@ static entry_t *entry_create(elem_t key, elem_t value, entry_t *next)
   return entry;
 }
 
-
+// Calculates which bucket an entry should be placed in according to the hash function applied to the key modulo the number of buckets
 static int calculate_bucket(ioopm_hash_table_t *ht, elem_t key, ioopm_hash_function hash_function)
 {
   int key_elem = hash_function(key);
@@ -159,7 +160,7 @@ static int calculate_bucket(ioopm_hash_table_t *ht, elem_t key, ioopm_hash_funct
   return bucket;
 }
 
-
+// Checks if a key exists in ht, if true it stores the value in result
 bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
 {
   int bucket = calculate_bucket(ht, key, ht->hash_function);
@@ -177,6 +178,7 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
   return false;
 }
 
+// Returns the value of an entry with a certain key if it exists in ht, otherwise prints error message
 elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key) 
 {
   elem_t result = {.int_value = 0};
@@ -189,6 +191,7 @@ elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key)
   return result;
 }
 
+// Inserts an entry in ht, if rehashing is neccessary the hash table will be rehashed first and then the entry will be inserted
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value) 
 {
   if (check_bucket_load(ht))
@@ -230,7 +233,7 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
   }
 }
 
-
+// Removes an entry from ht and changes neccessary pointers in the bucket where the entry was
 elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key) 
 {
   int bucket = calculate_bucket(ht, key, ht->hash_function);
@@ -262,7 +265,7 @@ elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key)
   return value;
 }
 
-
+// Calculates the number of entries in a bucket
 static size_t length_of_bucket(entry_t *entry)
 {
   size_t acc = 0;
@@ -274,7 +277,7 @@ static size_t length_of_bucket(entry_t *entry)
   return acc;
 }
 
-
+// Destoys all entries in a bucket
 static void bucket_destroy(entry_t *entry)
 {
   entry_t *first_entry = entry;
@@ -296,7 +299,7 @@ static void bucket_destroy(entry_t *entry)
   }
 }
 
-
+// Destroys an entire hash table, frees its buckets and the hash table
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) 
 {
   ioopm_hash_table_clear(ht);
@@ -304,19 +307,19 @@ void ioopm_hash_table_destroy(ioopm_hash_table_t *ht)
   free(ht);
 }
 
-
+// Returns the size of the hash table
 size_t ioopm_hash_table_size(ioopm_hash_table_t *ht)
 {
   return ht->size;
 }
 
-
+// Checks if the hash table is empty
 bool ioopm_hash_table_is_empty(ioopm_hash_table_t *ht)
 {
   return (ht->size == 0);
 }
 
-
+// Removes all elements from a hash table, frees all entries but does not free the buckets
 void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
 {
   for (int i = 0; i < primes[ht->index_primes]; i++)
@@ -328,7 +331,7 @@ void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
   ht->size = 0;
 }
 
-
+// Returns a linked list consisting of all the keys in a hash table
 ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) 
 {
   ioopm_list_t *result_list = ioopm_linked_list_create(ht->key_eq_function);
@@ -346,10 +349,10 @@ ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
   return result_list;
 }
 
-
+// Returns a linked list consisting of all values in a hash table
 ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
 {
-  ioopm_list_t *result_list = ioopm_linked_list_create(ht->value_eq_function); //calloc(ioopm_hash_table_size(ht) + 1, sizeof(char *));
+  ioopm_list_t *result_list = ioopm_linked_list_create(ht->value_eq_function); 
 
   for (int i = 0; i < primes[ht->index_primes]; i++)
   {
@@ -364,19 +367,19 @@ ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
   return result_list;
 }
 
+// Checks if hash table has a certain key
 bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key, ioopm_predicate pred) 
 {
   return ioopm_hash_table_any(ht, pred, &key);
 }
 
-
+// Checks if hash table has a certain value
 bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, elem_t value, ioopm_predicate pred )
 {
-
   return ioopm_hash_table_any(ht, pred, &value);
 }
 
-
+// Checks if any entry in the hash table fulfills given predicate
 bool ioopm_hash_table_any(ioopm_hash_table_t *ht, ioopm_predicate pred, void *arg)
 {
   for (int i = 0; i < primes[ht->index_primes]; i++)
@@ -397,7 +400,7 @@ bool ioopm_hash_table_any(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
   return false;
 }
 
-
+// Checks if all entries in the hash table fulfills given predicate
 bool ioopm_hash_table_all(ioopm_hash_table_t *ht, ioopm_predicate pred, void *arg)
 {
   for (int i = 0; i < primes[ht->index_primes]; i++)
@@ -418,7 +421,7 @@ bool ioopm_hash_table_all(ioopm_hash_table_t *ht, ioopm_predicate pred, void *ar
   return true;
 }
 
-
+// Applies given function to all entries in hash table
 void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function apply_fun, void *arg)
 {
   for (int i = 0; i < primes[ht->index_primes]; i++)

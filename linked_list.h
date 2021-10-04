@@ -34,20 +34,21 @@ void ioopm_linked_list_append(ioopm_list_t *list, elem_t value);
 void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value);
 
 /// @brief Insert an element into a linked list in O(n) time.
-/// The valid values of index are [0,n] for a list of n elements,
-/// where 0 means before the first element and n means after
-/// the last element
+/// PRE: The valid values of index are [0,n] for a list of n elements,
+/// where 0 means before the first element and n means after the last element.
+/// Has asserts that make sure the index is valid.
 /// @param list the linked list that will be extended
 /// @param index the position in the list
 /// @param value the value to be inserted
 void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value);
 
 /// @brief Remove an element from a linked list in O(n) time.
-/// The valid values of index are [0,n-1] for a list of n elements,
+/// PRE: The valid values of index are [0,n-1] for a list of n elements,
 /// where 0 means the first element and n-1 means the last element.
+/// PRE: List must not be empty. 
+/// Has asserts that makes sure that the list is not empty.
 /// @param list the linked list from which a link will be extended
 /// @param index the position in the list
-/// @param value the value to be removed
 /// @return the removed value returned
 elem_t ioopm_linked_list_remove(ioopm_list_t *list, int index);
 
@@ -56,8 +57,10 @@ elem_t ioopm_linked_list_remove(ioopm_list_t *list, int index);
 void ioopm_linked_list_destroy(ioopm_list_t *list);
 
 /// @brief Retrieve an element from a linked list in O(n) time.
-/// The valid values of index are [0,n-1] for a list of n elements,
+/// PRE: The valid values of index are [0,n-1] for a list of n elements,
 /// where 0 means the first element and n-1 means the last element.
+/// PRE: List must not be empty.
+/// Has asserts that makes sure that the list is not empty.
 /// @param list the linked list from which a value will be obtained
 /// @param index the position in the list
 /// @return the value at the given position

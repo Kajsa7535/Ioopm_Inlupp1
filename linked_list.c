@@ -23,11 +23,11 @@ struct list
 
 struct iterator 
 {
-    ioopm_link_t *current;  
-    ioopm_list_t *list;
+    ioopm_link_t *current;  // points to an element in list
+    ioopm_list_t *list; // points to the list where current started
 };
 
-
+// Creates a linked list, it will insert the arg comp_function in the struct of list
 ioopm_list_t *ioopm_linked_list_create(ioopm_eq_function comp_function) 
 {
   ioopm_list_t *list = calloc(1, sizeof(ioopm_list_t));
@@ -35,7 +35,7 @@ ioopm_list_t *ioopm_linked_list_create(ioopm_eq_function comp_function)
   return list;
 }
 
-
+// creates one element in a linked list, with the value that is sent as arguments
 static ioopm_link_t *element_create(elem_t value, ioopm_link_t *next)
 {
   ioopm_link_t *new_element = calloc(1, sizeof(ioopm_link_t)); 
@@ -44,10 +44,10 @@ static ioopm_link_t *element_create(elem_t value, ioopm_link_t *next)
   return new_element;
 }
 
-
+// inserts a elements, with 'value' as value, last in 'list'
 void ioopm_linked_list_append(ioopm_list_t *list, elem_t value)
 {
-    if (list->last == NULL)
+    if (list->last == NULL) // checks if the list is empty
     {
         ioopm_linked_list_prepend(list, value);
     }
@@ -60,12 +60,12 @@ void ioopm_linked_list_append(ioopm_list_t *list, elem_t value)
     list->size += 1;
 }
 
-
+// inserts a element, with 'value' as value, first in 'list' 
 void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value)
 {
     ioopm_link_t *new_element = element_create(value, list->first);
     
-    if (list->first == NULL)
+    if (list->first == NULL) // checks if list is empty
     {
         list->last = new_element;
     }
@@ -74,6 +74,7 @@ void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value)
     list->size += 1;
 }
 
+// returns the pointer to the link that points to the link of the input index.
 static ioopm_link_t *find_previous_element (ioopm_list_t *list, int index)
 {
     ioopm_link_t *prev_element = list -> first;
@@ -84,20 +85,20 @@ static ioopm_link_t *find_previous_element (ioopm_list_t *list, int index)
     return prev_element;
 }
 
-
+// inserts an element, with input 'value' as value, in list at input index
 void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
 {
     size_t max = list->size;
-    assert(index >= 0 && index <= max);
-    if (index == 0)
+    assert(index >= 0 && index <= max); // checks that index is valid, else crash
+    if (index == 0) // if insert first in list
     {
         ioopm_linked_list_prepend(list, value);
     }
-    else if (index == max)
+    else if (index == max) // if insert last in list
     {
         ioopm_linked_list_append(list, value);
     }
-    else 
+    else // if insert middle in list
     {
         ioopm_link_t *prev_element = find_previous_element(list, index);
         ioopm_link_t *next_element = prev_element -> next; // second element
@@ -108,7 +109,7 @@ void ioopm_linked_list_insert(ioopm_list_t *list, int index, elem_t value)
     } 
 }
 
-
+// removes the first element in list. It will free the allocated memory space and re-point the first pointer
 static elem_t linked_list_remove_first(ioopm_list_t *list)
 {
     ioopm_link_t *tmp = list->first;
@@ -127,7 +128,7 @@ static elem_t linked_list_remove_first(ioopm_list_t *list)
     return value;
 }
 
-
+// removes the element on input index, OBS not the first. Will free the allcated memory space.
 static elem_t linked_list_remove_non_first(ioopm_list_t *list, int index)
  {
      ioopm_link_t *prev_element = find_previous_element(list, index);
@@ -136,7 +137,7 @@ static elem_t linked_list_remove_non_first(ioopm_list_t *list, int index)
 
      ioopm_link_t *next_element = remove_element->next;
      prev_element->next = next_element;
-     if (next_element == NULL)
+     if (next_element == NULL) // checks if the removed elements is last in list, then re-point the last-pointer in list struct
      {
          list->last = prev_element;
      }
@@ -145,11 +146,11 @@ static elem_t linked_list_remove_non_first(ioopm_list_t *list, int index)
      return value;
  }
 
-
+// removes the element on input index
 elem_t ioopm_linked_list_remove(ioopm_list_t *list, int index)
 {
-    assert(list);
-    assert(list->size > 0);
+    assert(list); // checks that list exists, else crash
+    assert(list->size > 0); // checks that there are elements in the list, else crash
     // Case: First element in non-empty list
     if (index == 0)
     {
@@ -162,18 +163,18 @@ elem_t ioopm_linked_list_remove(ioopm_list_t *list, int index)
     }
 }
 
-
+// "destroys"/deletes input list. It will free the allocated memory space.
 void ioopm_linked_list_destroy(ioopm_list_t *list)
 {
     ioopm_linked_list_clear(list);
     free(list);
 }
 
-
+// will return the value of the element on input index in input list
 elem_t ioopm_linked_list_get(ioopm_list_t *list, int index)
 {
-    assert(list->first);
-    assert(list);
+    assert(list->first); // checks that there are elements in list, else crash
+    assert(list); 
     ioopm_link_t *element = list->first;
     for (int i = 0; i < index; i++)
     {
@@ -182,7 +183,7 @@ elem_t ioopm_linked_list_get(ioopm_list_t *list, int index)
     return element->value;
 }
 
-
+// return a bool value if the input element exists in the input list
 bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element)
 {   
     ioopm_link_t *current_element = list->first;
@@ -203,19 +204,19 @@ bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element)
     return false;
 }
 
-
+// returns the size of input list
 size_t ioopm_linked_list_size(ioopm_list_t *list)
 {
     return list->size;
 }
 
-
+// returns a bool value depending on if input list is empty or not
 bool ioopm_linked_list_is_empty(ioopm_list_t *list)
 {
     return (list->size == 0);
 }
 
-
+// will "clear" input list. It will delete all elements in input list. The input list will be empty when the function is done
 void ioopm_linked_list_clear(ioopm_list_t *list)
 {
     list->last = NULL;
@@ -230,7 +231,7 @@ void ioopm_linked_list_clear(ioopm_list_t *list)
     list->size = 0; 
 }
 
-
+// Checks if all elements in input list fulfills given predicate
 bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_predicate prop, void *extra)
 {
     ioopm_link_t *current_element = list->first;
@@ -247,7 +248,7 @@ bool ioopm_linked_list_all(ioopm_list_t *list, ioopm_predicate prop, void *extra
     return true;
 }
 
-
+// checks if any element in input list fulfills give predicate
 bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_predicate prop, void *extra)
 {  
     elem_t key_ignored = {.int_value = 0};
@@ -264,7 +265,7 @@ bool ioopm_linked_list_any(ioopm_list_t *list, ioopm_predicate prop, void *extra
     return false;
 }
 
-
+// applies given function on all elements in input list
 void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_function fun, void *extra)
 {
     elem_t key_ignored = {.int_value = 0};
@@ -279,6 +280,7 @@ void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_function fun, voi
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ITERATOR FUNCTIONS
 
+// creates an iterator in input list. Must be elements in list
 ioopm_list_iterator_t *ioopm_list_iterator(ioopm_list_t *list)
 {
     ioopm_list_iterator_t *iter = calloc(1, sizeof(ioopm_list_iterator_t));
@@ -287,18 +289,13 @@ ioopm_list_iterator_t *ioopm_list_iterator(ioopm_list_t *list)
     return iter;
 }
 
+// checks if there exists another element after current iterator
 bool ioopm_iterator_has_next(ioopm_list_iterator_t *iter)
 {
-    if (iter->list->size == 0) 
-    {
-        return false; 
-    }
-    else
-    {
-        return iter->current->next != NULL;
-    }
+    return iter->current->next != NULL;
 }
 
+// will move the iterator one step and return the value of the new element. If it is the last element, the iteratoir will go to the front of the list
 elem_t ioopm_iterator_next(ioopm_list_iterator_t *iter)
 {
     if (ioopm_iterator_has_next(iter) == true)
@@ -314,60 +311,20 @@ elem_t ioopm_iterator_next(ioopm_list_iterator_t *iter)
 
 }
 
-static ioopm_link_t *iterator_find_previous_element(ioopm_list_iterator_t *iter)
-{
-    ioopm_link_t *element = iter->list->first;
-    while(element->next != iter->current)
-    {
-        element = element->next;
-    }
-    return element;
-}
 
-
-//TODO: GÖR KLART NÄR TID FINNSS!
-elem_t ioopm_iterator_remove(ioopm_list_iterator_t *iter)
-{
-    ioopm_link_t *remove_element = iter->current;
-    elem_t remove_value;
-    if(remove_element == iter->list->first) //Compare pointers
-    {
-        iter->list->first = remove_element->next;
-    }
-    else if(remove_element == iter->list->last) //Compare pointers
-    {
-        ioopm_link_t *prev_element = iterator_find_previous_element(iter);
-        prev_element->next = NULL;
-        iter->list->last = prev_element;
-    }
-    else
-    {
-        ioopm_link_t *prev_element = iterator_find_previous_element(iter);
-        ioopm_link_t *next_element = iter->current->next;
-        prev_element->next = next_element;
-        
-    }
-    remove_value = remove_element->value;
-    free (remove_element);
-    return remove_value;
-}
-
-
-void ioopm_iterator_insert(ioopm_list_iterator_t *iter, int element)
-{
-    //TODO: Skapa denna funktion om tid finns över
-}
-
+// resets the iterator. The iterator will start over from the front of the list
 void ioopm_iterator_reset(ioopm_list_iterator_t *iter)
 {
     iter->current = iter->list->first;
 }
 
+// returns the value of the element that iterator points to
 elem_t ioopm_iterator_current(ioopm_list_iterator_t *iter)
 {
     return iter->current->value;
 }
 
+// It destoys the iterator and free the allocated memory space
 void ioopm_iterator_destroy(ioopm_list_iterator_t *iter)
 {
     free(iter);

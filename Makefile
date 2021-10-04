@@ -17,8 +17,23 @@ test_ht: ht_tests
 memtest_ht: ht_tests
 	valgrind $(MEMTEST_FLAGS) ./a.out
 
-gcov_ht: ht_tests
-	gcc $(GCOV_FLAGS) hash_table_tests.c hash_table.c linked_list.c
+gcov_build_ht: hash_table.c linked_list.c hash_table_tests.c
+	gcc --coverage hash_table.c linked_list.c hash_table_tests.c -lcunit
+
+gcov_run_ht: gcov_build_ht
+	./a.out
+
+gcov_ht: gcov_run_ht
+	gcov -abcfu hash_table.c
+
+gcov_build_linked_list: linked_list.c linked_list_tests.c
+	gcc --coverage linked_list.c linked_list_tests.c -lcunit
+
+gcov_run_linked_list: gcov_build_linked_list
+	./a.out
+
+gcov_linked_list: gcov_run_linked_list
+	gcov -abcfu linked_list.c
 
 linked_list: linked_list.c
 	gcc linked_list.c $(STD_FLAGS)

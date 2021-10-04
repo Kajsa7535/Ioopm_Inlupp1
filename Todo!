@@ -1,19 +1,13 @@
 Mål att redovisa: 
 
 M39: Pekare till pekare
-- iterator remove
-I22: Defensiv programmering
-I24: Olika metoder för felhantering
 F14: Svansrekursion?
-G15: Aliasering
-- Const
 TODO P45: Gör en informell kodgranskning under fas 1
 P47: Åtgärda defekter efter en kodgranskning
 P48: Stäm av ett program mot en refactoringkatalog
 TODO T56: Continuous Integration
 U57: Byggverktyget Make
 - "bör inte göras förens sprint 2", men står inte att man inte får 
-G15: från step 12
 
 
 A1: Procedurell abstraktion
@@ -160,8 +154,24 @@ G15: Aliasering
 - Det här kan vara ett problem också. Om vi hade glömt att peka om last pekaren när vi tar bort det sista elementet så uppstår det problem. När vi då försöker komma åt datan med hjälp av last pekaren så kommer den försöka accessa minne som inte längre är allokerat.  
 ( KASNKE ONÖDIGT? KAN SVARA OM DE FRÅGAR HUR MAN KAN UNDVIKA PROBELM - Ett sätt att undvika detta är att med hjälp av kopiering. Man kopierar då det värde man behöver och kan då ändra på det istället. Men just i vårt fall så behövs inte det, då vi faktiskt vill ändra både i listan och i last pekaren.)
 
+--------------------------------------------------------------------------------------------------------------------------------------
+
+REDOVISNING TISDAG 5 OKTOBER
+
+DONE Z100: Inlupp 1
+
+M39: Pekare till pekare
+
+O42: Profilering och optimering 1/3 ???
+
+O43: Profilering och optimering 2/3 ???
+
+F14: Svansrekursion ???
+
+H20: Värdeöverföring ???
 
 
+--------------------------------------------------------------------------------------------------------------------------------------
 
 FRÅGA X59: Essä
 - Vilket mål på nivå 4/5 är lämplig att redovisa med en essä?

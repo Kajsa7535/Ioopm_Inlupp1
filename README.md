@@ -1,12 +1,22 @@
 # Ioopm_Inlupp1
 
+This libary consists of a few different data types, a hash_table (in hash_table.c), a linked list (in linked_list.c) and an iterator (in linked_list.c). Typedef, structs and definitions of public functions have been placed in respective .h files. Common typedefs (between the .c files) have been placed in common.h.
 
-INLÄMNINGSUPPGIFT 1 
+# Build and run
 
-- Soft deadline: Slutet av vecka 39 (1 okt eller 3 okt)
-- Hard deadline: Slutet av vecka 41 (15 okt eller 17 okt)
+$ make test # bulid and run all tests
+$ make memtest # run all tests including freq-count through valgrind
+$ make all # build all files for hash_table, linked_list and iterator
+$ make linked_list_tests # build linked_list_tests.c file
+$ make ht_tests # build hash_table_tests.c file
+$ make gcov_ht # runs gcov on hash_table.c and hash_table_tests.c
+$ make gcov_linked_list # runs gcov on linked_list.c and linked_list_tests.c
+$ make clean # removes unneccessary files
 
+# Design Decisions
 
+This libary does not have any special error handling, it uses a mixture of asserts, "error messages" and preconditions.
+The hash table does not take ownership of the data of its keys and values
 
 # Initial Profiling Results
 
@@ -74,7 +84,8 @@ Do the results correspond with your expectations?
 Based on these results, do you see a way to make your program go faster?
 - Att öka antalet buckets skulle göra att det blir färre entries i varje bucket, vilket gör att find_previous_entry_for_key inte skulle behöva lika mycket tid att loopa igenom hela bucketen för att hitta rätt entry. 
 
-# Finish this step 7.3.6.2 and 7.3.6.4
+
+# Testing freq-count with different load sizes
 Run the program with input of varying sizes, and produce execution profiles for the program runs. What are the 10 most time-consuming functions? Are they consistently the same? Or are there functions that e.g. seem to run a lot slower if there is a little more data? Experiment with various load factors – how does that impact the profiling results in 2.?
 
 Load factor 0.2:
@@ -215,3 +226,38 @@ Load factor 20000.0:
 gcc --coverage hash_table.c linked_list.c hash_table_tests.c -lcunit
 ./a.out
 gcov -abcfu hash_table.c
+
+
+# Code coverage
+
+The following results were aquired with gcov. How to run gcov is described in the "Build and run" section in this document.
+
+
+File 'hash_table.c'
+Lines executed:94.92% of 197
+Branches executed:96.61% of 59
+Taken at least once:88.14% of 59
+Calls executed:90.91% of 44
+
+    Function 'find_previous_entry_for_key_ptr'
+    Lines executed:75.00% of 8
+
+    Function 'ioopm_lookup_key'
+    Lines executed:83.33% of 6
+
+    Function 'ioopm_hash_table_insert'
+    Lines executed:94.44% of 18
+
+    Function 'ioopm_hash_table_remove'
+    Lines executed:66.67% of 18
+
+    All other functions in hash_table.c not named above have 100% line coverage.
+
+
+File 'linked_list.c'
+Lines executed:100.00% of 149
+Branches executed:100.00% of 45
+Taken at least once:86.67% of 45
+Calls executed:76.19% of 21
+
+    All functions in linked_list.c has 100% line coverage.

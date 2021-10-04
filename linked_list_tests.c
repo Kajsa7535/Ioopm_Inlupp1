@@ -53,6 +53,16 @@ bool string_eq(elem_t e1, elem_t e2)
   return strcmp(e1.string_value, e2.string_value) == 0;
 }
 
+static ioopm_link_t *iterator_find_previous_element(ioopm_list_iterator_t *iter)
+{
+    ioopm_link_t *element = iter->list->first;
+    while(element->next != iter->current)
+    {
+        element = element->next;
+    }
+    return element;
+}
+
 int init_suite(void)
 {
   return 0;
@@ -167,8 +177,11 @@ void test4_linked_list_remove(void)
     elem_t remove = ioopm_linked_list_remove(list, index);
     CU_ASSERT(int_eq(get, remove)); // check that the elemt removed is the element on that index
   }
-  
-  CU_ASSERT(list->size == 1); // check that size of linked list changes
+
+  ioopm_linked_list_prepend(list, int_elem(25));
+
+  CU_ASSERT(list->size == 2); // check that size of linked list changes
+  ioopm_linked_list_remove(list, 1);
   ioopm_linked_list_remove(list, 0);
   CU_ASSERT(ioopm_linked_list_is_empty(list));
 
@@ -344,7 +357,6 @@ void test12_iterator_next(void)
 void test13_iterator_has_next(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
-
   for (int i = 0; i < 10; i++)
   {
     int value = random()%100;
@@ -359,6 +371,8 @@ void test13_iterator_has_next(void)
     ioopm_iterator_next(iter);
   }
    CU_ASSERT_FALSE(ioopm_iterator_has_next(iter)); 
+   ioopm_iterator_next(iter);
+   CU_ASSERT_PTR_EQUAL(iter->current, list->first);
 
   ioopm_iterator_destroy(iter);
   ioopm_linked_list_destroy(list);
@@ -416,6 +430,8 @@ void test15_iterator_current(void)
   ioopm_linked_list_destroy(list);
 }
 
+
+
 int main()
 {
   CU_pSuite test_suite1 = NULL;
@@ -472,7 +488,7 @@ int main()
     (NULL == CU_add_test(test_suite4, "test 12", test12_iterator_next)) || 
     (NULL == CU_add_test(test_suite4, "test 13", test13_iterator_has_next)) || 
     (NULL == CU_add_test(test_suite4, "test 14", test14_iterator_reset)) || 
-    (NULL == CU_add_test(test_suite4, "test 15", test15_iterator_current))
+    (NULL == CU_add_test(test_suite4, "test 15", test15_iterator_current)) 
     )
     {
       CU_cleanup_registry();

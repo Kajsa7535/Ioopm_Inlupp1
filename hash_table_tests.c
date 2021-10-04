@@ -19,9 +19,9 @@ struct entry
 struct hash_table
 {
   size_t size;
-  double load_factor;
+  double load_factor; 
   int index_primes;
-  ioopm_hash_function hash_function;
+  ioopm_hash_function hash_function; 
   ioopm_eq_function value_eq_function;
   ioopm_eq_function key_eq_function;
   entry_t **buckets; 
@@ -35,15 +35,15 @@ struct link
 
 struct list 
 {
-    ioopm_link_t *first;
-    ioopm_link_t *last;
+    ioopm_link_t *first; // points to the first element in list
+    ioopm_link_t *last; // points to the last element in list
     size_t size;
 };
 
 struct iterator 
 {
-    ioopm_link_t *current; 
-    ioopm_list_t *list;
+    ioopm_link_t *current; // points to an element
+    ioopm_list_t *list; // points to the list where current started
 };
 
 static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key)
@@ -202,7 +202,7 @@ void test5_remove(void)
       CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result));
     }
   }
-
+ 
   CU_ASSERT(ht->size == 0);
   ioopm_hash_table_destroy(ht);
 }
