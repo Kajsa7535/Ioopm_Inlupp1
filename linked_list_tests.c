@@ -63,7 +63,7 @@ int clean_suite(void)
   return 0;
 }
 
-//TODO: Skriv test för ioopm clear
+
 void test1_linked_list_prepend(void)
 {
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);

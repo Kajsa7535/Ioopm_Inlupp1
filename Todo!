@@ -171,6 +171,13 @@ FRÅGA TODO P45: Gör en informell kodgranskning under fas 1
 
 Saker att göra / kom ihåg!
 
+
+Step 15:
+- Code coverage report
+- Automatisera allt med make-fil
+- Dokumentera i readme-fil, lägg till instruktioner för hur man bygger och kör, coverage för alla filer
+- Förbered presentation och hitta 3 mål att köra
+
 -------------------------------------------------------------------------------------------------------------
 GDB LATHUND:
  https://dev.to/jasonelwood/setup-gdb-on-macos-in-2020-489k (gdb för mac )

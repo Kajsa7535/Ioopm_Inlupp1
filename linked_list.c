@@ -7,9 +7,6 @@
 #include "iterator.h"
 #include "common.h"
 
-
-//TODO: Ta bort alla index kollare för negativa index 
-
 struct link 
 {
     elem_t value;  // holds the value
@@ -30,11 +27,11 @@ struct iterator
     ioopm_list_t *list;
 };
 
+
 ioopm_list_t *ioopm_linked_list_create(ioopm_eq_function comp_function) 
 {
   ioopm_list_t *list = calloc(1, sizeof(ioopm_list_t));
   list->comp = comp_function;
-  //list->last = list->first;
   return list;
 }
 
@@ -331,9 +328,6 @@ static ioopm_link_t *iterator_find_previous_element(ioopm_list_iterator_t *iter)
 //TODO: GÖR KLART NÄR TID FINNSS!
 elem_t ioopm_iterator_remove(ioopm_list_iterator_t *iter)
 {
-    // current dubbelpekare, pekare till listan, sista elementet specialfall med linked_list_remove
-    //TODO: Skapa denna funktion om tid finns över
-    //ioopm_link_t *current_element = iter->current;
     ioopm_link_t *remove_element = iter->current;
     elem_t remove_value;
     if(remove_element == iter->list->first) //Compare pointers
@@ -378,19 +372,3 @@ void ioopm_iterator_destroy(ioopm_list_iterator_t *iter)
 {
     free(iter);
 }
-
-
-bool dummy (elem_t value1, elem_t value2) 
-{ 
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-int main(void)
-{
-  
-}*/
-
-// TODO: Extend the documentation with how you deal with failures and all other assumptions or caveats
-

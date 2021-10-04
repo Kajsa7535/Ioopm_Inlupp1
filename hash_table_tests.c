@@ -9,11 +9,6 @@
 
 static const size_t primes[] = {17, 31, 67, 127, 257, 509, 1021, 2053, 4099, 8191, 16381};
 
-
-//#define No_Buckets 17
-
-//TODO: Skriva tester för hjälpfunktioner?
-
 struct entry 
 {
   elem_t key;       // holds the key
@@ -21,7 +16,6 @@ struct entry
   entry_t *next; // points to the next entry (possibly NULL)
 };
 
-// TODO: fixa så att det finns en value eq func och en key eq func! som användaren får skicka in
 struct hash_table
 {
   size_t size;
@@ -48,31 +42,11 @@ struct list
 
 struct iterator 
 {
-    ioopm_link_t *current; // ska vara dubbelpekare ???
+    ioopm_link_t *current; 
     ioopm_list_t *list;
 };
 
-/*
-static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *entry, elem_t search_key)
-{
-  /// Saves the first (dummy) entry as first_entry
-  entry_t *first_entry = entry;
-  entry_t *tmp_entry = entry;
-
-  while (entry->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
-  {
-    entry = entry->next;
-    if (ht->eq_function(entry->key, search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
-    {
-      return tmp_entry;
-    }
-    tmp_entry = entry;
-  }
-  return first_entry;
-}*/
-
-
-static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key) // Om vi vet att sökt entry finns funkar denna
+static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key)
 {
 
   while (*entry)
@@ -155,14 +129,13 @@ void test1_insert(void)
 
   for (int i = 0; i < 15; i++)
   {
-    entry_t **testEntry = &ht->buckets[i];
     for (int j = 0; j < 5; j++)
     {
       int key_insert = random()%30000; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
       ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
       CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result));
     }
-   // CU_ASSERT_PTR_NOT_NULL((*testEntry)->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
+
   }
   CU_ASSERT(ht->size == (75));
   ioopm_hash_table_destroy(ht);
@@ -176,14 +149,11 @@ void test3_prev_entry(void)
   ioopm_hash_table_insert(ht, int_elem(1), string_elem("TESTAR"));
   ioopm_hash_table_insert(ht, int_elem(18), string_elem("WOWWWW"));
   ioopm_hash_table_insert(ht, int_elem(35), string_elem("LOVEIT"));
-  ioopm_hash_table_insert(ht, int_elem(52), string_elem("HAHAH")); // TODO: Insertas ej
-  // Först är ht->buckets[1] = 52, men sedan blir det 18 av någon anledning
+  ioopm_hash_table_insert(ht, int_elem(52), string_elem("HAHAH")); 
+
   entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[1], (int_elem(18)));
   entry_t *comp_bucket = ht->buckets[1];
   int comp_elem = (comp_bucket -> next -> key).int_value;
-  //elem_t *other_elem = (*prev_entry)->value;
-  //char *prev_entry = ((*find_previous_entry_for_key_ptr(ht, &ht->buckets[1], (int_elem(18))))->value).string_value; // prev_entry = 18??
-  //char *test_entry = (ht->buckets[1]->next->value).string_value;
 
   CU_ASSERT(comp_elem == ((*prev_entry)->key).int_value);
   
@@ -200,11 +170,11 @@ void test4_lookup(void)
   for (int i = 0; i < 15; i++)
   {
     int key_insert = random()%300; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
-    ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR")); // Seg_fault
+    ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR")); 
     ioopm_hash_table_insert(ht, int_elem(key_insert+17), string_elem("WOWWWW"));
     ioopm_hash_table_insert(ht, int_elem(key_insert+34), string_elem("LOVEIT"));
     ioopm_hash_table_insert(ht, int_elem(key_insert+51), string_elem("HAHAH"));
-    CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result)); //BLIR SEG FAULT!!! MÅSTE GDB
+    CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result)); 
     CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert+17), &result));
     CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert+34), &result));
     CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert+51), &result));
@@ -314,7 +284,7 @@ void test10_hash_table_clear_size(void)
   ioopm_hash_table_destroy(ht);
 }
 
-void test11_hash_table_keys(void) // TODO: Make test case for empty (no keys)
+void test11_hash_table_keys(void) 
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
@@ -351,30 +321,28 @@ void test12_hash_table_keys_empty(void)
 }
 
 
-void test13_hash_table_values(void) //TODO: Behöver ändra i has_key funktioner så att det som skickas in i any är funktionerna i strukten!!!!
+void test13_hash_table_values(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
 
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < 3; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
-    //ioopm_hash_table_insert(ht, int_elem(i), string_elem("att"));
-    //ioopm_hash_table_insert(ht, int_elem(i), string_elem("det")); 
-    //ioopm_hash_table_insert(ht, int_elem(i), string_elem("fungerar"));
+    ioopm_hash_table_insert(ht, int_elem(i+17), string_elem("att"));
+    ioopm_hash_table_insert(ht, int_elem(i+34), string_elem("det")); 
   }
   
   ioopm_list_t *from_ht = ioopm_hash_table_values(ht);
 
-  for (int i = 0; i < 16; i++) //TODO: Corrupt memory om i >= 17
+  for (int i = 0; i < 3; i++) 
   {
     ioopm_linked_list_prepend(list, string_elem("TESTAR"));
-    //ioopm_linked_list_prepend(list, string_elem("att"));
-    //ioopm_linked_list_prepend(list, string_elem("det"));
-    //ioopm_linked_list_prepend(list, string_elem("fungerar"));
+    ioopm_linked_list_prepend(list, string_elem("att"));
+    ioopm_linked_list_prepend(list, string_elem("det"));
   }
 
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < 3; i++)
   {
    CU_ASSERT(int_eq(ioopm_linked_list_get(list, i), ioopm_linked_list_get(from_ht, i)));
   }
@@ -394,7 +362,7 @@ void test14_hash_table_values_empty(void)
 }
 
 
-void test15_hash_table_has_key(void) // TODO: Glömt frigöra listan i vår funktion??? som skapas där??? eller ?? alltså i .c filen
+void test15_hash_table_has_key(void) 
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100), key_equiv));
@@ -529,6 +497,28 @@ void test21_hash_table_apply_all(void)
   ioopm_hash_table_destroy(ht);
 }
 
+void test22_buckets_grow(void)
+{
+   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
+
+  CU_ASSERT(primes[ht->index_primes] == 17);
+  for (int i = 0; i < 14; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TEST"));
+  }
+  CU_ASSERT(primes[ht->index_primes] == 31);
+
+  for (int i = 14; i < 25; i++)
+  {
+    ioopm_hash_table_insert(ht, int_elem(i), string_elem("TEST"));
+  }
+  CU_ASSERT(primes[ht->index_primes] == 67);
+
+  ioopm_hash_table_destroy(ht);
+}
+
+
+
 
 int main()
 {
@@ -563,7 +553,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_all_value)) || 
     (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_all_key_not)) || 
     (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_all_key)) || 
-    (NULL == CU_add_test(test_suite1, "test 21", test21_hash_table_apply_all))
+    (NULL == CU_add_test(test_suite1, "test 21", test21_hash_table_apply_all))|| 
+    (NULL == CU_add_test(test_suite1, "test 22", test22_buckets_grow))
   )
     {
       CU_cleanup_registry();

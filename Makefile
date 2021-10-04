@@ -36,7 +36,7 @@ freq-count: freq-count.c hash_table.c linked_list.c
 	gcc freq-count.c hash_table.c linked_list.c $(STD_MAIN_FLAGS) -o freq-count
 
 memtest_freq-count: freq-count
-	valgrind $(MEMTEST_FLAGS) ./a.out 10k-words.txt
+	valgrind $(MEMTEST_FLAGS) --show-leak-kinds=all ./a.out 16k-words.txt
 
 build_freq-count: freq-count.c hash_table.c linked_list.c
 	gcc -pg hash_table.c linked_list.c freq-count.c

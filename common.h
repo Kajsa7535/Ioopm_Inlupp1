@@ -36,5 +36,4 @@ union elem
   void *void_value;
   char *string_value;
   char char_value;
-  /// other choices certainly possible
 };

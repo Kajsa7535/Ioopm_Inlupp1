@@ -67,19 +67,6 @@ void process_file(char *filename, ioopm_hash_table_t *ht)
   fclose(f); // Closes when on the line that ends the file (new line required at end of file)
 }
 
-// Sums all characters in a string
-/*
-int string_sum_hash(elem_t e) // TODO: byt till en bättre hash func (från studium)
-{
-  char *str = e.void_value;
-  int result = 0;
-  do
-    {
-      result += *str;
-    }
-  while (*++str != '\0');
-  return result;
-}*/
 
 unsigned long string_knr_hash(const elem_t in_str)
 {

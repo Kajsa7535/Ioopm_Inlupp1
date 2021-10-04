@@ -27,12 +27,6 @@ typedef unsigned long (*ioopm_hash_function)(elem_t str);
 /// @return A new empty hash table
 ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq, ioopm_eq_function value_eq);
 
-/// @brief add key => value entry in hash table ht
-/// @param ht hash table operated upon
-/// @param key key to insert
-/// @param value value to insert
-void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value);
-
 /// @brief lookup value for key in hash table ht
 /// @param ht hash table operated upon
 /// @param key key to lookup
@@ -45,6 +39,12 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
 /// @param key the key to be checked
 /// @return The element with given key if it exists, otherwise NULL
 elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key);
+
+/// @brief add key => value entry in hash table ht
+/// @param ht hash table operated upon
+/// @param key key to insert
+/// @param value value to insert
+void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value);
 
 /// @brief remove any mapping from key to a value. The key to be removed must be in the hash_table
 /// @param ht hash table operated upon

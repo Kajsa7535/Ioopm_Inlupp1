@@ -73,3 +73,140 @@ Do the results correspond with your expectations?
 
 Based on these results, do you see a way to make your program go faster?
 - Att öka antalet buckets skulle göra att det blir färre entries i varje bucket, vilket gör att find_previous_entry_for_key inte skulle behöva lika mycket tid att loopa igenom hela bucketen för att hitta rätt entry. 
+
+# Finish this step 7.3.6.2 and 7.3.6.4
+Run the program with input of varying sizes, and produce execution profiles for the program runs. What are the 10 most time-consuming functions? Are they consistently the same? Or are there functions that e.g. seem to run a lot slower if there is a little more data? Experiment with various load factors – how does that impact the profiling results in 2.?
+
+Load factor 0.2:
+
+    Load factor too small
+
+
+Load factor 0.3:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+
+    16k-words.txt: 0s
+
+
+Load factor 0.75:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+
+    16k-words.txt: 0s
+
+
+Load factor 0.9:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+
+    16k-words.txt:
+        1) string_eq (% time: 33.35, self seconds: 0.01, calls: 88182)
+        2) string_knr_hash (% time: 33.35, self seconds: 0.01, calls: 82694)
+        3) ioopm_hash_table_lookup (% time: 33.35, self seconds: 0.01, calls: 58334)
+
+
+Load factor 1.5:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+    
+    16k-words.txt:
+        1) ioopm_hash_table_insert (% time: 100.05, self seconds: 0.01, calls: 23119)
+
+
+Load factor 3.0:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 
+        1) ioopm_hash_table_lookup (% time: 100.05, self seconds: 0.01, calls: 30143)
+    
+    16k-words.txt:
+        1) calculate_bucket (% time: 100.05, self seconds: 0.01, calls: 80148)
+
+
+Load factor 10.0:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+    
+    16k-words.txt: 0s
+
+
+Load factor 100.0:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 
+        1) string_eq (% time: 100.05, self seconds: 0.01, calls: 372955)
+
+    16k-words.txt: 
+        1) string_eq (% time: 50.02, self seconds: 0.01, calls: 3267835)
+        2) find_previous_entry_for_key_ptr (% time: 50.02, self seconds: 0.01, calls: 12189)
+
+
+Load factor 1000.0:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+
+    16k-words.txt: 
+        1) string_eq (% time: 50.02, self seconds: 0.03, calls: 8321796)
+        2) ioopm_hash_table_lookup (% time: 33.35, self seconds: 0.02, calls: 50975)
+        3) find_previous_entry_for_key_ptr (% time: 16.67, self seconds: 0.01, calls: 12400)
+
+
+Load factor 10000.0:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+
+    16k-words.txt: 
+        1) ioopm_hash_table_lookup (% time: 85.75, self seconds: 0.06, calls: 50975)
+        2) string_eq (% time: 7.15, self seconds: 0.01, calls: 8321796)
+        3) string_knr_hash (% time: 7.15, self seconds: 0.01, calls: 67967)
+
+
+Load factor 20000.0:
+
+    small.txt: 0s
+
+    1k-long-words.txt: 0s
+
+    10k-words.txt: 0s
+
+    16k-words.txt: 
+        1) ioopm_hash_table_lookup (% time: 36.38, self seconds: 0.04, calls: 50975)
+        2) string_eq (% time: 31.83, self seconds: 0.04, calls: 8321796)
+        3) find_previous_entry_for_key (% time: 18.19, self seconds: 0.02, calls: 12400)
+        4) bucket_destroy (% time: 9.10, self seconds: 0.01, calls: 17)
+        5) string_knr_hash (% time: 4.55, self seconds: 0.01, calls: 67967)
