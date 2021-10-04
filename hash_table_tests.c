@@ -72,21 +72,22 @@ static entry_t *find_previous_entry_for_key(ioopm_hash_table_t *ht, entry_t *ent
 }*/
 
 
-static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key)
+static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key) // Om vi vet att sökt entry finns funkar denna
 {
-  /// Saves the first (dummy) entry as first_entry
-  entry_t **tmp_entry = entry;
 
-  while ((*entry)->next != NULL) //TODO: Möjligtvis göra om till sorterad hashtable. ta next->key >= searchKey
+  while (*entry)
   {
-    *entry = (*entry)->next;
-    if (ht->key_eq_function((*entry)->key,search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
+    if (ht->key_eq_function((*entry)->key, search_key))
     {
-      return tmp_entry;
+      return entry;
     }
-    tmp_entry = entry;
+    else if (ht->key_eq_function((*entry)->next->key, search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
+    {
+      return entry;
+    }
+    return find_previous_entry_for_key_ptr(ht, &(*entry)->next, search_key);
   }
-  return entry;
+  return NULL; //Borde inte kunna hända
 }
 
 // EQ_VALUES FUNCTION 
@@ -168,24 +169,26 @@ void test1_insert(void)
 
 void test3_prev_entry(void)
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
 
-  
   ioopm_hash_table_insert(ht, int_elem(1), string_elem("TESTAR"));
   ioopm_hash_table_insert(ht, int_elem(18), string_elem("WOWWWW"));
   ioopm_hash_table_insert(ht, int_elem(35), string_elem("LOVEIT"));
   ioopm_hash_table_insert(ht, int_elem(52), string_elem("HAHAH")); // TODO: Insertas ej
   // Först är ht->buckets[1] = 52, men sedan blir det 18 av någon anledning
+  entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[1], (int_elem(18)));
+  entry_t *comp_bucket = ht->buckets[1];
+  int comp_elem = (comp_bucket -> next -> key).int_value;
+  //elem_t *other_elem = (*prev_entry)->value;
+  //char *prev_entry = ((*find_previous_entry_for_key_ptr(ht, &ht->buckets[1], (int_elem(18))))->value).string_value; // prev_entry = 18??
+  //char *test_entry = (ht->buckets[1]->next->value).string_value;
 
-  entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[1], int_elem(18)); // prev_entry = 18??
-  entry_t *test_entry = ht->buckets[1];
-
-  CU_ASSERT_PTR_EQUAL(*prev_entry, test_entry);
+  CU_ASSERT(comp_elem == ((*prev_entry)->key).int_value);
   
   ioopm_hash_table_destroy(ht);
 }
 
-/*
+
 void test4_lookup(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
@@ -207,9 +210,9 @@ void test4_lookup(void)
 
   CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(3200), &result));
   ioopm_hash_table_destroy(ht);
-}*/
+}
 
-/*
+
 void test5_remove(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
@@ -222,21 +225,15 @@ void test5_remove(void)
     {
       int key_insert = random()%30000; // Finns risk att det blir samma tal, vilket gör att den entryn skrivs över?
       ioopm_hash_table_insert(ht, int_elem(key_insert), string_elem("TESTAR"));
-      CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result)); // FEL PÅ LOOKUP!! GDB
+      CU_ASSERT(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result)); 
       ioopm_hash_table_remove(ht, int_elem(key_insert));
       CU_ASSERT_FALSE(ioopm_hash_table_lookup(ht, int_elem(key_insert), &result));
     }
   }
 
-  for (int i = 0; i < 15; i++)
-  {
-    entry_t *testEntry = ht->buckets[i];
-    CU_ASSERT_PTR_NULL(testEntry->next); // Kan inte ha den om vi inte vet att det alltid stoppas in i varje bucket
-  }
-
   CU_ASSERT(ht->size == 0);
   ioopm_hash_table_destroy(ht);
-}*/
+}
 
 /*
 void test6_remove_entry_not(void) // PRINTAR UT MASSA ONÖDIGT ???
@@ -310,7 +307,7 @@ void test9_multiple_entry_hash_table(void)
   ioopm_hash_table_destroy(ht);
 }
 
-
+/*
 void test10_hash_table_clear_size(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
@@ -334,6 +331,7 @@ void test10_hash_table_clear_size(void)
   
   ioopm_hash_table_destroy(ht);
 }
+*/
 
 /*
 void test11_hash_table_keys(void) // TODO: Make test case for empty (no keys)
@@ -569,13 +567,13 @@ int main()
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_insert)) ||
     (NULL == CU_add_test(test_suite1, "test 3", test3_prev_entry)) || 
-    //(NULL == CU_add_test(test_suite1, "test 4", test4_lookup)) || 
-    //(NULL == CU_add_test(test_suite1, "test 5", test5_remove)) ||
+    (NULL == CU_add_test(test_suite1, "test 4", test4_lookup)) || 
+    (NULL == CU_add_test(test_suite1, "test 5", test5_remove)) ||
     //(NULL == CU_add_test(test_suite1, "test 6", test6_remove_entry_not)) || 
     //(NULL == CU_add_test(test_suite1, "test 7", test7_remove_middle)) || 
     (NULL == CU_add_test(test_suite1, "test 8", test8_empty_hash_table)) ||
-    (NULL == CU_add_test(test_suite1, "test 9", test9_multiple_entry_hash_table)) || 
-    (NULL == CU_add_test(test_suite1, "test 10", test10_hash_table_clear_size)) //|| 
+    (NULL == CU_add_test(test_suite1, "test 9", test9_multiple_entry_hash_table)) //|| 
+    //(NULL == CU_add_test(test_suite1, "test 10", test10_hash_table_clear_size)) //|| 
     //(NULL == CU_add_test(test_suite1, "test 11", test11_hash_table_keys)) || 
     //(NULL == CU_add_test(test_suite1, "test 12", test12_hash_table_keys_empty)) || 
     //(NULL == CU_add_test(test_suite1, "test 13", test13_hash_table_values)) || 

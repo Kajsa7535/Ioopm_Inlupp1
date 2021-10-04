@@ -1,4 +1,4 @@
-STD_FLAGS = -g -pedantic -Wall -c
+STD_FLAGS = -g -pedantic -Wall
 STD_MAIN_FLAGS = -g -pedantic -Wall
 TEST_FLAGS = -g -pedantic -Wall -lcunit
 GCOV_FLAGS = -Wall -fprofile-arcs -ftest-coverage -lcunit

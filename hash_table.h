@@ -45,7 +45,7 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
 /// @return The element with given key if it exists, otherwise NULL
 elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key);
 
-/// @brief remove any mapping from key to a value
+/// @brief remove any mapping from key to a value. The key to be removed must be in the hash_table
 /// @param ht hash table operated upon
 /// @param key key to remove
 /// @return the value mapped to by key
