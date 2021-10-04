@@ -99,12 +99,13 @@ static bool check_bucket_load (ioopm_hash_table_t *ht)
   return (No_buckets*load_factor >= size); // if return true do not rehash
 }
 
+/*
 static void rehash_entry(ioopm_hash_table_t *ht_new, entry_t *entry)
 {
   elem_t key = entry->key;
   elem_t value = entry->value;
   ioopm_hash_table_insert(ht_new, key, value);
-}
+}*/
 /*
 bucket 0....
 bucket 1: (1, "jej", ->) (18, "nej" ->) (35, "ja", null) 
@@ -149,36 +150,18 @@ static void hash_table_rehash (ioopm_hash_table_t *ht)
 }
 
 
-static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key)
+static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key) // Om vi vet att sökt entry finns funkar denna
 {
-
-  entry_t **tmp_entry = entry;
-
-  while ((*entry)->next != NULL) // SEG FAULT
+  entry_t **first_entry = entry;
+  while (*entry)
   {
-    *entry = (*entry)->next;
-    if (ht->key_eq_function((*entry)->key,search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
+    if (ht->key_eq_function((*entry)->next->key,search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
     {
-      return tmp_entry;
+      return entry;
     }
-    tmp_entry = entry;
+    (*entry) = (*entry)->next;
   }
-  return entry;
-  
- /*
-  ioopm_eq_function eq_fun = ht->key_eq_function;
-  ioopm_hash_function hash_fun = ht ->hash_function;
-
-  if (*entry != NULL)
-  {
-    int hash = hash_fun((*entry)->key);
-    int hash_key = hash_fun(search_key);
-    if (hash_key < hash || (hash_key == hash && !eq_fun((*entry)->key, search_key)))
-    {
-      return find_previous_entry_for_key_ptr(ht, &(*entry)->next, search_key);
-    }
-  }
-  return entry;*/
+  return first_entry;
 }
 
 
@@ -510,46 +493,36 @@ void ioopm_hash_table_apply_to_all(ioopm_hash_table_t *ht, ioopm_apply_function 
 }
 
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 
+bool string_eq(elem_t e1, elem_t e2)
+{
+  return strcmp(e1.string_value, e2.string_value) == 0;
+}
 
-// bool string_eq(elem_t e1, elem_t e2)
-// {
-//   return strcmp(e1.string_value, e2.string_value) == 0;
-// }
+bool int_eq(elem_t e1, elem_t e2)
+{
+  return e1.int_value == e2.int_value;
+}
 
-// bool int_eq(elem_t e1, elem_t e2)
-// {
-//   return e1.int_value == e2.int_value;
-// }
+static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
+{
+  elem_t *other_key_ptr = x;
+  elem_t other_key = *other_key_ptr;
+  return extract_int_hash_key(key) == extract_int_hash_key(other_key);
+}
 
-// static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
-// {
-//   elem_t *other_key_ptr = x;
-//   elem_t other_key = *other_key_ptr;
-//   return extract_int_hash_key(key) == extract_int_hash_key(other_key);
-// }
-
-// int main(void)
-// {
-//   ioopm_hash_table_t *ht_old = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
+int main(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   
-//   ioopm_hash_table_insert(ht_old, int_elem(1), string_elem("nem")); 
-//   ioopm_hash_table_insert(ht_old, int_elem(18), string_elem("hej"));
-//   ioopm_hash_table_insert(ht_old, int_elem(35), string_elem("nej"));
-//   ioopm_hash_table_insert(ht_old, int_elem(52), string_elem("wow"));
+  ioopm_hash_table_insert(ht, int_elem(1), string_elem("nem")); 
+  ioopm_hash_table_insert(ht, int_elem(18), string_elem("hej"));
+  ioopm_hash_table_insert(ht, int_elem(35), string_elem("nej"));
+  ioopm_hash_table_insert(ht, int_elem(52), string_elem("wow"));
   
-//   bucket_destroy(ht_old->buckets[1]);
-  
-//   if(ht_old->buckets[1])
-//   {
-//     puts("Finns fortfarande :(\n");
-//     printf("%p", (ht_old->buckets[1]).void_value);
-//   }
-//   else
-//   {
-//     puts("* Borta! * :D\n");
-//   }
-//   //printf("%s\n", (ht_old->buckets[1]->next-> value).string_value);
-//   ////printf("%s\n")
+  entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[1], int_elem(35));
+  printf("find_prev: %s\n", ((*prev_entry)->value).string_value);
+  printf("actual prev: %s\n", (ht->buckets[1]->value).string_value);
 
-// }
+}*/
