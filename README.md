@@ -210,3 +210,8 @@ Load factor 20000.0:
         3) find_previous_entry_for_key (% time: 18.19, self seconds: 0.02, calls: 12400)
         4) bucket_destroy (% time: 9.10, self seconds: 0.01, calls: 17)
         5) string_knr_hash (% time: 4.55, self seconds: 0.01, calls: 67967)
+
+
+gcc --coverage hash_table.c linked_list.c hash_table_tests.c -lcunit
+./a.out
+gcov -abcfu hash_table.c
