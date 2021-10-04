@@ -16,7 +16,8 @@
 
 typedef struct entry entry_t;
 typedef struct hash_table ioopm_hash_table_t;
-typedef int (*ioopm_hash_function)(elem_t key);
+
+typedef unsigned long (*ioopm_hash_function)(elem_t str);
 
 
 /// @brief Create a new hash table

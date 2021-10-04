@@ -73,7 +73,7 @@ void test1_linked_list_prepend(void)
   ioopm_linked_list_prepend(list, int_elem(value));
   CU_ASSERT(func((list->last->value), int_elem(value))); // Test if only one element has a correct last pointer
 
-  for (int i = 0; i < 10; i++)
+  for (int i = 0; i < 20; i++)
   {
     int value = random()%100;
     ioopm_linked_list_prepend(list, int_elem(value));

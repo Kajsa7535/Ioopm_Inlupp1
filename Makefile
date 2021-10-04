@@ -1,4 +1,4 @@
-STD_FLAGS = -g -pedantic -Wall
+STD_FLAGS = -g -pedantic -Wall -c
 STD_MAIN_FLAGS = -g -pedantic -Wall
 TEST_FLAGS = -g -pedantic -Wall -lcunit
 GCOV_FLAGS = -Wall -fprofile-arcs -ftest-coverage -lcunit
@@ -42,7 +42,7 @@ build_freq-count: freq-count.c hash_table.c linked_list.c
 	gcc -pg hash_table.c linked_list.c freq-count.c
 
 run_freq-count: build_freq-count
-	./a.out 16k-words.txt
+	./a.out small.txt
 
 all: ht_tests linked_list_tests
 

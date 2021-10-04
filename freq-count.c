@@ -24,7 +24,7 @@ void sort_keys(char *keys[], size_t no_keys)
 // Inserts word into hash table with value 1 if it does not exist, otherwise adds 1 to value
 void process_word(char *word, ioopm_hash_table_t *ht)
 {
-    elem_t ignore = {.void_value = "hej"};
+    elem_t ignore = {.void_value = ""};
     int freq;
     if (ioopm_hash_table_lookup(ht, void_elem(word), &ignore))
     {
@@ -68,13 +68,26 @@ void process_file(char *filename, ioopm_hash_table_t *ht)
 }
 
 // Sums all characters in a string
-int string_sum_hash(elem_t e)
+/*
+int string_sum_hash(elem_t e) // TODO: byt till en bättre hash func (från studium)
 {
   char *str = e.void_value;
   int result = 0;
   do
     {
       result += *str;
+    }
+  while (*++str != '\0');
+  return result;
+}*/
+
+unsigned long string_knr_hash(const elem_t in_str)
+{
+  char *str = in_str.string_value;
+  unsigned long result = 0;
+  do
+    {
+      result = result * 31 + *str;
     }
   while (*++str != '\0');
   return result;
@@ -104,10 +117,14 @@ static char **linked_list_to_array(ioopm_list_t *list)
   return result_array;
 }
 
+bool int_eq(elem_t e1, elem_t e2)
+{
+  return e1.int_value == e2.int_value;
+}
 
 int main(int argc, char *argv[])
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(string_sum_hash, string_eq, string_eq);
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(string_knr_hash, string_eq, int_eq);
 
   if (argc > 1)
   {
