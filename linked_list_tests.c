@@ -53,16 +53,6 @@ bool string_eq(elem_t e1, elem_t e2)
   return strcmp(e1.string_value, e2.string_value) == 0;
 }
 
-static ioopm_link_t *iterator_find_previous_element(ioopm_list_iterator_t *iter)
-{
-    ioopm_link_t *element = iter->list->first;
-    while(element->next != iter->current)
-    {
-        element = element->next;
-    }
-    return element;
-}
-
 int init_suite(void)
 {
   return 0;
@@ -81,7 +71,7 @@ void test1_linked_list_prepend(void)
   ioopm_eq_function func = *list->comp;
   int value = random()%100;
   ioopm_linked_list_prepend(list, int_elem(value));
-  CU_ASSERT(func((list->last->value), int_elem(value))); // Test if only one element has a correct last pointer
+  CU_ASSERT(func((list->last->value), int_elem(value))); // Test if list with only one element has a correct last pointer
 
   for (int i = 0; i < 20; i++)
   {

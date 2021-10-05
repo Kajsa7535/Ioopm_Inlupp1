@@ -50,23 +50,26 @@ memtest_linked_list: linked_list_tests
 freq-count: freq-count.c hash_table.c linked_list.c
 	gcc freq-count.c hash_table.c linked_list.c $(STD_MAIN_FLAGS) -o freq-count
 
-memtest_freq-count: freq-count
-	valgrind $(MEMTEST_FLAGS) --show-leak-kinds=all ./a.out 16k-words.txt
+memtest_freq-count: build_freq-count
+	valgrind $(MEMTEST_FLAGS) --show-leak-kinds=all ./a.out 16k-words.txt 
 
 build_freq-count: freq-count.c hash_table.c linked_list.c
 	gcc -pg hash_table.c linked_list.c freq-count.c
 
 run_freq-count: build_freq-count
-	./a.out small.txt
+	./a.out 16k-words.txt
+
+gprof_freq-count: run_freq-count
+	gprof ./a.out
 
 all: ht_tests linked_list_tests
 
 test: test_linked_list test_ht
 
-memtest: memtest_ht memtest_linked_list memtest_freq-count
+memtest: memtest_ht memtest_linked_list
 
 clean:
 	rm -f *.o
-	rm -f hash_table ht_tests memtest_ht gcov_ht linked_list linked_list_tests memtest_linked_list freq-count memtest_freq-count
+	rm -f hash_table ht_tests memtest_ht gcov_ht linked_list linked_list_tests memtest_linked_list freq-count build_freq-count memtest_freq-count
 
 .PHONY: test_ht test_linked_list clean

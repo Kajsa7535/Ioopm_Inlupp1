@@ -124,7 +124,6 @@ static void hash_table_rehash (ioopm_hash_table_t *ht)
 // Finds the pointer to the pointer of an entry that points to an entry with a certain key in a bucket
 static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key) 
 {
-
   while (*entry)
   {
     if (ht->key_eq_function((*entry)->key, search_key))

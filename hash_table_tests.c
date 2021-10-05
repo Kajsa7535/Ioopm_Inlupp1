@@ -142,7 +142,7 @@ void test1_insert(void)
 }
 
 
-void test3_prev_entry(void)
+void test2_prev_entry(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
 
@@ -161,7 +161,7 @@ void test3_prev_entry(void)
 }
 
 
-void test4_lookup(void)
+void test3_lookup(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   elem_t result = {.int_value = 0};
@@ -185,7 +185,7 @@ void test4_lookup(void)
 }
 
 
-void test5_remove(void)
+void test4_remove(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   CU_ASSERT(ht->size == 0);
@@ -208,7 +208,7 @@ void test5_remove(void)
 }
 
 
-void test7_remove_middle(void)
+void test5_remove_middle(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   CU_ASSERT(ht->size == 0);
@@ -228,7 +228,7 @@ void test7_remove_middle(void)
 }
 
 
-void test8_empty_hash_table(void)
+void test6_empty_hash_table(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   CU_ASSERT(ioopm_hash_table_is_empty(ht));
@@ -243,7 +243,7 @@ void test8_empty_hash_table(void)
 }
 
 
-void test9_multiple_entry_hash_table(void)
+void test7_multiple_entry_hash_table(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
 
@@ -259,7 +259,7 @@ void test9_multiple_entry_hash_table(void)
 }
 
 
-void test10_hash_table_clear_size(void)
+void test8_hash_table_clear_size(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   elem_t result = {.int_value = 0};
@@ -284,7 +284,7 @@ void test10_hash_table_clear_size(void)
   ioopm_hash_table_destroy(ht);
 }
 
-void test11_hash_table_keys(void) 
+void test9_hash_table_keys(void) 
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
@@ -311,7 +311,7 @@ void test11_hash_table_keys(void)
 }
 
 
-void test12_hash_table_keys_empty(void)
+void test10_hash_table_keys_empty(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   ioopm_list_t *from_ht = ioopm_hash_table_keys(ht);
@@ -321,7 +321,7 @@ void test12_hash_table_keys_empty(void)
 }
 
 
-void test13_hash_table_values(void)
+void test11_hash_table_values(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   ioopm_list_t *list = ioopm_linked_list_create(int_eq);
@@ -352,7 +352,7 @@ void test13_hash_table_values(void)
 }
 
 
-void test14_hash_table_values_empty(void)
+void test12_hash_table_values_empty(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   ioopm_list_t *from_ht = ioopm_hash_table_values(ht);
@@ -362,7 +362,7 @@ void test14_hash_table_values_empty(void)
 }
 
 
-void test15_hash_table_has_key(void) 
+void test13_hash_table_has_key(void) 
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
   CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(100), key_equiv));
@@ -388,7 +388,7 @@ void test15_hash_table_has_key(void)
 } 
 
 
-void test16_hash_table_has_value_identical(void)
+void test14_hash_table_has_value_identical(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
   CU_ASSERT_FALSE(ioopm_hash_table_has_value(ht, string_elem("TESTAR"), value_string_equiv));
@@ -412,7 +412,7 @@ void test16_hash_table_has_value_identical(void)
 
 
 
-void test17_hash_table_all_value_not(void)
+void test15_hash_table_all_value_not(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
@@ -431,7 +431,7 @@ void test17_hash_table_all_value_not(void)
 }
 
 
-void test18_hash_table_all_value(void)
+void test16_hash_table_all_value(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
@@ -447,7 +447,7 @@ void test18_hash_table_all_value(void)
 }
 
 
-void test19_hash_table_all_key_not(void)
+void test17_hash_table_all_key_not(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
@@ -465,7 +465,7 @@ void test19_hash_table_all_key_not(void)
   ioopm_hash_table_destroy(ht);
 }
 
-void test20_hash_table_all_key(void)
+void test18_hash_table_all_key(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
@@ -478,7 +478,7 @@ void test20_hash_table_all_key(void)
 }
 
 
-void test21_hash_table_apply_all(void)
+void test19_hash_table_apply_all(void)
 {
    ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
@@ -497,16 +497,19 @@ void test21_hash_table_apply_all(void)
   ioopm_hash_table_destroy(ht);
 }
 
-void test22_buckets_grow(void)
+void test20_buckets_grow(void)
 {
    ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
 
   CU_ASSERT(primes[ht->index_primes] == 17);
+  ioopm_hash_table_insert(ht, int_elem(18), string_elem("TEST"));
+  CU_ASSERT((ht->buckets[1]->key).int_value == 18 );
   for (int i = 0; i < 14; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TEST"));
   }
   CU_ASSERT(primes[ht->index_primes] == 31);
+  CU_ASSERT((ht->buckets[18]->key).int_value == 18 );
 
   for (int i = 14; i < 25; i++)
   {
@@ -536,25 +539,25 @@ int main()
 
   if (
     (NULL == CU_add_test(test_suite1, "test 1", test1_insert)) ||
-    (NULL == CU_add_test(test_suite1, "test 3", test3_prev_entry)) || 
-    (NULL == CU_add_test(test_suite1, "test 4", test4_lookup)) || 
-    (NULL == CU_add_test(test_suite1, "test 5", test5_remove)) ||
-    (NULL == CU_add_test(test_suite1, "test 7", test7_remove_middle)) || 
-    (NULL == CU_add_test(test_suite1, "test 8", test8_empty_hash_table)) ||
-    (NULL == CU_add_test(test_suite1, "test 9", test9_multiple_entry_hash_table)) || 
-    (NULL == CU_add_test(test_suite1, "test 10", test10_hash_table_clear_size)) || 
-    (NULL == CU_add_test(test_suite1, "test 11", test11_hash_table_keys)) || 
-    (NULL == CU_add_test(test_suite1, "test 12", test12_hash_table_keys_empty)) || 
-    (NULL == CU_add_test(test_suite1, "test 13", test13_hash_table_values)) || 
-    (NULL == CU_add_test(test_suite1, "test 14", test14_hash_table_values_empty)) || 
-    (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_has_key)) || 
-    (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_has_value_identical))|| 
-    (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_all_value_not)) || 
-    (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_all_value)) || 
-    (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_all_key_not)) || 
-    (NULL == CU_add_test(test_suite1, "test 20", test20_hash_table_all_key)) || 
-    (NULL == CU_add_test(test_suite1, "test 21", test21_hash_table_apply_all))|| 
-    (NULL == CU_add_test(test_suite1, "test 22", test22_buckets_grow))
+    (NULL == CU_add_test(test_suite1, "test 2", test2_prev_entry)) || 
+    (NULL == CU_add_test(test_suite1, "test 3", test3_lookup)) || 
+    (NULL == CU_add_test(test_suite1, "test 4", test4_remove)) ||
+    (NULL == CU_add_test(test_suite1, "test 5", test5_remove_middle)) || 
+    (NULL == CU_add_test(test_suite1, "test 6", test6_empty_hash_table)) ||
+    (NULL == CU_add_test(test_suite1, "test 7", test7_multiple_entry_hash_table)) || 
+    (NULL == CU_add_test(test_suite1, "test 8", test8_hash_table_clear_size)) || 
+    (NULL == CU_add_test(test_suite1, "test 9", test9_hash_table_keys)) || 
+    (NULL == CU_add_test(test_suite1, "test 10", test10_hash_table_keys_empty)) || 
+    (NULL == CU_add_test(test_suite1, "test 11", test11_hash_table_values)) || 
+    (NULL == CU_add_test(test_suite1, "test 12", test12_hash_table_values_empty)) || 
+    (NULL == CU_add_test(test_suite1, "test 13", test13_hash_table_has_key)) || 
+    (NULL == CU_add_test(test_suite1, "test 14", test14_hash_table_has_value_identical))|| 
+    (NULL == CU_add_test(test_suite1, "test 15", test15_hash_table_all_value_not)) || 
+    (NULL == CU_add_test(test_suite1, "test 16", test16_hash_table_all_value)) || 
+    (NULL == CU_add_test(test_suite1, "test 17", test17_hash_table_all_key_not)) || 
+    (NULL == CU_add_test(test_suite1, "test 18", test18_hash_table_all_key)) || 
+    (NULL == CU_add_test(test_suite1, "test 19", test19_hash_table_apply_all))|| 
+    (NULL == CU_add_test(test_suite1, "test 20", test20_buckets_grow))
   )
     {
       CU_cleanup_registry();

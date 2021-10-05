@@ -159,16 +159,51 @@ G15: Aliasering
 REDOVISNING TISDAG 5 OKTOBER
 
 DONE Z100: Inlupp 1
+- Vi ska redovisa Z100, M39, O42 och O43 som alla hör ihop eftersom vi gjort det på Inlupp 1.
+- make memtest: Alla tester passed, inga memory leaks (körs genom valgrind)
+- Visa tester: Vi kan inte visa alla tester, men vi kan ta några exempel från båda våra testfiler.
+    linked_list_tests.c:
+    - test1_prepend: den ska testa att elementen sätts in rätt, dvs först i listan. Om det är det första elementet som sätts in månste vi kolla att last pekaren pekas om. Vi användes oss av random, som tar fram 20 random element, pga loop 20 ggr, och och sedan kollar att listan har det elementet i sig och att first pekaren pekas om. Vi har redan gjort ett contains test, så vi vet att det fungerar. Sedan destroy så vi inte får några memory leaks. 
+    - Våra andra tester är uppbyggda på liknande sätt, vi använder oss av random i loopar, många asserts osv. 
+    - test13_iterator_has_next, skapar en lista och sedan skapar vi en iterator på den listan. Vi kör en loop som går igenom hela listan, med hjälp av iterator, och kollar om den iteratorn har en nästa element. När loopen är klar så ska den inte ha någon next, den ska alltså returnera false. När det är falskt så kör vi iterator_next en gång till, vilket ska starta om iteratorn från början av listan igen. 
+    hash_table.c
+    - Alla tester är uppbyggda på ungefär samma sätt i alla test filer
+    - test18 och 19, all och all not. Först lägger vi in samma values i alla entries i hash tablet och kollar att hash_table_all returnerar true, vi har skickat in ett predicate som ska jämföra ett två values med varandra. Dvs den ska kolla att alla values i hash tablet är samma value. Sedan har vi skapat ett test där vi skapar ett hash table, denna gången kollar den keys, med olika keys och values. När vi sedan kollar hash_table_all så kommer den returnera falskt. 
+- Visa dokumentation:
+    Val och Avsteg från specifikationen:
+    - Se "# Design Decisions" i README-fil. Visa då även att vi har med hur man kör med make, profiling resultat och code coverage.
+    H-filer:
+    - Visa att vi har funktionsspecifikationer och t.ex PREconditions (ioopm_hash_table_insert).
+
+
+RÖD TRÅD: Nu har vi kollat lite på olika delar av inlämningsuppgiften, så för att visa lite mer ska vi redovisa målen M39, O42 samt O43.
+
 
 M39: Pekare till pekare
+-  Vi nämnde att i vår hash table struct har vi använt oss av en dubbelpekare. Med detta har vi alltså använt oss utav pekare till pekare för att slippa spcialfall för den första länken (dummy entry eller sentinel entry) i en länkad struktur. Vi ska nu visa lite mer detaljerat hur det går till. 
+- SE HASH TABLE STRUCT: "entry_t **buckets"
+- SE HASH TABLE CREATE WITH LOAD: "entry_t **buckets = calloc(primes[index_primes], sizeof(entry_t *));". Här allokerar vi en minnesplats där varje instans är size av en entry-pekare, alltså en pekare till ett första entry i en bucket, och vi skapar lika många instanser av detta som det aktuella indexet i primtals-arrayen syftar på. 
+- Vi kan även se att funktionen "find_previous_entry_for_key_ptr" returnerar en dubbelpekare, eftersom den hittar pekaren till pekaren till den sökta entry:n.
 
-O42: Profilering och optimering 1/3 ???
 
-O43: Profilering och optimering 2/3 ???
+RÖD TRÅD: Denna dubbelpekare är en form av optimering, vilket tar oss till våra nästa två mål att redovisa; O42 och O43 som båda är under titeln "Profilering och optimering".
 
-F14: Svansrekursion ???
 
-H20: Värdeöverföring ???
+O42: Profilering och optimering 1/3
+- För O42 ska vi ta fram vilka delar av programmet som tar längst tid att köra respektive körs flest gånger. Detta kan vi göra med verktyget gprof. För tillfället har vi ett make-kommando för att köra profileringen på programmet freq-count med filen 16k-words.txt.
+- KÖR: make gprof_freq-count
+- Eftersom vårat program är optimerat för att vara effektivt mha rehashing så får vi ingen tid i vårat resultat. Vi kan dock se hur många gånger funktionerna kallas på. Vi kan även jämföra med olika load factors om vi vill se tid (STÅR I README).
+- Det är svårt att argumentera varför denna data är rätt, men en ledning in på detta är att vi kan se att funktionern process_word körs ungefär 16-tusen gånger när vi använder oss utav en fil som har ungefär 16-tusen ord. Vi kan då även se att funktionen ioopm_lookup_key körs 16-tusen gånger, vilket är rimligt eftersom funktionen process_word kallar på ioopm_lookup_key.
+- Vad är lämplig granularitetsnivå på “delarna” som nämns ovan – och varför?: Den granularitetsnivån som vi har nu är lämplig. Den visar oss hur ofta våra egenskrivna funktioner kallas på och hur lång tid det tar. Om vi skulle ha en högre detaljnivå skulle profileringen kasnke visa hur många gånger standard-c-funktioner kallas på, men det är inte riktigt relevant i detta fall eftersom vi inte vill optimera standardbiblioteken.
+
+
+RÖD TRÅD: Med denna data kan vi se att vissa funktioner körs otroligt många gånger, och därmed kan vi kanske optimera dem så att körningstiden förbättras? Det är precis vad vi har gjort, och vi ska nu förklara det mer när vi redovisar O43.
+
+
+O43: Profilering och optimering 2/3
+- Vi kunde se ovan att de funktioner som användes mest och tog mest tid var framförallt find_previous_entry_for_key. Det vi kom fram till att det kunde bero på var att vi bara hade 17 buckets. Så när vi körde 16k words file så blir det väldigt många entries i varje bucket, vilket gör att det tar lång tid för find_previous_entry for key att hitta rätt entry (särsklit om den eftersökta entryn är längst bak i bucketen). 
+- Lösningen på detta problem, dvs optimeringen, var att skapa en dynamisk storlektsförändring av bucketstorleken. Vi gjorde om vår struktur så att den även innehåller en load factor och sedan ett index till vår array variabel, som innehåller 11 olika storlekar som vår buckets kan innehålla. 17, 31, 67 .... Vi kan visa hur vår gamla såg ut och hur den ser ut nu... Varje gång det ska insertas en entry i hash tablet så kollar vi load factor (antal entries gånger load factor, och sedan jämför med antal buckets) om det visar sig att load factor blir för hög så kommer vi att rehasha, dvs allokera nytt minne för buckets, men högre antal buckets, och sedan inserta om alla entries från de "gamla bucketserna" in i de nya. Sedan freeas de gamla. Vi ökar sedan på indexet på arrayen.
+- Sedan så gjorde vi en till optimering, som vi pratade om i pekare till pekare målet. Vi tog bort dummy entries, vilket gör att det inte kommer gå onödig tid på att gå igenom en onödig entry. Det kommer göra att i best case, bara vare en entry per bucket. Om vi tänker oss att vi har cirka 16-tusen olika buckets efter massa insättningar och dynamiska storleksförändringar, så resulterar detta i att vi lyckats ta bort 16-tusen entries, vilket såklart minskar tiden för sökfunktioner. 
 
 
 --------------------------------------------------------------------------------------------------------------------------------------

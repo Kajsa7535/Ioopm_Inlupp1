@@ -27,7 +27,8 @@ ioopm_list_iterator_t *ioopm_list_iterator(ioopm_list_t *list);
 /// @return true if a next element is available
 bool ioopm_iterator_has_next(ioopm_list_iterator_t *iter);
 
-/// @brief Step the iterator forward one step
+/// @brief Step the iterator forward one step. If current is on the last element
+/// the iterator will be "reset", it wil point to the first element. 
 /// @param iter the iterator
 /// @return the next element if available, otherwise the current element
 elem_t ioopm_iterator_next(ioopm_list_iterator_t *iter);

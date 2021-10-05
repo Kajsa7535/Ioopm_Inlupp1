@@ -4,19 +4,23 @@ This libary consists of a few different data types, a hash_table (in hash_table.
 
 # Build and run
 
-$ make test # bulid and run all tests
-$ make memtest # run all tests including freq-count through valgrind
-$ make all # build all files for hash_table, linked_list and iterator
-$ make linked_list_tests # build linked_list_tests.c file
-$ make ht_tests # build hash_table_tests.c file
-$ make gcov_ht # runs gcov on hash_table.c and hash_table_tests.c
-$ make gcov_linked_list # runs gcov on linked_list.c and linked_list_tests.c
-$ make clean # removes unneccessary files
+    $ make test # bulid and run all tests
+    $ make memtest # run all tests including freq-count through valgrind
+    $ make all # build all files for hash_table, linked_list and iterator
+    $ make linked_list_tests # build linked_list_tests.c file
+    $ make ht_tests # build hash_table_tests.c file
+    $ make gcov_ht # runs gcov on hash_table.c and hash_table_tests.c
+    $ make gcov_linked_list # runs gcov on linked_list.c and linked_list_tests.c
+    $ make clean # removes unneccessary files
 
 # Design Decisions
 
+This library has one major deviation from the specification. In the specification, the function called ioopm_hash_table_lookup should "return the value mapped to by key". In this library, the function called ioopm_hash_table_lookup returns a bool depending of the existence of a key in a hash table and stores its value in a pointer given as a parameter. The new function called ioopm_lookup_key returns the value of the given key, if it exists within the hash table. 
+
+A design decision which has made a noticeable impact on the code and its structure was the optimisation of a double pointer as "buckets" in the hash table structure. This decision has made the removal of sentinel-entries possible. 
+
 This libary does not have any special error handling, it uses a mixture of asserts, "error messages" and preconditions.
-The hash table does not take ownership of the data of its keys and values
+The hash table does not take ownership of the data of its keys and values.
 
 # Initial Profiling Results
 
