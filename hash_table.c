@@ -8,7 +8,7 @@
 #include "common.h"
 #include "iterator.h"
 
-#define No_Primes 9
+#define No_Primes 11
 
 static const size_t primes[] = {17, 31, 67, 127, 257, 509, 1021, 2053, 4099, 8191, 16381};
 
