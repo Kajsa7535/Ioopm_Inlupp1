@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <CUnit/Basic.h>
-#include "hash_table.h"
+#include "hash_table_old.h"
 #include "linked_list.h"
 #include "common.h"
 
