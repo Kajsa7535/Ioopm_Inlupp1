@@ -1,13 +1,26 @@
 Mål att redovisa: 
 
+(C)
 M39: Pekare till pekare
-F14: Svansrekursion?
+F14: Svansrekursion
+P48: Stäm av ett program mot en refactoringkatalog
+O44: Profilering och optimering 3/3 
+
+(MED ANNAN GRUPP)
 TODO P45: Gör en informell kodgranskning under fas 1
 P47: Åtgärda defekter efter en kodgranskning
-P48: Stäm av ett program mot en refactoringkatalog
-TODO T56: Continuous Integration
-U57: Byggverktyget Make
-- "bör inte göras förens sprint 2", men står inte att man inte får 
+
+(GITHUB)
+T56: Continuous Integration 
+
+(GOOGLE)
+B6: Genomskärande åtaganden och arv
+K31: Coupling & cohesion
+K32: Separation of concerns
+
+(GOOGLE JAVA)
+N40: Kompilering, länkning och interpretering
+N41: Bindning
 
 
 A1: Procedurell abstraktion
@@ -207,6 +220,55 @@ O43: Profilering och optimering 2/3
 
 
 --------------------------------------------------------------------------------------------------------------------------------------
+
+TORSDAG 7 OKTOBER 
+
+O43: Profilering och optimering 2/3
+- Vi kunde se ovan att de funktioner som användes mest och tog mest tid var framförallt find_previous_entry_for_key. Det vi kom fram till att det kunde bero på var att vi bara hade 17 buckets. Så när vi körde 16k words file så blir det väldigt många entries i varje bucket, vilket gör att det tar lång tid för find_previous_entry for key att hitta rätt entry (särsklit om den eftersökta entryn är längst bak i bucketen). 
+- Lösningen på detta problem, dvs optimeringen, var att skapa en dynamisk storlektsförändring av bucketstorleken. Vi gjorde om vår struktur så att den även innehåller en load factor och sedan ett index till vår array variabel, som innehåller 11 olika storlekar som vår buckets kan innehålla. 17, 31, 67 .... Vi kan visa hur vår gamla såg ut och hur den ser ut nu... Varje gång det ska insertas en entry i hash tablet så kollar vi load factor (antal entries gånger load factor, och sedan jämför med antal buckets) om det visar sig att load factor blir för hög så kommer vi att rehasha, dvs allokera nytt minne för buckets, men högre antal buckets, och sedan inserta om alla entries från de "gamla bucketserna" in i de nya. Sedan freeas de gamla. Vi ökar sedan på indexet på arrayen.
+- Sedan så gjorde vi en till optimering, som vi pratade om i pekare till pekare målet. Vi tog bort dummy entries, vilket gör att det inte kommer gå onödig tid på att gå igenom en onödig entry. Det kommer göra att i best case, bara vare en entry per bucket. Om vi tänker oss att vi har cirka 16-tusen olika buckets efter massa insättningar och dynamiska storleksförändringar, så resulterar detta i att vi lyckats ta bort 16-tusen entries, vilket såklart minskar tiden för sökfunktioner. 
+
+RÖD TRÅD: Ingen röd tråd
+
+K30 modularisering:
+- Vad är modularisering: Man delar upp koden i olika moduler, beroende på vad just den delen av koden ska göra för uppgift. Detta är särskilt viktigt när det är stora projekt och många människor jobbar med samma kod. Då kan varje person ha hand om en egen modul som ska ha hand om en speciell uppgift. Det blir lättare att läsa, återanvända och felsöka när koden är uppdelad. Det blir inte lika mycket på varje ställe. Om det är någon bugg så kan man lätt lista ut vilket modul det är, istället om allt skulle vara i en fil. Om man har delat upp koden beroende på vilket uppgift den ska göra så blir det också mycket lätt att återanvända koden, eftersom allt är strukturerat och uppdelat.
+- Tex så har vi delat upp våran kod efter linked_list och hash_table och iteratorer, sedan nu när vi börjar på inlupp2 där man ska använda sig av IO så kan man tänka sig att den ska vara i en egen "modul" 
+
+RÖD TRÅD: Om vi har olika moduler blir det mycket enklare att kompilera allt och köra våra program med en makefil.
+RÖD TRÅD: Vi använder oss av value and reference semantics i hash_table respektive linked list
+
+U57: Byggverktyget Make 
+- Visa makefilen
+- berätta hur vi har byggt upp: 
+    EX: test_ht: den är beroende av ht_tests, vi behöver inte skriva ut allt som ht_tests innehåller utan det räcker med namnet så fattar makefilen. Sedan har vi en a.out som gör att programmet körs automatiskt, vi behöver inte skriva något i terminalen. (Vi skulle kunna skriva -a $@ för att "byta" namn på a.out filen)
+    I ht_tests, så har vi alla .c filer som dependencies, och sedan alla nödvändiga flaggor på raden under. 
+    Vi har lagt in lite variabler då vi återanvänder väldigt många flaggor och filer osv. Om det är något som behöver ändras så är det bara att göra det på ett ställe då, istället för på flera olika (vilket gör att det är lätt att missa ett och då kan det bli fel när man kompilerar osv)
+
+
+H20 värdeöverföring:
+- Värdesamantik: Ett argument bara ett värde, en kopia istället för orginalet. element create linked list
+- Referenssamantik: Parameteröverföring och tilldelning sker med kopiering av adresser till värden. Tex i vår lookup funktion
+- Java: Värdeöverföring, fördel: ändrar bara en kopia så man inte råkar ändra i originalet.
+- C: Referenssemantik, fördel: ibland så vill man ändra originalet
+
+
+
+
+O43: 
+- Visa gamla,, prata lite om find_previous. 
+- Visa gamla och berätta varför det går mycket snabbare 
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
 FRÅGA X59: Essä
 - Vilket mål på nivå 4/5 är lämplig att redovisa med en essä?

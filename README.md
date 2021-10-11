@@ -20,7 +20,6 @@ This library has one major deviation from the specification. In the specificatio
 A design decision which has made a noticeable impact on the code and its structure was the optimisation of a double pointer as "buckets" in the hash table structure. This decision has made the removal of sentinel-entries possible. 
 
 This libary does not have any special error handling, it uses a mixture of asserts, "error messages" and preconditions.
-The hash table does not take ownership of the data of its keys and values.
 
 # Initial Profiling Results
 

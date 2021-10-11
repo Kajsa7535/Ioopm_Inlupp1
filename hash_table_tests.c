@@ -451,6 +451,10 @@ void test17_hash_table_all_key_not(void)
 {
   ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, int_eq);
 
+  int value = 1;
+
+  CU_ASSERT(ioopm_hash_table_all(ht, value_int_equiv, &value));
+
   for (int i = 0; i < 15; i++)
   {
     ioopm_hash_table_insert(ht, int_elem(i), string_elem("TESTAR"));
@@ -459,7 +463,6 @@ void test17_hash_table_all_key_not(void)
     ioopm_hash_table_insert(ht, int_elem(i+51), string_elem("fungerar"));
   }
 
-  int value = 1;
   CU_ASSERT_FALSE(ioopm_hash_table_all(ht, value_int_equiv, &value));
 
   ioopm_hash_table_destroy(ht);

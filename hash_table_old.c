@@ -24,7 +24,8 @@ struct hash_table
   entry_t buckets[No_Buckets]; 
   size_t size;
   ioopm_hash_function hash_function;
-  ioopm_eq_function values_eq_function;
+  ioopm_eq_function key_eq_function;
+  ioopm_eq_function value_eq_function;
 };
 
 struct link 
@@ -60,14 +61,15 @@ bool ioopm_eq_function_test(elem_t element1, elem_t element2)
 }
 
 //CHECK
-ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function value_eq)
+ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq, ioopm_eq_function value_eq)
 {
   /// Allocate space for a ioopm_hash_table_t = 17 pointers to
   /// entry_t's, which will be set to NULL
   ioopm_hash_table_t *result = calloc(1, sizeof(ioopm_hash_table_t));
   result -> size = 0;
   result -> hash_function = hash_func;
-  result -> values_eq_function = value_eq;
+  result -> key_eq_function = key_eq;
+  result -> value_eq_function = value_eq;
   return result;
 }
 
@@ -287,7 +289,7 @@ void ioopm_hash_table_clear(ioopm_hash_table_t *ht)
 // CHECK
 ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när hashtable är tomt
 {
-  ioopm_list_t *result_list = ioopm_linked_list_create(ht->values_eq_function);
+  ioopm_list_t *result_list = ioopm_linked_list_create(ht->value_eq_function);
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -305,7 +307,7 @@ ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht) //TODO: Basfall när
 //CHECK
 ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
 {
-  ioopm_list_t *result_list = ioopm_linked_list_create(ht->values_eq_function); //calloc(ioopm_hash_table_size(ht) + 1, sizeof(char *));
+  ioopm_list_t *result_list = ioopm_linked_list_create(ht->value_eq_function); //calloc(ioopm_hash_table_size(ht) + 1, sizeof(char *));
 
   for (int i = 0; i < No_Buckets; i++)
   {
@@ -338,15 +340,15 @@ static bool key_equiv(elem_t key, elem_t value_ignored, void *x)
 }
 
 // CHECK
-bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key)
+bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key, ioopm_predicate pred)
 {
-  return ioopm_hash_table_any(ht, key_equiv, &key);
+  return ioopm_hash_table_any(ht, pred, &key);
 }
 
 // CHECK
-bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, elem_t value)
+bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, elem_t value, ioopm_predicate pred)
 {
-  return ioopm_hash_table_any(ht, value_equiv, &value);
+  return ioopm_hash_table_any(ht, pred, &value);
 }
 
 // CHECK

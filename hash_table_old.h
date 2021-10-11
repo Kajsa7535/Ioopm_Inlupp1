@@ -16,14 +16,14 @@
 
 typedef struct entry entry_t;
 typedef struct hash_table ioopm_hash_table_t;
-typedef int (*ioopm_hash_function)(elem_t key);
+typedef unsigned long (*ioopm_hash_function)(elem_t str);
 
 
 /// @brief Create a new hash table
 /// @param hash_func hash function that computes a key's hash value.
 /// @param value_eq eq function that can compare two values in the hash table
 /// @return A new empty hash table
-ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function value_eq);
+ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm_eq_function key_eq, ioopm_eq_function value_eq);
 
 /// @brief add key => value entry in hash table ht
 /// @param ht hash table operated upon
@@ -81,12 +81,12 @@ ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht);
 /// @brief check if a hash table has an entry with a given key
 /// @param ht hash table operated upon
 /// @param key the key sought
-bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key);
+bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, elem_t key, ioopm_predicate pred);
 
 /// @brief check if a hash table has an entry with a given value
 /// @param ht hash table operated upon
 /// @param value the value sought
-bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, elem_t value);
+bool ioopm_hash_table_has_value(ioopm_hash_table_t *ht, elem_t value, ioopm_predicate pred);
 
 /// @brief check if a predicate is satisfied by any entry in a hash table
 /// @param ht hash table operated upon

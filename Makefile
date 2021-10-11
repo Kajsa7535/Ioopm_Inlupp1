@@ -51,25 +51,37 @@ freq-count: freq-count.c hash_table.c linked_list.c
 	gcc freq-count.c hash_table.c linked_list.c $(STD_MAIN_FLAGS) -o freq-count
 
 memtest_freq-count: build_freq-count
-	valgrind $(MEMTEST_FLAGS) --show-leak-kinds=all ./a.out 16k-words.txt 
+	valgrind --tool=massif ./a.out 3m-words.txt 
 
 build_freq-count: freq-count.c hash_table.c linked_list.c
 	gcc -pg hash_table.c linked_list.c freq-count.c
 
 run_freq-count: build_freq-count
-	./a.out 2m-words.txt
+	./a.out 3m-words.txt 
 
 gprof_freq-count: run_freq-count
 	gprof ./a.out
 
-build_freq-count_old: freq-count.c hash_table_old.c hash_table_old.h
-	gcc -pg freq-count.c hash_table_old.c hash_table_old.h
+build_freq-count_old: freq-count_old.c hash_table_old.c linked_list.c
+	gcc -pg freq-count_old.c linked_list.c hash_table_old.c 
 
 run_freq-count_old: build_freq-count_old
-	./a.out 2m-words.txt
+	./a.out 3m-words.txt
 
 gprof_freq-count_old: run_freq-count_old
-	prof ./a.out
+	gprof ./a.out
+
+build_freq-count_old2: freq-count_old2.c hash_table_old2.c linked_list.c
+	gcc -pg freq-count_old2.c linked_list.c hash_table_old2.c 
+
+run_freq-count_old2: build_freq-count_old2
+	./a.out 3m-words.txt
+
+gprof_freq-count_old2: run_freq-count_old2
+	gprof ./a.out
+
+memtest_freq-count_old2: build_freq-count_old2
+	valgrind --tool=massif ./a.out 3m-words.txt 
 
 all: ht_tests linked_list_tests
 
@@ -79,6 +91,6 @@ memtest: memtest_ht memtest_linked_list
 
 clean:
 	rm -f *.o
-	rm -f hash_table ht_tests memtest_ht gcov_ht linked_list linked_list_tests memtest_linked_list freq-count build_freq-count memtest_freq-count
+	rm -f hash_table ht_tests memtest_ht gcov_ht linked_list linked_list_tests memtest_linked_list freq-count build_freq-count memtest_freq-count gprof_freq-count gprof_freq-count_old gprof_freq-count_old2
 
 .PHONY: test_ht test_linked_list clean
