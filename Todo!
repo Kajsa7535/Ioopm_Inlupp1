@@ -263,6 +263,66 @@ O43:
 
 --------------------------------------------------------------------------------------------------------------------------------------
 
+Kodgranskning: 
+
+Struktur:
+- Strukter överlag är väldigt bra, lätt att hitta i filen och funktionerna är uppdelade i olika kategorier beroende på vad de har för uppgift. Ibland glömmer de att indentera "rätt", vilket kan göra det svårt att läsa koden. De byter även sätt de anväder sig av if-satser längre ner i filen (de använder sig inte av "{}"), dock är det bara en return true/false (men det blir inkosekvent).
+- Finns ingen död kod
+- Dom har kapslar in det mesta bra, finns ingen upprepad kod som inte är inkapslad redan. Framför allt deras insert är väldigt snyggt gjord.
+- Inga "magiska nummer"
+- Deras remove-funktion en aning lång, så för läsbarhetens skull vore det bra om den delades upp i mindre hjälp funktioner (om det går).
+
+Variabler:
+- Bra namn i struktarna. Bra val av namn och de är konsekventa i varje funktion. I remove, tmp skulle kunna bytas till ett "bättre" namn, som beskriver lite mer om vad den faktisk håller för information.
+- Vettiga initsierade värden på varibler, det är bara 0 eller första länken i en lista (vilket är väldigt rimligt och lätt att förstå varför).
+- Inga oanvända varibler.
+
+Loopar och villkorssatser:
+- Alla loopar används korrekt. 
+- De använda rätt. Dock i deras insert så hade de indenterat fel så det såg ut som de hade två else satser till en if-sats, vilket i så fall hade gjort att den aldrig kommit till den sista else-satsen (med detta var inte faller, bara indenteringsfel)
+- Inga case
+- Ja, de har antingen NULL eller index eller size av listan. Allt detta är uppnåerligt (index kollar de dessutom är korrekt inmatat, dvs kan inte vara utanför list storleken)
+- De använder indexeringsvarabler korrekt. 
+- Nej allt är som det ska vara
+
+Defensiv programmering:
+- De kollar gränsfallen, tex i insert om listan är tom osv. 
+- Ja, tex så kollar de att input index (i listan) alltid är valid, tex i remove funktionen. 
+- Inga memoryleaks och inte för många frees heller.
+- Öppnar inga filer??
+
+
+Ändringar som gjordes till P47:
+
+- Tre stycken indenteringar (insert, get & remove) (3 p)
+- Ändrade ett test, hittade ett glömt basfall (3 p)
+- Slog ihop flera tester till ett. (3 p)
+- Kapslade in en funktion i två hjälpfunktioner (remove funktionen) (2 p)
+
+Refactoring catalog: P48
+
+Vad menas med en "bad smell"?
+- "problem" i koden som inte nödvändigtvis ger fel vid kompilering eller är inkorrekta men de kan indikera svagheter i designen av prgrammet som kan öka risken för buggar och sakta ner utvecklingen av koden. Det kan vara något som negativt påverkar kvaliten på koden. 
+
+Bad smells
+- jämför int med size_t. Bad smell eftersom de inte är samma typ. 
+- oklart variabelnamn, tmp ändrades till link_to_remove (func remove_non_first) man vet inte riktigt vad variabeln ska innehålla för information. REFACTORING: rename variable
+- För lång funktion, otydligt och svårt att läsa vad den ska göra. REFACTORING: Extract function
+- Möjligtvis (inte extrem) att rad 195 är lite för lång if sats, men det fungerar. REFACTORING: Decompose conditional
+- Slå ihop flera tester till en. Istället för att ha tre tester som testar var för sig så la vi in allt i ett. REFACTORING: substitute algorithm ELLER move function? 
+- REFACTORING: remove dead code. Det fanns ingen att removea. (men har stämt av)
+- REFACTORING: replace exception with precheck. Tex index "checkar" som kollar att input index är korrekt istället för att ge ett errormeddelande eller assert. 
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
