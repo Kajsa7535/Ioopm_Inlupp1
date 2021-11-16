@@ -23,7 +23,7 @@ gcov_build_ht: hash_table.c linked_list.c hash_table_tests.c
 gcov_run_ht: gcov_build_ht
 	./a.out
 
-gcov_ht: gcov_run_ht
+gcov_ht: clean gcov_run_ht 
 	gcov -abcfu hash_table.c
 
 gcov_build_linked_list: linked_list.c linked_list_tests.c
@@ -92,5 +92,5 @@ memtest: memtest_ht memtest_linked_list
 clean:
 	rm -f *.o
 	rm -f hash_table ht_tests memtest_ht gcov_ht linked_list linked_list_tests memtest_linked_list freq-count build_freq-count memtest_freq-count gprof_freq-count gprof_freq-count_old gprof_freq-count_old2
-
+	rm -f *.gcno *.gcda *.gcov
 .PHONY: test_ht test_linked_list clean

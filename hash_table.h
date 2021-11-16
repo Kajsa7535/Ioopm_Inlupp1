@@ -34,12 +34,14 @@ ioopm_hash_table_t *ioopm_hash_table_create(ioopm_hash_function hash_func, ioopm
 /// @return Using pointers to change result and then return a bool, true if the key was found in the hash table otherwise false
 bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result);
 
+/*
 /// @brief Checks if a key exists within a hash table.
 /// If the key does not exist, an error message is printed.
 /// @param ht a hash table to be checked
 /// @param key the key to be checked
 /// @return The element with given key if it exists, otherwise NULL
 elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key);
+*/
 
 /// @brief add key => value entry in hash table ht
 /// PRE: Neither parameter can be NULL.
@@ -48,8 +50,15 @@ elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key);
 /// @param value value to insert
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value);
 
+/*
 /// @brief remove any mapping from key to a value. 
 /// PRE: key must be in ht
+/// @param ht hash table operated upon
+/// @param key key to remove
+/// @return the value mapped to by key
+elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key);
+*/
+/// @brief remove any mapping from key to a value. 
 /// @param ht hash table operated upon
 /// @param key key to remove
 /// @return the value mapped to by key

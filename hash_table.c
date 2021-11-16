@@ -177,6 +177,7 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
   return false;
 }
 
+/*
 // Returns the value of an entry with a certain key if it exists in ht, otherwise prints error message
 elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key) 
 {
@@ -188,7 +189,7 @@ elem_t ioopm_lookup_key(ioopm_hash_table_t *ht, elem_t key)
     puts("The input key does not map to anything!\n");
   }
   return result;
-}
+}*/
 
 // Inserts an entry in ht, if rehashing is neccessary the hash table will be rehashed first and then the entry will be inserted
 void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value) 
@@ -236,31 +237,46 @@ void ioopm_hash_table_insert(ioopm_hash_table_t *ht, elem_t key, elem_t value)
 elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key) 
 {
   int bucket = calculate_bucket(ht, key, ht->hash_function);
-  elem_t value = ioopm_lookup_key(ht, key);
+  //elem_t value = ioopm_lookup_key(ht, key);
+  elem_t result;
+  bool success = ioopm_hash_table_lookup(ht, key, &result);
+  elem_t value = result;
 
+  
+  if (!success || ht->size == 0){
+    printf("The key does not exist in ht / ht is empty");
+  }
+  else{
   entry_t **prev_entry = find_previous_entry_for_key_ptr(ht, &ht->buckets[bucket], key);
   entry_t *remove_entry = (*prev_entry)->next;
-
+  
+  
   if(ht->key_eq_function((ht->buckets[bucket]->key), key)) // first element
   {
+    printf("first");
     entry_t *new_first = ht->buckets[bucket]->next;
     entry_t *del = ht->buckets[bucket];
     entry_destroy(del);
     ht->buckets[bucket] = new_first;
   }
+  
   else if(remove_entry ->next == NULL) // last element
   {
+    printf("last");
     (*prev_entry)->next = NULL;
     entry_destroy(remove_entry);
+
   }
   else // element not first nor last
   {
+    printf("middle");
     entry_t *next_entry = remove_entry->next;
     (*prev_entry)->next = next_entry;
     entry_destroy(remove_entry);
   }
-
   ht->size -= 1;
+  }
+
   return value;
 }
 
@@ -277,6 +293,7 @@ static size_t length_of_bucket(entry_t *entry)
 }
 
 // Destoys all entries in a bucket
+/*
 static void bucket_destroy(entry_t *entry)
 {
   entry_t *first_entry = entry;
@@ -291,6 +308,27 @@ static void bucket_destroy(entry_t *entry)
       entry = entry->next;
     }
     if (acc > 1)
+    {
+      prev_entry->next = NULL;
+    }
+    entry_destroy(entry);
+  }
+}*/
+
+static void bucket_destroy(entry_t *entry)
+{
+  entry_t *first_entry = entry;
+  entry_t *prev_entry;
+  
+  for (size_t i = length_of_bucket(entry); i > 0; i--)
+  {
+    entry = first_entry;
+    while (entry->next)
+    {
+      prev_entry = entry;
+      entry = entry->next;
+    }
+    if (i > 1)
     {
       prev_entry->next = NULL;
     }
