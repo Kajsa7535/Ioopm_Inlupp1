@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <CUnit/Basic.h>
 #include "hash_table.h"
@@ -48,20 +49,23 @@ struct iterator
 
 static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key)
 {
-
-  while (*entry)
+  assert(*entry);
+  //while (*entry)
   {
     if (ht->key_eq_function((*entry)->key, search_key))
     {
+      //printf("hej1");
       return entry;
     }
     else if (ht->key_eq_function((*entry)->next->key, search_key)) //Kan göras entry -> key >= searchKey, för att få det sorterat
     {
+      //printf("hej2");
       return entry;
     }
+    //printf("hej3");
     return find_previous_entry_for_key_ptr(ht, &(*entry)->next, search_key);
   }
-  return NULL; //Borde inte kunna hända
+  //return NULL; //Borde inte kunna hända
 }
 
 // EQ_VALUES FUNCTION 
@@ -201,8 +205,8 @@ void test_nytt2(void){
   ioopm_hash_table_insert(ht, int_elem(5), string_elem("TESTAR"));
   ioopm_hash_table_remove(ht, int_elem(4));
 
-  elem_t hej; 
-  bool success = ioopm_hash_table_lookup(ht, int_elem(5), &hej);
+  elem_t test; 
+  bool success = ioopm_hash_table_lookup(ht, int_elem(5), &test);
   CU_ASSERT(success);
 
   ioopm_hash_table_destroy(ht);
@@ -216,10 +220,12 @@ void test_nytt3(void){
   ioopm_hash_table_insert(ht, int_elem(35), string_elem("TESTAR"));
 
   ioopm_hash_table_remove(ht, int_elem(18));
-  elem_t hej;
-  bool success1 = ioopm_hash_table_lookup(ht, int_elem(18), &hej);
-  bool success2 = ioopm_hash_table_lookup(ht, int_elem(1), &hej);
-  bool success3 = ioopm_hash_table_lookup(ht, int_elem(35), &hej);
+  
+
+  elem_t test;
+  bool success1 = ioopm_hash_table_lookup(ht, int_elem(18), &test);
+  bool success2 = ioopm_hash_table_lookup(ht, int_elem(1), &test);
+  bool success3 = ioopm_hash_table_lookup(ht, int_elem(35), &test);
 
   CU_ASSERT(success2);
   CU_ASSERT(!success1);
@@ -234,10 +240,26 @@ void test_nytt4(void){
   
   ioopm_hash_table_remove(ht, int_elem(1));
 
-  elem_t hej;
-  bool success1 = ioopm_hash_table_lookup(ht, int_elem(1), &hej);
+  elem_t test;
+  bool success1 = ioopm_hash_table_lookup(ht, int_elem(1), &test);
 
   CU_ASSERT(!success1);
+}
+
+void test_nytt5(void)
+{
+  ioopm_hash_table_t *ht = ioopm_hash_table_create(extract_int_hash_key, int_eq, string_eq);
+
+  ioopm_hash_table_insert(ht, int_elem(1), string_elem("TESTAR"));
+  ioopm_hash_table_insert(ht, int_elem(18), string_elem("TESTAR"));
+  ioopm_hash_table_insert(ht, int_elem(35), string_elem("TESTAR"));
+  ioopm_hash_table_insert(ht, int_elem(52), string_elem("TESTAR"));
+
+  ioopm_hash_table_remove(ht, int_elem(1));
+  elem_t test;
+  bool success1 = ioopm_hash_table_lookup(ht, int_elem(1), &test);
+  CU_ASSERT(!success1);
+  ioopm_hash_table_destroy(ht);
 }
 
 
@@ -622,7 +644,8 @@ int main()
     (NULL == CU_add_test(test_suite1, "test nytt 1", test_nytt)) ||
     (NULL == CU_add_test(test_suite1, "test nytt 2", test_nytt2)) ||
     (NULL == CU_add_test(test_suite1, "test nytt 3", test_nytt3)) ||
-    (NULL == CU_add_test(test_suite1, "test nytt 4", test_nytt4)) 
+    (NULL == CU_add_test(test_suite1, "test nytt 4", test_nytt4)) ||
+    (NULL == CU_add_test(test_suite1, "test nytt 5", test_nytt5)) 
   )
     {
       CU_cleanup_registry();

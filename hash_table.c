@@ -124,19 +124,23 @@ static void hash_table_rehash (ioopm_hash_table_t *ht)
 // Finds the pointer to the pointer of an entry that points to an entry with a certain key in a bucket
 static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t **entry, elem_t search_key) 
 {
-  while (*entry)
+  assert(*entry);
+  //while (*entry)
   {
     if (ht->key_eq_function((*entry)->key, search_key))
     {
+      printf("hej1");
       return entry;
     }
     else if (ht->key_eq_function((*entry)->next->key, search_key))
     {
+      printf("hej2");
       return entry;
     }
+    printf("hej3");
     return find_previous_entry_for_key_ptr(ht, &(*entry)->next, search_key);
   }
-  return NULL; //should not be able to happen
+  //return NULL; //should not be able to happen
 }
 
 // Creates an entry and allocates space for it
@@ -253,7 +257,7 @@ elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key)
   
   if(ht->key_eq_function((ht->buckets[bucket]->key), key)) // first element
   {
-    printf("first");
+    //printf("first");
     entry_t *new_first = ht->buckets[bucket]->next;
     entry_t *del = ht->buckets[bucket];
     entry_destroy(del);
@@ -262,14 +266,14 @@ elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key)
   
   else if(remove_entry ->next == NULL) // last element
   {
-    printf("last");
+    //printf("last");
     (*prev_entry)->next = NULL;
     entry_destroy(remove_entry);
 
   }
   else // element not first nor last
   {
-    printf("middle");
+    //printf("middle");
     entry_t *next_entry = remove_entry->next;
     (*prev_entry)->next = next_entry;
     entry_destroy(remove_entry);
