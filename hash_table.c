@@ -129,15 +129,15 @@ static entry_t **find_previous_entry_for_key_ptr(ioopm_hash_table_t *ht, entry_t
   {
     if (ht->key_eq_function((*entry)->key, search_key))
     {
-      printf("hej1");
+      
       return entry;
     }
     else if (ht->key_eq_function((*entry)->next->key, search_key))
     {
-      printf("hej2");
+      
       return entry;
     }
-    printf("hej3");
+    
     return find_previous_entry_for_key_ptr(ht, &(*entry)->next, search_key);
   }
   //return NULL; //should not be able to happen
